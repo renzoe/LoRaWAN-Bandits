@@ -143,8 +143,9 @@ ClassAEndDeviceLorawanMacBandit::SendToPhy (Ptr<Packet> packetToSend)
       NS_LOG_INFO(
 	  "this is NOT a Retransmission !! we add the MAC command ");
       this->AddMacCommand (
-	  Create<BanditRewardReq> (unsigned (0), unsigned (100))); // This MAC command will be added to the NEXT packet! TODO: add to current packet at higher layer logic (before SendToPhy and DoSend)
+	  CreateObject<BanditRewardReq> (unsigned (0), unsigned (100))); // This MAC command will be added to the NEXT packet! TODO: add to current packet at higher layer logic (before SendToPhy and DoSend)
       //packetToSend->frameHeader.AddCommand (command); // or  Add directly to the frame?
+      //CreateObject<BanditRewardReq> vs Create<BanditRewardReq>?
 
     }
 
