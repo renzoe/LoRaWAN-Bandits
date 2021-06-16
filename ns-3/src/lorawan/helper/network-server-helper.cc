@@ -20,6 +20,7 @@
 
 #include "ns3/network-server-helper.h"
 #include "ns3/network-controller-components.h"
+#include "ns3/network-controller-component-bandit.h"
 #include "ns3/adr-component.h"
 #include "ns3/double.h"
 #include "ns3/string.h"
@@ -157,6 +158,11 @@ NetworkServerHelper::InstallComponents (Ptr<NetworkServer> netServer)
     {
       netServer->AddComponent (m_adrSupportFactory.Create<NetworkControllerComponent> ());
     }
+
+  // Bandit MAC commands Support
+  Ptr<NetworkControllerComponentBandit> banditMacSupport = CreateObject<NetworkControllerComponentBandit> ();
+  netServer->AddComponent (banditMacSupport);
+
 }
 }
 } // namespace ns3

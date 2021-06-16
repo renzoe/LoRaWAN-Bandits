@@ -43,15 +43,13 @@ NetworkScheduler::OnReceivedPacket (Ptr<const Packet> packet)
 
   // Get the current packet's frame counter
   Ptr<Packet> packetCopy = packet->Copy ();
-  NS_LOG_FUNCTION ("holis 1");
   LorawanMacHeader receivedMacHdr;
   packetCopy->RemoveHeader (receivedMacHdr);
-  NS_LOG_FUNCTION ("holis 2");
   LoraFrameHeader receivedFrameHdr;
   receivedFrameHdr.SetAsUplink ();
-  NS_LOG_FUNCTION ("holis 3");
+  NS_LOG_FUNCTION ("New MAC command hanged after calling packetCopy->RemoveHeader (receivedFrameHdr) [deserialization]");
   packetCopy->RemoveHeader (receivedFrameHdr);
-  NS_LOG_FUNCTION ("holis 4");
+  NS_LOG_FUNCTION ("MAC commands Deserialized  Ok :)");
 
 
 
@@ -71,7 +69,6 @@ NetworkScheduler::OnReceivedPacket (Ptr<const Packet> packet)
                            deviceAddress,
                            1)); // This will be the first receive window
   }
-  NS_LOG_FUNCTION ("holis 5");
 }
 
 void

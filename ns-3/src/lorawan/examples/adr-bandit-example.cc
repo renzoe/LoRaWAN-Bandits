@@ -98,11 +98,11 @@ int main (int argc, char *argv[])
 
    //LogComponentEnable ("LoraHelper", LOG_LEVEL_ALL);
    // LogComponentEnable ("LoraPacketTracker", LOG_LEVEL_ALL);
-    //LogComponentEnable ("NetworkServer", LOG_LEVEL_ALL);
+    LogComponentEnable ("NetworkServer", LOG_LEVEL_ALL);
 
-    //LogComponentEnable ("NetworkController", LOG_LEVEL_ALL);
-    //LogComponentEnable ("NetworkScheduler", LOG_LEVEL_ALL);
-    //LogComponentEnable ("NetworkStatus", LOG_LEVEL_ALL);
+    LogComponentEnable ("NetworkController", LOG_LEVEL_ALL);
+    LogComponentEnable ("NetworkScheduler", LOG_LEVEL_ALL);
+    LogComponentEnable ("NetworkStatus", LOG_LEVEL_ALL);
 
 
    // LogComponentEnable ("EndDeviceStatus", LOG_LEVEL_ALL);
@@ -136,6 +136,10 @@ int main (int argc, char *argv[])
     LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
     //LogComponentEnable ("LoraFrameHeader", LOG_LEVEL_ALL);
     LogComponentEnable ("EndDeviceLorawanMac", LOG_LEVEL_ALL);
+
+
+
+    LogComponentEnable ("NetworkControllerComponentBandit", LOG_LEVEL_ALL);
 
 
     LogComponentEnable ("PeriodicSender", LOG_LEVEL_ALL);

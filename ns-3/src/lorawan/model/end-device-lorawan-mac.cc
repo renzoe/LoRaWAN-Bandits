@@ -207,7 +207,7 @@ void
 EndDeviceLorawanMac::DoSend (Ptr<Packet> packet)
 {
   NS_LOG_FUNCTION (this);
-  m_retransmitting_old_packet = false;
+  m_retransmitting_old_packet = false; /* Renzo : Added this bool, because at SendToPhy was not possible to recover this information */
   // Checking if this is the transmission of a new packet
   if (packet != m_retxParams.packet)
     {

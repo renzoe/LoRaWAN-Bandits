@@ -85,6 +85,7 @@ def build(bld):
         'model/bandits/adr-bandit-agent.cc',
         'model/bandits/bandit-policy.cc',
         'model/bandits/class-a-end-device-lorawan-mac-bandit.cc',
+        'model/bandits/network-controller-component-bandit.cc',
         ]
 
     #module.use.append("AITOOLBOXMDP")# renzo discarded solution to include library
@@ -152,6 +153,7 @@ def build(bld):
         'model/bandits/adr-bandit-agent.h',
         'model/bandits/bandit-policy.h',
         'model/bandits/class-a-end-device-lorawan-mac-bandit.h',
+        'model/bandits/network-controller-component-bandit.h',
         ]
 
     if bld.env.ENABLE_EXAMPLES:

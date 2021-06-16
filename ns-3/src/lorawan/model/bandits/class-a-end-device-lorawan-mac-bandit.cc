@@ -118,9 +118,9 @@ ClassAEndDeviceLorawanMacBandit::SendToPhy (Ptr<Packet> packetToSend)
   LoraTxParameters params;
 
   //***************************************************************
-  //Renzo BANDIT chooses next m_dataRate
-  m_dataRate = this->adr_bandit_agent->ChooseArm();
-  //m_dataRate = 5 ; // Debugging with SF7 to create lost frames
+  //[Renzo] BANDIT chooses next m_dataRate
+  //m_dataRate = this->adr_bandit_agent->ChooseArm();
+  m_dataRate = 5 ; // Debugging with SF7 to create lost frames
 
   NS_LOG_INFO ("Bandit chosen DR!:" << unsigned(m_dataRate));
 
@@ -128,10 +128,10 @@ ClassAEndDeviceLorawanMacBandit::SendToPhy (Ptr<Packet> packetToSend)
   NS_LOG_INFO ("Bandit chosen DR COST!:" << cost_for_arm[m_dataRate]);
   this->adr_bandit_agent->UpdateReward(m_dataRate, cost_for_arm[m_dataRate]);
 
-  // this was applied to the header before EndDeviceLorawanMac:ApplyNecessaryOptions()
-  NS_LOG_INFO ("Bandit type m_mType:" << unsigned(this->GetMType()));
+  // this was applied to the header before EndDeviceLorawanMac:ApplyNecessaryOptions(), I force here a CONFIRMED_DATA_UP message. This was for Bandit withoug MAC command
+  /*NS_LOG_INFO ("Bandit type m_mType:" << unsigned(this->GetMType()));
   this->SetMType(ns3::lorawan::LorawanMacHeader::CONFIRMED_DATA_UP);
-  NS_LOG_INFO ("Bandit type m_mType:" << unsigned(this->GetMType()));
+  NS_LOG_INFO ("Bandit type m_mType:" << unsigned(this->GetMType()));*/
 
 
 
