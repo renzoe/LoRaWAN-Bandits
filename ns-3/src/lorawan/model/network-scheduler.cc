@@ -43,17 +43,25 @@ NetworkScheduler::OnReceivedPacket (Ptr<const Packet> packet)
 
   // Get the current packet's frame counter
   Ptr<Packet> packetCopy = packet->Copy ();
+  NS_LOG_FUNCTION ("holis 1");
   LorawanMacHeader receivedMacHdr;
   packetCopy->RemoveHeader (receivedMacHdr);
+  NS_LOG_FUNCTION ("holis 2");
   LoraFrameHeader receivedFrameHdr;
   receivedFrameHdr.SetAsUplink ();
+  NS_LOG_FUNCTION ("holis 3");
   packetCopy->RemoveHeader (receivedFrameHdr);
+  NS_LOG_FUNCTION ("holis 4");
+
+
 
   // Need to decide whether to schedule a receive window
   if (!m_status->GetEndDeviceStatus (packet)->HasReceiveWindowOpportunityScheduled ())
   {
+
     // Extract the address
     LoraDeviceAddress deviceAddress = receivedFrameHdr.GetAddress ();
+
 
     // Schedule OnReceiveWindowOpportunity event
     m_status->GetEndDeviceStatus (packet)->SetReceiveWindowOpportunity (
@@ -63,6 +71,7 @@ NetworkScheduler::OnReceivedPacket (Ptr<const Packet> packet)
                            deviceAddress,
                            1)); // This will be the first receive window
   }
+  NS_LOG_FUNCTION ("holis 5");
 }
 
 void

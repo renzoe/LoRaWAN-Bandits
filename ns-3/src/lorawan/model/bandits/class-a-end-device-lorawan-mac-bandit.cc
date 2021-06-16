@@ -119,9 +119,9 @@ ClassAEndDeviceLorawanMacBandit::SendToPhy (Ptr<Packet> packetToSend)
 
   //***************************************************************
   //Renzo BANDIT chooses next m_dataRate
-  //We update with the previous sent
-  //this->adr_bandit_agent->UpdateReward(armNumber, reward);
   m_dataRate = this->adr_bandit_agent->ChooseArm();
+  //m_dataRate = 5 ; // Debugging with SF7 to create lost frames
+
   NS_LOG_INFO ("Bandit chosen DR!:" << unsigned(m_dataRate));
 
   //renzo TODO: until implementing bettter feedback, I express that I used this arm and had a cost, I don't know if It will be rewarded (should compensate)
@@ -129,15 +129,27 @@ ClassAEndDeviceLorawanMacBandit::SendToPhy (Ptr<Packet> packetToSend)
   this->adr_bandit_agent->UpdateReward(m_dataRate, cost_for_arm[m_dataRate]);
 
   // this was applied to the header before EndDeviceLorawanMac:ApplyNecessaryOptions()
-
   NS_LOG_INFO ("Bandit type m_mType:" << unsigned(this->GetMType()));
   this->SetMType(ns3::lorawan::LorawanMacHeader::CONFIRMED_DATA_UP);
-  //this->m_mType private
   NS_LOG_INFO ("Bandit type m_mType:" << unsigned(this->GetMType()));
 
-  //  void AddMacCommand (Ptr<MacCommand> macCommand);
 
-  //In this alpha version of bandit we magically will update the results from the network server.
+
+  /* TODO fix this logic. This prevent a bug, where  mac command gets added multiple times . Proper solution: Add directly to the frame header at higher layer thank SendToPhy */
+  NS_LOG_INFO("About to check if Retranssmiting an old packet:  m_retransmitting_old_packet? \t\t\t\t\t!!!!!!!!!!! : " << (m_retransmitting_old_packet));
+  //m_retransmitting_old_packet = false; // this is to replicate the bug, if we always add the MacCommand it re-add to retransmittions
+  if (!m_retransmitting_old_packet) /* if this is NOT a retransmission. See EndDeviceLorawanMac::DoSend (Ptr<Packet> packet) for retransmission logic */
+    { /* Because if this is a restransmission we will ad N times the MAC command. This mac command logic should be done at higer layers if done properly .... */
+      NS_LOG_INFO(
+	  "this is NOT a Retransmission !! we add the MAC command ");
+      this->AddMacCommand (
+	  Create<BanditRewardReq> (unsigned (0), unsigned (100))); // This MAC command will be added to the NEXT packet! TODO: add to current packet at higher layer logic (before SendToPhy and DoSend)
+      //packetToSend->frameHeader.AddCommand (command); // or  Add directly to the frame?
+
+    }
+
+
+  //(In this alpha version of bandit we magically will update the results from the network server.)
   //packetToSend
   //LoraFrameHeader frameHdr;
   //frameHdr.SetAck (true);

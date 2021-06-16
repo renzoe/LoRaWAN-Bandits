@@ -622,8 +622,8 @@ private:
  * Definition of BanditRewardReq custom LoRaWAN MAC command.
  *
  * With this command, an end device as the  network server
- * for the bandit "rewards" statistics of the last packets (To Be Further Defined)
- * i.e., is a  way to ask for the delayed reward information
+ * for the bandit "rewards" statistics of the last Frame# + N packets (To Be Further Defined)
+ * i.e., this is a  way to ask for the delayed reward information
  *
  */
 
@@ -641,83 +641,58 @@ public:
 private:
   uint16_t m_fCnt_from;
   uint8_t m_fCnt_to;
-  bool m_powerAck;
-  bool m_dataRateAck;
-  bool m_channelMaskAck;
 };
 
 /**
  * Definition of BanditRewardAns custom LoRaWAN MAC command.
  *
  * With this command, the network server send the bandit delayed
- * rewards informaiton
+ * rewards information
  */
 class BanditRewardAns : public MacCommand
 {
 public:
   BanditRewardAns ();
 
-  BanditRewardAns (uint8_t dataRate, uint8_t txPower, uint16_t channelMask,
-              uint8_t chMaskCntl, uint8_t nbRep);
+  BanditRewardAns (uint8_t dr_0_rcv_packets, uint8_t dr_1_rcv_packets, uint8_t dr_2_rcv_packets,
+              uint8_t dr_3_rcv_packets, uint8_t dr_4_rcv_packets, uint8_t dr_5_rcv_packets);
 
   virtual void Serialize (Buffer::Iterator &start) const;
   virtual uint8_t Deserialize (Buffer::Iterator &start);
   virtual void Print (std::ostream &os) const;
 
   /**
-   * Return the data rate prescribed by this MAC command.
+   * Return the Packet Delivery Ratio  statistics per data rate (fixed for 0-5 for now)
    *
-   * \return An unsigned 8-bit integer containing the data rate.
+   * \return An vector containing the PDR per data rate (index of vector equals DR).
    */
-  uint8_t GetDataRate (void);
+  std::vector<int>  GetDataRateStatistics (void);
 
-  /**
-   * Get the transmission power prescribed by this MAC command.
-   *
-   * The MAC layer is expected to translate this value to a certain power in
-   * dBm when communicating it to the PHY, and the translation will vary based
-   * on the region of the device.
-   *
-   * \return The TX power, encoded as an unsigned 8-bit integer.
-   */
-  uint8_t GetTxPower (void);
 
-  /**
-   * Get the list of enabled channels. This method takes the 16-bit channel mask
-   * and translates it to a list of integers that can be more easily parsed.
-   *
-   * \return The list of enabled channels.
-   */
-  std::list<int> GetEnabledChannelsList (void);
 
-  /**
-   * Get the number of repetitions prescribed by this MAC command.
-   *
-   * \return The number of repetitions.
-   */
-  int GetRepetitions (void);
 
 private:
-  uint8_t m_dataRate;
-  uint8_t m_txPower;
-  uint16_t m_channelMask;
-  uint8_t m_chMaskCntl;
-  uint8_t m_nbRep;
+  /* TODO use a proper array , and a bitmask to tell which DR is present */
+  /* Idea, I am making the answer independent of the definition of "arms".. for now.
+   * I only use statistis from the DataRate (SFs), so the NS and the mac command is independent of the notion of bandits/arms.
+   * If not we need more complex/powerful mac message exchange
+   */
+
+  //uint8_t m_total_rcv_packets; // To compress data, we could use less bytes (4 instead of 6)
+  //uint4_t m_dr_0_percentage // (0-100); // 4 bits does not exist :P, but yes on-wire/air. This is just to not forget the idea
+  // .....
+  //uint4_t m_dr_5_percentage
+
+  //static int m_max_stats = 6;
+
+  uint8_t m_dr_0_rcv_packets;
+  uint8_t m_dr_1_rcv_packets;
+  uint8_t m_dr_2_rcv_packets;
+  uint8_t m_dr_3_rcv_packets;
+  uint8_t m_dr_4_rcv_packets;
+  uint8_t m_dr_5_rcv_packets;
 };
 
-
-///**
-// * Set the FCnt value
-// *
-// * \param FCnt The FCnt to set.
-// */
-//void SetFCnt (uint16_t fCnt);
-///**
-// * Get the FCnt value.
-// *
-// * \return The FCnt value.
-// */
-//uint16_t GetFCnt (void) const;
 
 }
 }

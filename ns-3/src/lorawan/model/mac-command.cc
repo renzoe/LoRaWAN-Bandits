@@ -1239,13 +1239,10 @@ BanditRewardReq::BanditRewardReq ()
   NS_LOG_FUNCTION (this);
 
   m_commandType = BANDIT_REWARD_REQ;
-  m_serializedSize = 4;
+  m_serializedSize = 4; // Includes 1 byte of the m_commandType + the rest
 }
 
-//BanditRewardReq::BanditRewardReq (bool powerAck, bool dataRateAck, bool channelMaskAck) :
-//  m_powerAck (powerAck),
-//  m_dataRateAck (dataRateAck),
-//  m_channelMaskAck (channelMaskAck)
+
 BanditRewardReq::BanditRewardReq (uint16_t fCnt_from, uint8_t fCnt_to) :
   m_fCnt_from (fCnt_from),
   m_fCnt_to (fCnt_to)
@@ -1263,10 +1260,8 @@ BanditRewardReq::Serialize (Buffer::Iterator &start) const
 
   // Write the CID
   start.WriteU8 (GetCIDFromMacCommand (m_commandType));
-  // We can assume that true will be converted to 1 and that false will be
-  // converted to 0 on any C++ compiler
-  start.WriteU8 ((uint8_t (m_powerAck) << 2) | (uint8_t (m_dataRateAck) << 1) |
-                 uint8_t (m_channelMaskAck));
+  start.WriteU16 (m_fCnt_from);
+  start.WriteU8 (m_fCnt_to);
 }
 
 uint8_t
@@ -1277,11 +1272,9 @@ BanditRewardReq::Deserialize (Buffer::Iterator &start)
   // Consume the CID
   start.ReadU8 ();
 
-  uint8_t byte = start.ReadU8 ();
+  m_fCnt_from = start.ReadU16 ();
+  m_fCnt_to = start.ReadU8 ();
 
-  m_powerAck = byte & 0b100;
-  m_dataRateAck = byte & 0b10;
-  m_channelMaskAck = byte & 0b1;
 
   return m_serializedSize;
 }
@@ -1291,7 +1284,9 @@ BanditRewardReq::Print (std::ostream &os) const
 {
   NS_LOG_FUNCTION_NOARGS ();
 
-  os << "LinkAdrAns" << std::endl;
+  os << "MAC_BanditRewardReq" << std::endl;
+  os << "m_fCnt_from: " << std::bitset<16> (m_fCnt_from) << std::endl;
+  os << "m_fCnt_to: " << unsigned (m_fCnt_to) << std::endl;
 }
 
 
@@ -1305,21 +1300,31 @@ BanditRewardAns::BanditRewardAns ()
   NS_LOG_FUNCTION (this);
 
   m_commandType = BANDIT_REWARD_ANS;
-  m_serializedSize = 5;
+  m_serializedSize = 7 ; // Includes 1 byte of the m_commandType + the rest
 }
 
-BanditRewardAns::BanditRewardAns (uint8_t dataRate, uint8_t txPower, uint16_t channelMask,
-                        uint8_t chMaskCntl, uint8_t nbRep) :
-  m_dataRate (dataRate),
-  m_txPower (txPower),
-  m_channelMask (channelMask),
-  m_chMaskCntl (chMaskCntl),
-  m_nbRep (nbRep)
+/*
+uint8_t m_dr_0_rcv_packets;
+uint8_t m_dr_1_rcv_packets;
+uint8_t m_dr_2_rcv_packets;
+uint8_t m_dr_3_rcv_packets;
+uint8_t m_dr_4_rcv_packets;
+uint8_t m_dr_5_rcv_packets;
+*/
+    BanditRewardAns::BanditRewardAns (uint8_t dr_0_rcv_packets, uint8_t dr_1_rcv_packets,
+				      uint8_t dr_2_rcv_packets, uint8_t dr_3_rcv_packets,
+				      uint8_t dr_4_rcv_packets, uint8_t dr_5_rcv_packets) :
+  m_dr_0_rcv_packets (dr_0_rcv_packets),
+  m_dr_1_rcv_packets (dr_1_rcv_packets),
+  m_dr_2_rcv_packets (dr_2_rcv_packets),
+  m_dr_3_rcv_packets (dr_3_rcv_packets),
+  m_dr_4_rcv_packets (dr_4_rcv_packets),
+  m_dr_5_rcv_packets (dr_5_rcv_packets)
 {
   NS_LOG_FUNCTION (this);
 
   m_commandType = BANDIT_REWARD_ANS;
-  m_serializedSize = 5;
+  m_serializedSize = 7;
 }
 
 void
@@ -1329,9 +1334,14 @@ BanditRewardAns::Serialize (Buffer::Iterator &start) const
 
   // Write the CID
   start.WriteU8 (GetCIDFromMacCommand (m_commandType));
-  start.WriteU8 (m_dataRate << 4 | (m_txPower & 0b1111));
-  start.WriteU16 (m_channelMask);
-  start.WriteU8 (m_chMaskCntl << 4 | (m_nbRep & 0b1111));
+
+  start.WriteU8 (m_dr_0_rcv_packets);
+  start.WriteU8 (m_dr_1_rcv_packets);
+  start.WriteU8 (m_dr_2_rcv_packets);
+  start.WriteU8 (m_dr_3_rcv_packets);
+  start.WriteU8 (m_dr_4_rcv_packets);
+  start.WriteU8 (m_dr_5_rcv_packets);
+
 }
 
 uint8_t
@@ -1341,13 +1351,14 @@ BanditRewardAns::Deserialize (Buffer::Iterator &start)
 
   // Consume the CID
   start.ReadU8 ();
-  uint8_t firstByte = start.ReadU8 ();
-  m_dataRate = firstByte >> 4;
-  m_txPower = firstByte & 0b1111;
-  m_channelMask = start.ReadU16 ();
-  uint8_t fourthByte = start.ReadU8 ();
-  m_chMaskCntl = fourthByte >> 4;
-  m_nbRep = fourthByte & 0b1111;
+
+  m_dr_0_rcv_packets = start.ReadU8 ();
+  m_dr_1_rcv_packets = start.ReadU8 ();
+  m_dr_2_rcv_packets = start.ReadU8 ();
+  m_dr_3_rcv_packets = start.ReadU8 ();
+  m_dr_4_rcv_packets = start.ReadU8 ();
+  m_dr_5_rcv_packets = start.ReadU8 ();
+
 
   return m_serializedSize;
 }
@@ -1357,37 +1368,31 @@ BanditRewardAns::Print (std::ostream &os) const
 {
   NS_LOG_FUNCTION_NOARGS ();
 
-  os << "LinkAdrReq" << std::endl;
-  os << "dataRate: " << unsigned (m_dataRate) << std::endl;
-  os << "txPower: " << unsigned (m_txPower) << std::endl;
-  os << "channelMask: " << std::bitset<16> (m_channelMask) << std::endl;
-  os << "chMaskCntl: " << unsigned (m_chMaskCntl) << std::endl;
-  os << "nbRep: " << unsigned (m_nbRep) << std::endl;
+  os << "BanditRewardAns" << std::endl;
+  os << "m_dr_0_rcv_packets: " << unsigned (m_dr_0_rcv_packets) << std::endl;
+  os << "m_dr_1_rcv_packets: " << unsigned (m_dr_1_rcv_packets) << std::endl;
+  os << "m_dr_2_rcv_packets: " << unsigned (m_dr_2_rcv_packets) << std::endl;
+  os << "m_dr_3_rcv_packets: " << unsigned (m_dr_3_rcv_packets) << std::endl;
+  os << "m_dr_4_rcv_packets: " << unsigned (m_dr_4_rcv_packets) << std::endl;
+  os << "m_dr_5_rcv_packets: " << unsigned (m_dr_5_rcv_packets) << std::endl;
 }
 
-uint8_t
-BanditRewardAns::GetDataRate (void)
+
+std::vector<int>
+BanditRewardAns::GetDataRateStatistics (void)
 {
   NS_LOG_FUNCTION (this);
 
-  return m_dataRate;
-}
+  std::vector<int> drStatistics;
 
-uint8_t
-BanditRewardAns::GetTxPower (void)
-{
-  NS_LOG_FUNCTION (this);
+  drStatistics.push_back(unsigned(m_dr_0_rcv_packets));
+  drStatistics.push_back(unsigned(m_dr_1_rcv_packets));
+  drStatistics.push_back(unsigned(m_dr_2_rcv_packets));
+  drStatistics.push_back(unsigned(m_dr_3_rcv_packets));
+  drStatistics.push_back(unsigned(m_dr_4_rcv_packets));
+  drStatistics.push_back(unsigned(m_dr_5_rcv_packets));
 
-  return m_txPower;
-}
-
-std::list<int>
-BanditRewardAns::GetEnabledChannelsList (void)
-{
-  NS_LOG_FUNCTION (this);
-
-  std::list<int> channelIndices;
-  for (int i = 0; i < 16; i++)
+  /*for (int i = 0; i < m_max_stats; i++)
     {
       if (m_channelMask & (0b1 << i))     // Take channel mask's i-th bit
         {
@@ -1395,18 +1400,10 @@ BanditRewardAns::GetEnabledChannelsList (void)
           channelIndices.push_back (i);
         }
     }
+   */
 
-  return channelIndices;
+  return drStatistics;
 }
-
-int
-BanditRewardAns::GetRepetitions (void)
-{
-  NS_LOG_FUNCTION (this);
-
-  return m_nbRep;
-}
-
 
 
 

@@ -221,6 +221,14 @@ LoraFrameHeader::Deserialize (Buffer::Iterator start)
                 m_macCommands.push_back (command);
                 break;
               }
+            case (0xBB): /* Related to new custom MAC command for Bandits, uplink will be a BANDIT_REWARD_REQ */
+              {
+                NS_LOG_DEBUG ("Creating a BanditRewardReq command");
+                Ptr<BanditRewardReq> command = Create <BanditRewardReq> ();
+                byteNumber += command->Deserialize (start);
+                m_macCommands.push_back (command);
+                break;
+              }
             default:
               {
                 NS_LOG_ERROR ("CID not recognized during deserialization");
@@ -293,6 +301,14 @@ LoraFrameHeader::Deserialize (Buffer::Iterator start)
               {
                 NS_LOG_DEBUG ("Creating a TxParamSetupReq command");
                 Ptr<TxParamSetupReq> command = Create <TxParamSetupReq> ();
+                byteNumber += command->Deserialize (start);
+                m_macCommands.push_back (command);
+                break;
+              }
+            case (0xBB): /* Related to new custom MAC command for Bandits, uplink will be a BANDIT_REWARD_ANS */
+              {
+                NS_LOG_DEBUG ("Creating a BanditRewardAns command");
+                Ptr<BanditRewardAns> command = Create <BanditRewardAns> ();
                 byteNumber += command->Deserialize (start);
                 m_macCommands.push_back (command);
                 break;

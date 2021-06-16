@@ -207,6 +207,7 @@ void
 EndDeviceLorawanMac::DoSend (Ptr<Packet> packet)
 {
   NS_LOG_FUNCTION (this);
+  m_retransmitting_old_packet = false;
   // Checking if this is the transmission of a new packet
   if (packet != m_retxParams.packet)
     {
@@ -308,6 +309,7 @@ EndDeviceLorawanMac::DoSend (Ptr<Packet> packet)
           packet->AddHeader (macHdr);
           m_retxParams.retxLeft = m_retxParams.retxLeft - 1;           // decreasing the number of retransmissions
           NS_LOG_DEBUG ("Retransmitting an old packet.");
+          m_retransmitting_old_packet = true;
 
           // static_cast<ClassAEndDeviceLorawanMac*>(this)->SendToPhy (m_retxParams.packet);
           SendToPhy (m_retxParams.packet);

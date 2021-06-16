@@ -414,6 +414,11 @@ protected:
    */
   struct LoraRetxParameters m_retxParams;
 
+  /*
+   * [Renzo] bool to indicate if we are Retransmitting an old packet or not
+   * */
+  bool m_retransmitting_old_packet;
+
   /**
    * An uniform random variable, used by the Shuffle method to randomly reorder
    * the channel list.
