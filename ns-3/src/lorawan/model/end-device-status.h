@@ -171,6 +171,7 @@ public:
     GatewayList gwList;      //!< List of gateways that received this packet.
     uint8_t sf;
     double frequency;
+    uint16_t fCnt; // [Renzo] For Bandit Statistics Purposes
   };
 
   typedef std::list<std::pair<Ptr<Packet const>, ReceivedPacketInfo> >

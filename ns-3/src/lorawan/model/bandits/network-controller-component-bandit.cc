@@ -70,6 +70,8 @@ NetworkControllerComponentBandit::BeforeSendingReply (Ptr<EndDeviceStatus> statu
   NS_LOG_FUNCTION (this << status << networkStatus);
 
   NS_LOG_FUNCTION ("Packets received by this device (" << status->GetReceivedPacketList ().size () << ") OMG !!" );
+  NS_LOG_FUNCTION ("Last Packet Frame Count:  (" << status->GetLastReceivedPacketInfo().fCnt << ") OMG !!!!!!!!!!!!!!!!!!!" );
+
 
 
 

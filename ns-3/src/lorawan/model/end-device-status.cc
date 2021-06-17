@@ -265,6 +265,7 @@ EndDeviceStatus::InsertReceivedPacket (Ptr<Packet const> receivedPacket, const A
   info.sf = tag.GetSpreadingFactor ();
   info.frequency = tag.GetFrequency ();
   info.packet = receivedPacket;
+  info.fCnt = frameHdr.GetFCnt (); /* [Renzo] For Bandit Statistics Purposes*/
 
   double rcvPower = tag.GetReceivePower ();
 
