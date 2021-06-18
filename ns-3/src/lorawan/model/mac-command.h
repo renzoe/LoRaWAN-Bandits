@@ -638,9 +638,13 @@ public:
   virtual uint8_t Deserialize (Buffer::Iterator &start);
   virtual void Print (std::ostream &os) const;
 
+  uint16_t GetFrameCountFrom (void);
+  uint8_t GetFrameCountTo (void);
+
+
 private:
   uint16_t m_fCnt_from;
-  uint8_t m_fCnt_to;
+  uint8_t m_fCntDelta_to;
 };
 
 /**
@@ -668,9 +672,6 @@ public:
    */
   std::vector<int>  GetDataRateStatistics (void);
 
-
-
-
 private:
   /* TODO use a proper array , and a bitmask to tell which DR is present */
   /* Idea, I am making the answer independent of the definition of "arms".. for now.
@@ -678,12 +679,12 @@ private:
    * If not we need more complex/powerful mac message exchange
    */
 
-  //uint8_t m_total_rcv_packets; // To compress data, we could use less bytes (4 instead of 6)
+  //uint8_t m_total_rcv_packets; // To compress data, we could use less bytes (4B total instead of 6B)
   //uint4_t m_dr_0_percentage // (0-100); // 4 bits does not exist :P, but yes on-wire/air. This is just to not forget the idea
   // .....
   //uint4_t m_dr_5_percentage
 
-  //static int m_max_stats = 6;
+  //uint16_t max_FCountInRange;!!!
 
   uint8_t m_dr_0_rcv_packets;
   uint8_t m_dr_1_rcv_packets;
@@ -691,6 +692,8 @@ private:
   uint8_t m_dr_3_rcv_packets;
   uint8_t m_dr_4_rcv_packets;
   uint8_t m_dr_5_rcv_packets;
+
+  //static int m_max_stats = 6;
 };
 
 

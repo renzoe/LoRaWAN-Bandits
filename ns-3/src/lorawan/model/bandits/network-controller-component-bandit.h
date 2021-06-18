@@ -27,6 +27,7 @@
 #include "ns3/packet.h"
 #include "ns3/network-status.h"
 #include "ns3/network-controller-components.h"
+#include "ns3/end-device-status.h" // for ReceivedPacketList
 
 namespace ns3 {
 namespace lorawan {
@@ -55,6 +56,11 @@ public:
 
   void OnFailedReply (Ptr<EndDeviceStatus> status,
                       Ptr<NetworkStatus> networkStatus);
+
+protected:
+  Ptr<BanditRewardAns> GetBanditRewardAns (Ptr<BanditRewardReq> banditRewardReq,
+					   EndDeviceStatus::ReceivedPacketList packetList);
+
 private:
 
 };
