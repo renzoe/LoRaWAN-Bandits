@@ -370,9 +370,18 @@ ClassAEndDeviceLorawanMacBandit::OnLinkAdrReq (uint8_t dataRate, uint8_t txPower
 }
 
 void
-ClassAEndDeviceLorawanMacBandit::OnRxBanditStatsRes (Ptr<RxParamSetupReq> rxParamSetupReq)
+ClassAEndDeviceLorawanMacBandit::OnBanditRewardAns (Ptr<MacCommand> banditRewardAns)
 {
-  NS_LOG_FUNCTION (this << rxParamSetupReq);
+  NS_LOG_FUNCTION (this << banditRewardAns);
+
+
+
+  Ptr<BanditRewardAns> petardis = DynamicCast<BanditRewardAns>(banditRewardAns); // I could have used GetObject<> (); See "downcasting" https://www.nsnam.org/docs/manual/html/object-model.html
+
+  NS_LOG_FUNCTION ("\t\t OnBanditRewardAns! Soy bandido y me gusta este comando MAC !!!  "<< petardis->GetDataRateStatistics());
+
+  //(Ptr<BanditRewardAns>)banditRewardAns->
+
 
 //  bool offsetOk = true;
 //  bool dataRateOk = true;

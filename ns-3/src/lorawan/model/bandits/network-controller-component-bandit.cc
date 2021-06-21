@@ -166,9 +166,9 @@ NetworkControllerComponentBandit::GetBanditRewardAns (
     {
       NS_LOG_FUNCTION("frmCurrentIt: " << frmCurrentIt);
 
-      if ((frmFromAbs <= frmCurrentIt) &&  (frmCurrentIt <= frmToAbs))
+      if ((frmFromAbs <= frmCurrentIt) &&  (frmCurrentIt <= frmToAbs)) // (frmFromAbs <= frmCurrentIt) redundant because its in while
 	{
-	  int SfToDR = (12 - unsigned (it->second.sf));
+	  int SfToDR = (12 - unsigned (it->second.sf)); // number 12 convers from SF to DR ... TODO use proper function
 	  dr_rcv_packets[SfToDR]++;
 
 	  NS_LOG_FUNCTION(
@@ -182,7 +182,8 @@ NetworkControllerComponentBandit::GetBanditRewardAns (
       NS_LOG_FUNCTION("frmNEXTCurrentIt: " << frmCurrentIt << "   frmFromAbs: " << frmFromAbs);
 
 
-    }
+    } // The logic I use could be better... I had infinite loop issues with the number Zero, also because it is "unsigned" and we are not using a proper "counter", but real values of  fCnt.
+      // All this logic could be done cleaner (also, in current implementation issues can happen in out of order messages -early exit loop ...-).
 
 
 

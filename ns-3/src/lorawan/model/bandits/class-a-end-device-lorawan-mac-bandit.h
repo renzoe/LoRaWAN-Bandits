@@ -68,7 +68,7 @@ public:
   virtual void Receive (Ptr<Packet const> packet);
 
   /////////////////////////
-  // Inherited from  EndDeviceLorawanMac, but we want to override
+  // Inherited from  EndDeviceLorawanMac, but we want to override (I made it "virtual" so I can override it)
   /////////////////////////
   /**
    * Perform the actions that need to be taken when receiving a LinkAdrReq command.
@@ -87,20 +87,17 @@ public:
   /////////////////////////
 
   /**
-   * Perform the actions that need to be taken when receiving a TODO : define new bandic MAC command "OnRxBanditStatsRes"
-   * command.
+   * Perform the actions that need to be taken when receiving a BanditRewardAns MAC
+   * command based on the Device's Class Type. (Here we process it)
    *
-   * \param rxParamSetupReq The Parameter Setup Request, which contains:
-   *                            - The offset to set.
-   *                            - The data rate to use for the second receive window.
-   *                            - The frequency to use for the second receive window.
+   * \param banditRewardAns The <BanditRewardAns> MAC command but not casted yet (<MacCommand>) to avoid dependencies
    */
-  virtual void OnRxBanditStatsRes (Ptr<RxParamSetupReq> rxParamSetupReq);
+  virtual void OnBanditRewardAns (Ptr<MacCommand> banditRewardAns);
 
 protected:
 
-	Ptr<AdrBanditAgent> adr_bandit_agent;
-
+      Ptr<AdrBanditAgent> adr_bandit_agent;
+      void BanditDelayedFeedbackUpdate (const Ptr<Packet> &packetCopy);
 
 
 private:

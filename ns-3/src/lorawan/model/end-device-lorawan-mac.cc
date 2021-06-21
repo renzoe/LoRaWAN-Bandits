@@ -455,6 +455,16 @@ EndDeviceLorawanMac::ParseCommands (LoraFrameHeader frameHeader)
           {
             break;
           }
+        case (BANDIT_REWARD_ANS):
+          {
+	    NS_LOG_DEBUG ("Detected a BanditRewardAns command.");
+	    // Call the appropriate function to take action -- Command will be casted in competent function
+	    //Ptr <BanditRewardAns> or <MacCommand>
+	    //OnBanditRewardAns ((*it)->GetObject<MacCommand> ());
+	    OnBanditRewardAns ((*it)->GetObject<BanditRewardAns> ()); // Also works
+
+            break;
+          }
         default:
           {
             NS_LOG_ERROR ("CID not recognized");
@@ -833,6 +843,10 @@ EndDeviceLorawanMac::OnDutyCycleReq (double dutyCycle)
 
 void
 EndDeviceLorawanMac::OnRxClassParamSetupReq (Ptr<RxParamSetupReq> rxParamSetupReq)
+{ }
+
+void
+EndDeviceLorawanMac::OnBanditRewardAns (Ptr<MacCommand> banditRewardAns)
 { }
 
 void

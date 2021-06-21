@@ -285,6 +285,17 @@ public:
   void OnNewChannelReq (uint8_t chIndex, double frequency, uint8_t minDataRate,
                         uint8_t maxDataRate);
 
+
+
+  /**
+   * Perform the actions that need to be taken when receiving a BanditRewardAns MAC
+   * command based on the Device's Class Type.
+   * This command is generic, so a class instantiation not concerned can ignore it (has to implement the method and do nothing..).
+   *
+   * \param banditRewardAns The <BanditRewardAns> MAC command but not casted yet (<MacCommand>) to avoid dependencies
+   */
+  virtual void OnBanditRewardAns (Ptr<MacCommand> banditRewardAns);
+
   ////////////////////////////////////
   // Logical channel administration //
   ////////////////////////////////////

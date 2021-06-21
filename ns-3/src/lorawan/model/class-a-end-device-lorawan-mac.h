@@ -162,6 +162,17 @@ public:
    */
   virtual void OnRxClassParamSetupReq (Ptr<RxParamSetupReq> rxParamSetupReq);
 
+  /**
+  * Perform the actions that need to be taken when receiving a BanditRewardAns MAC
+  * command based on the Device's Class Type.
+  *
+  * This command is generic, so a class instantiation not concerned can ignore it (has to implement the method and do nothing..).
+  * This command is used only by bandits; Here we have to implement the virtual method, but will do nothing.
+  *
+  * \param banditRewardAns The <BanditRewardAns> MAC command but not casted yet (<MacCommand>) to avoid dependencies
+  */
+  virtual void OnBanditRewardAns (Ptr<MacCommand> banditRewardAns);
+
 protected:
 
   /**

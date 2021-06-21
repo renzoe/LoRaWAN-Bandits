@@ -564,5 +564,12 @@ ClassAEndDeviceLorawanMac::OnRxClassParamSetupReq (Ptr<RxParamSetupReq> rxParamS
 
 }
 
+void
+ClassAEndDeviceLorawanMac::OnBanditRewardAns (Ptr<MacCommand> banditRewardAns)
+{
+  NS_LOG_FUNCTION (this << banditRewardAns);
+  //We do nothing.
+}
+
 } /* namespace lorawan */
 } /* namespace ns3 */
