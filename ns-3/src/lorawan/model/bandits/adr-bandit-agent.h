@@ -64,7 +64,17 @@ public:
    */
   void UpdateReward (size_t armNumber, double reward);
 
+
+  /**
+   * @brief Get the Numbers of Arms k
+   *
+   * @return The number of Arms (k)
+   */
+  size_t  GetNumberOfArms ();
+
   /* TODO we start with a 2-arm bandit: SF12 and SF9 */
+
+
 
 
 

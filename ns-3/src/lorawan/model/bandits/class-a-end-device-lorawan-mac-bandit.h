@@ -24,6 +24,7 @@
 
 #include "ns3/class-a-end-device-lorawan-mac.h"
 #include "ns3/adr-bandit-agent.h"
+#include "ns3/bandit-delayed-reward-intelligence.h"
 
 
 namespace ns3 {
@@ -96,8 +97,22 @@ public:
 
 protected:
 
-      Ptr<AdrBanditAgent> adr_bandit_agent;
-      void BanditDelayedFeedbackUpdate (const Ptr<Packet> &packetCopy);
+  Ptr<AdrBanditAgent> m_adrBanditAgent;
+  Ptr<BanditDelayedRewardIntelligence> m_banditDelayedRewardIntelligence;
+
+  void BanditDelayedFeedbackUpdateOLD (const Ptr<Packet> &packetCopy);
+  void BanditDelayedFeedbackUpdate (Ptr<BanditRewardAns> delayedRewards);
+
+
+  /**
+   * [Renzo] Auxiliary function called inside EndDeviceLorawanMac::DoSend
+   * before EndDeviceLorawanMac::ApplyNecessaryOptions()
+   * In particular, we use it for Bandits logic, to decide and apply the
+   * BanditRewardReq MAC command.
+   *
+   * \param packet the packet to send
+   */
+  virtual void DoSendBeforeApplyNecessaryOptions(Ptr<Packet> packet);
 
 
 private:

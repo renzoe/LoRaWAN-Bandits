@@ -32,6 +32,7 @@ using namespace AIToolbox::Bandit;
 namespace ns3 {
 namespace lorawan {
 
+  // [Renzo] This was a wrappter for a bandig policy, but we are currently not using it. We currently use AIToolbox::Bandit::PolicyInterface class
 class BanditPolicy : public Object
 {
 public:

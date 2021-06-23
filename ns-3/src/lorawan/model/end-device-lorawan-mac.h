@@ -425,10 +425,6 @@ protected:
    */
   struct LoraRetxParameters m_retxParams;
 
-  /*
-   * [Renzo] bool to indicate if we are Retransmitting an old packet or not
-   * */
-  bool m_retransmitting_old_packet;
 
   /**
    * An uniform random variable, used by the Shuffle method to randomly reorder
@@ -446,6 +442,32 @@ protected:
    * \see class CallBackTraceSource
    */
   TracedCallback<uint8_t, bool, Time, Ptr<Packet> > m_requiredTxCallback;
+
+  //////////////////////////////////////////////////////////////////////
+  //  The current UL Frame Counter (moved from private to protected)  //
+  //////////////////////////////////////////////////////////////////////
+
+  uint16_t m_currentFCnt;
+
+  //////////////////////////////////////////////////////////////
+  //  Protected members needed for Bandit Logic help	      //
+  //////////////////////////////////////////////////////////////
+
+  /**
+   * [Renzo] Auxiliary function called inside EndDeviceLorawanMac::DoSend
+   * before EndDeviceLorawanMac::ApplyNecessaryOptions()
+   * In particular, we use it for Bandits logic, to decide and apply the
+   * BanditRewardReq MAC command.
+   *
+   * \param packet the packet to send
+   */
+  virtual void DoSendBeforeApplyNecessaryOptions(Ptr<Packet> packet);
+
+  /*
+   * [Renzo] bool to indicate if we are Retransmitting an old packet or not
+   * */
+  bool m_retransmitting_old_packet;
+
 
 private:
   /**
@@ -507,7 +529,6 @@ private:
    */
   LorawanMacHeader::MType m_mType;
 
-  uint16_t m_currentFCnt;
 };
 
 

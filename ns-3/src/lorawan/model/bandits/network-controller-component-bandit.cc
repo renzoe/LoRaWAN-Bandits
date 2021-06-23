@@ -71,8 +71,11 @@ NetworkControllerComponentBandit::BeforeSendingReply (Ptr<EndDeviceStatus> statu
 {
   NS_LOG_FUNCTION (this << status << networkStatus);
 
-  NS_LOG_FUNCTION ("Packets received by this device (" << status->GetReceivedPacketList ().size () << ") !!!! " );
-  NS_LOG_FUNCTION ("Last Packet Frame Count:  (" << status->GetLastReceivedPacketInfo().fCnt << ") OMG !!!!!!!!!!!!!!!!!!!" );
+  // Colored Terminal: https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
+  NS_LOG_FUNCTION ("\033[1;33m");
+  NS_LOG_FUNCTION ("\033[1;33m"<<"Packets received by this device (" << status->GetReceivedPacketList ().size () << ") !!!! "<< "\033[0m");
+  NS_LOG_FUNCTION ("\033[1;33m"<<"Last Packet Frame Count:  (" << status->GetLastReceivedPacketInfo().fCnt << ") OMG !!!!!!!!!!!!!!!!!!!"<< "\033[0m");
+  NS_LOG_FUNCTION ("\033[0m");
 
   // See: void AdrComponent::BeforeSendingReply, I inspired from there the packet/reply threatment.
 
@@ -143,11 +146,14 @@ NetworkControllerComponentBandit::GetBanditRewardAns (
     EndDeviceStatus::ReceivedPacketList packetList)
 {
 
-  uint8_t  frmToDelta   = banditRewardReq->GetFrameCountTo();
-  uint16_t frmFromAbs = banditRewardReq->GetFrameCountFrom(); //std::bitset<16> (m_fCnt_from)
-  uint16_t frmToAbs =  unsigned(frmFromAbs) + unsigned(frmToDelta); // Overflow Can happen..
+  uint16_t frmCntMaxAbs   = banditRewardReq->GetFrameCountMax(); //std::bitset<16> (m_fCnt_from)
+  uint8_t  frmCntDeltaMin = banditRewardReq->GetFrameCountDeltaMin();
 
-  NS_LOG_FUNCTION ("MAC BanditRewardReq , Frame frmFromAbs" << frmFromAbs << " .... to frmToDelta : " << unsigned(frmToDelta) << " .... to frmToAbs : " << unsigned(frmToAbs));
+  uint16_t frmCntMinAbs =  unsigned(frmCntMaxAbs) - unsigned(frmCntDeltaMin);
+
+ // Colored Terminal: https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
+  NS_LOG_FUNCTION ("\033[1;33m");
+  NS_LOG_FUNCTION ("MAC BanditRewardReq , Frame frmCntMinAbs" << frmCntMinAbs << " .... to frmCntDeltaMin : " << unsigned(frmCntDeltaMin) << " .... to frmCntMaxAbs : " << unsigned(frmCntMaxAbs));
 
   //  typedef std::list<std::pair<Ptr<Packet const>, ReceivedPacketInfo> >   ReceivedPacketList; //EndDeviceStatus::
   //Iteration inspired by "AdrComponent::GetMinSNR"
@@ -159,14 +165,14 @@ NetworkControllerComponentBandit::GetBanditRewardAns (
   auto it = packetList.rbegin ();
   uint16_t frmCurrentIt = (it->second.fCnt); // The max Fcount
 
-  if (frmFromAbs == 0)
-    frmFromAbs = 1; // FCnt = 0 does not exists, it starts at 1.
+  if (frmCntMinAbs == 0)
+    frmCntMinAbs = 1; // FCnt = 0 does not exists, it starts at 1.
 
-  while (frmFromAbs <= frmCurrentIt)
+  while (frmCntMinAbs <= frmCurrentIt)
     {
       NS_LOG_FUNCTION("frmCurrentIt: " << frmCurrentIt);
 
-      if ((frmFromAbs <= frmCurrentIt) &&  (frmCurrentIt <= frmToAbs)) // (frmFromAbs <= frmCurrentIt) redundant because its in while
+      if ((frmCntMinAbs <= frmCurrentIt) &&  (frmCurrentIt <= frmCntMaxAbs)) // (frmCntMinAbs <= frmCurrentIt) redundant because its in the while condition
 	{
 	  int SfToDR = (12 - unsigned (it->second.sf)); // number 12 convers from SF to DR ... TODO use proper function
 	  dr_rcv_packets[SfToDR]++;
@@ -175,16 +181,17 @@ NetworkControllerComponentBandit::GetBanditRewardAns (
 	      "dr_rcv_packets["<< SfToDR << "]: " << unsigned(dr_rcv_packets[SfToDR]));
 	}
 
-      if (frmFromAbs == frmCurrentIt) break;
+      if (frmCntMinAbs == frmCurrentIt) break;
 
       ++it;
       frmCurrentIt = (it->second.fCnt);
-      NS_LOG_FUNCTION("frmNEXTCurrentIt: " << frmCurrentIt << "   frmFromAbs: " << frmFromAbs);
+      NS_LOG_FUNCTION("frmNEXTCurrentIt: " << frmCurrentIt << "   frmCntMinAbs: " << frmCntMinAbs);
 
 
     } // The logic I use could be better... I had infinite loop issues with the number Zero, also because it is "unsigned" and we are not using a proper "counter", but real values of  fCnt.
       // All this logic could be done cleaner (also, in current implementation issues can happen in out of order messages -early exit loop ...-).
 
+  NS_LOG_FUNCTION ("\033[0m");
 
 
 

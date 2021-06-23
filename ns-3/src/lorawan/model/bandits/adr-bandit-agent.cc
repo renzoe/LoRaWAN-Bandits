@@ -130,5 +130,11 @@ AdrBanditAgent::ChooseArm ()
   return m_aiPolicy->sampleAction();
 }
 
+size_t
+AdrBanditAgent::GetNumberOfArms ()
+{
+  return NUMER_OF_ARMS;
+}
+
 } /* namespace lorawan */
 } /* namespace ns3 */

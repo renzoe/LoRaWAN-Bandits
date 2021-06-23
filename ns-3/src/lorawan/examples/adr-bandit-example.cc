@@ -101,8 +101,8 @@ int main (int argc, char *argv[])
     LogComponentEnable ("NetworkServer", LOG_LEVEL_ALL);
 
     LogComponentEnable ("NetworkController", LOG_LEVEL_ALL);
-    LogComponentEnable ("NetworkScheduler", LOG_LEVEL_ALL);
-    LogComponentEnable ("NetworkStatus", LOG_LEVEL_ALL);
+   // LogComponentEnable ("NetworkScheduler", LOG_LEVEL_ALL);
+   // LogComponentEnable ("NetworkStatus", LOG_LEVEL_ALL);
 
 
    // LogComponentEnable ("EndDeviceStatus", LOG_LEVEL_ALL);
@@ -122,7 +122,7 @@ int main (int argc, char *argv[])
    //LogComponentEnable ("EndDeviceLorawanMac", LOG_LEVEL_ALL);
 
    // LogComponentEnable ("LogicalLoraChannelHelper", LOG_LEVEL_ALL);
-    LogComponentEnable ("MacCommand", LOG_LEVEL_ALL);
+   //LogComponentEnable ("MacCommand", LOG_LEVEL_ALL);
    // LogComponentEnable ("AdrExploraSf", LOG_LEVEL_ALL);
    // LogComponentEnable ("AdrExploraAt", LOG_LEVEL_ALL);
 
@@ -140,9 +140,12 @@ int main (int argc, char *argv[])
 
 
     LogComponentEnable ("NetworkControllerComponentBandit", LOG_LEVEL_ALL);
+    LogComponentEnable ("BanditDelayedRewardIntelligence", LOG_LEVEL_ALL);
+
 
 
     LogComponentEnable ("PeriodicSender", LOG_LEVEL_ALL);
+
 
 
 

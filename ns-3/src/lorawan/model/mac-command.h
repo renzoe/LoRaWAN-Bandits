@@ -632,19 +632,20 @@ class BanditRewardReq : public MacCommand
 public:
   BanditRewardReq ();
 
-  BanditRewardReq (uint16_t fCnt_from, uint8_t fCnt_to);
+  BanditRewardReq (uint16_t fCntMax, uint8_t fCntDeltaMin);
 
   virtual void Serialize (Buffer::Iterator &start) const;
   virtual uint8_t Deserialize (Buffer::Iterator &start);
   virtual void Print (std::ostream &os) const;
 
-  uint16_t GetFrameCountFrom (void);
-  uint8_t GetFrameCountTo (void);
+  uint16_t GetFrameCountMax (void);
+  uint8_t GetFrameCountDeltaMin (void);
 
 
 private:
-  uint16_t m_fCnt_from;
-  uint8_t m_fCntDelta_to;
+  //[Renzo] Maybe an approach with m_fCntMin and Delta for Max was "better": evaluate (needs extensive logic changes).
+  uint16_t m_fCntMax;
+  uint8_t m_fCntDeltaMin;
 };
 
 /**

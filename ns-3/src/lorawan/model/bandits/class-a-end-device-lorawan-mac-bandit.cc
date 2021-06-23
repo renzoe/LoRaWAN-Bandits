@@ -18,7 +18,7 @@
  * Author: Renzo E. Navas <renzo.navas@inria.fr>
  */
 
-//#include "ns3/class-a-end-device-lorawan-mac-bandit.h"
+
 #include "ns3/class-a-end-device-lorawan-mac-bandit.h"
 #include "ns3/end-device-lorawan-mac.h"
 #include "ns3/end-device-lora-phy.h"
@@ -27,6 +27,8 @@
 #include "ns3/lora-tag.h"
 
 #include <algorithm>
+
+
 
 namespace ns3 {
 namespace lorawan {
@@ -81,7 +83,20 @@ ClassAEndDeviceLorawanMacBandit::ClassAEndDeviceLorawanMacBandit () //:
 		//ClassAEndDeviceLorawanMac() // It is already called
 {
   NS_LOG_FUNCTION (this  <<  "I am a bandit" );
-  this->adr_bandit_agent = Create<AdrBanditAgent> ();
+  this->m_adrBanditAgent = Create<AdrBanditAgent> ();
+
+
+
+
+  //[Renzo] I am doing a shorcut to have the pointer in the  m_adrBanditRewardHelper TODO: proper constructor/encapsulation
+  Ptr<BanditDelayedRewardIntelligence> tmp = Create<BanditDelayedRewardIntelligence> ();
+  tmp->m_adrBanditAgent = this->m_adrBanditAgent;
+  this->m_banditDelayedRewardIntelligence = tmp;
+
+  //(this->m_banditDelayedRewardHelper)->m_adrBanditAgent = this->m_adrBanditAgent; // Does not work for some reason..
+
+
+
 
 }
 
@@ -95,6 +110,75 @@ ClassAEndDeviceLorawanMacBandit::~ClassAEndDeviceLorawanMacBandit ()
 /////////////////////
 
 void
+ClassAEndDeviceLorawanMacBandit::DoSendBeforeApplyNecessaryOptions (Ptr<Packet> packet)
+{
+  //This function only called one new packets, not on re
+  // Colored Terminal: https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
+  NS_LOG_INFO("\033[1;31m");
+
+  NS_LOG_INFO("DoSendBeforeApplyNecessaryOptions");
+
+
+  //***************************************************************
+    //[Renzo] BANDIT chooses next m_dataRate
+    //m_dataRate = this->adr_bandit_agent->ChooseArm();
+    m_dataRate = 4 ; // Debugging with SF7 to create lost frames
+
+    m_banditDelayedRewardIntelligence->UpdateUsedArm(m_dataRate, this->m_currentFCnt);
+
+
+    NS_LOG_INFO ("Bandit chosen DR!:" << unsigned(m_dataRate));
+    //renzo TODO: until implementing better feedback, I express that I used this arm, and this has a cost; I don't know if It will be rewarded (should compensate)
+    NS_LOG_INFO ("Bandit chosen DR COST!:" << cost_for_arm[m_dataRate]);
+    this->m_adrBanditAgent->UpdateReward(m_dataRate, cost_for_arm[m_dataRate]);
+
+    // The message tuple was applied to the header before EndDeviceLorawanMac:ApplyNecessaryOptions(), I force here a CONFIRMED_DATA_UP message. This code was for Bandit without custom MAC command implementation
+    /*NS_LOG_INFO ("Bandit type m_mType:" << unsigned(this->GetMType()));
+    this->SetMType(ns3::lorawan::LorawanMacHeader::CONFIRMED_DATA_UP);
+    NS_LOG_INFO ("Bandit type m_mType:" << unsigned(this->GetMType()));*/
+
+
+
+    /* TODO fix this logic. This prevents a bug, where  a MAC command gets added multiple times . Proper solution: Add directly to the frame header at higher logic chain to ::SendToPhy  (::Send or ::DoSend)*/
+    NS_LOG_INFO("About to check if Retranssmiting an old packet:  m_retransmitting_old_packet? \t\t\t\t\t!!!!!!!!!!! : " << (m_retransmitting_old_packet));
+    //m_retransmitting_old_packet = false; // this is to replicate the bug, if we always add the MacCommand it will re-add to retransmissions eventually making the frame too big.
+
+    if (!m_retransmitting_old_packet) /* if this is NOT a retransmission. See EndDeviceLorawanMac::DoSend (Ptr<Packet> packet) for retransmission logic */
+      { /* Because if this is a restransmission we will ad N times the MAC command. This mac command logic should be done at higer layers if done properly .... */
+
+        NS_LOG_INFO( "this is NOT a Retransmission !! we add the MAC command ");
+
+        uint16_t currentFrame = (this->m_currentFCnt); // unsigned (0) // We are one FCNT behind because this will be sent next time, I add +1 to cheat this.....
+        uint8_t  frameDelta  = 0; // unsigned (100)
+
+        if(m_banditDelayedRewardIntelligence->isGetRewardsMacCommandReqNeeded())
+          {
+  	  Ptr<BanditRewardReq> req = m_banditDelayedRewardIntelligence->GetRewardsMacCommandReq (currentFrame);
+  	  this->AddMacCommand (req);
+          }
+
+
+        //Ptr<BanditRewardReq> req = CreateObject<BanditRewardReq> (currentFrame, frameDelta);
+
+        //this->AddMacCommand (req);
+        //CreateObject<BanditRewardReq> (currentFrame, frameDelta)); // This MAC command will be added to the NEXT packet! TODO: add to current packet at higher layer logic (before SendToPhy and DoSend)
+
+        //packetToSend->frameHeader.AddCommand (command); // or  Add directly to the frame?
+        //CreateObject<BanditRewardReq> vs Create<BanditRewardReq>?
+
+
+
+      }
+
+
+    //***************************************************************
+
+
+
+  NS_LOG_INFO("\033[0m");
+}
+
+void
 ClassAEndDeviceLorawanMacBandit::SendToPhy (Ptr<Packet> packetToSend)
 {
   /////////////////////////////////////////////////////////
@@ -104,8 +188,8 @@ ClassAEndDeviceLorawanMacBandit::SendToPhy (Ptr<Packet> packetToSend)
   NS_LOG_DEBUG ("PacketToSend: " << packetToSend << "\t\tBandit!!!!!!!!!!!!!!");
 
   // Data Rate Adaptation as in LoRaWAN specification, V1.0.2 (2016) --> ADR Backoff
-  // Renzo: we disable it for bandits:
-  m_enableDRAdapt = false;
+  m_enableDRAdapt = false; // Renzo: we disable it for bandits!
+
   if (m_enableDRAdapt && (m_dataRate > 0)
       && (m_retxParams.retxLeft < m_maxNumbTx)
       && (m_retxParams.retxLeft % 2 == 0) )
@@ -117,46 +201,9 @@ ClassAEndDeviceLorawanMacBandit::SendToPhy (Ptr<Packet> packetToSend)
   // Craft LoraTxParameters object
   LoraTxParameters params;
 
-  //***************************************************************
-  //[Renzo] BANDIT chooses next m_dataRate
-  //m_dataRate = this->adr_bandit_agent->ChooseArm();
-  m_dataRate = 5 ; // Debugging with SF7 to create lost frames
-
-  NS_LOG_INFO ("Bandit chosen DR!:" << unsigned(m_dataRate));
-
-  //renzo TODO: until implementing bettter feedback, I express that I used this arm and had a cost, I don't know if It will be rewarded (should compensate)
-  NS_LOG_INFO ("Bandit chosen DR COST!:" << cost_for_arm[m_dataRate]);
-  this->adr_bandit_agent->UpdateReward(m_dataRate, cost_for_arm[m_dataRate]);
-
-  // this was applied to the header before EndDeviceLorawanMac:ApplyNecessaryOptions(), I force here a CONFIRMED_DATA_UP message. This was for Bandit withoug MAC command
-  /*NS_LOG_INFO ("Bandit type m_mType:" << unsigned(this->GetMType()));
-  this->SetMType(ns3::lorawan::LorawanMacHeader::CONFIRMED_DATA_UP);
-  NS_LOG_INFO ("Bandit type m_mType:" << unsigned(this->GetMType()));*/
-
-
-
-  /* TODO fix this logic. This prevent a bug, where  mac command gets added multiple times . Proper solution: Add directly to the frame header at higher layer thank SendToPhy */
-  NS_LOG_INFO("About to check if Retranssmiting an old packet:  m_retransmitting_old_packet? \t\t\t\t\t!!!!!!!!!!! : " << (m_retransmitting_old_packet));
-  //m_retransmitting_old_packet = false; // this is to replicate the bug, if we always add the MacCommand it re-add to retransmittions
-  if (!m_retransmitting_old_packet) /* if this is NOT a retransmission. See EndDeviceLorawanMac::DoSend (Ptr<Packet> packet) for retransmission logic */
-    { /* Because if this is a restransmission we will ad N times the MAC command. This mac command logic should be done at higer layers if done properly .... */
-      NS_LOG_INFO(
-	  "this is NOT a Retransmission !! we add the MAC command ");
-      this->AddMacCommand (
-	  CreateObject<BanditRewardReq> (unsigned (0), unsigned (100))); // This MAC command will be added to the NEXT packet! TODO: add to current packet at higher layer logic (before SendToPhy and DoSend)
-      //packetToSend->frameHeader.AddCommand (command); // or  Add directly to the frame?
-      //CreateObject<BanditRewardReq> vs Create<BanditRewardReq>?
-
-    }
-
-
-  //(In this alpha version of bandit we magically will update the results from the network server.)
-  //packetToSend
-  //LoraFrameHeader frameHdr;
-  //frameHdr.SetAck (true);
-
-  //***************************************************************
-
+  //*******Renzo******************************
+  //m_dataRate was already chosen by the bandit logic on DoSendBeforeApplyNecessaryOptions ...
+  //**************************************
 
   params.sf = GetSfFromDataRate (m_dataRate);
   params.headerDisabled = m_headerDisabled;
@@ -211,7 +258,7 @@ ClassAEndDeviceLorawanMacBandit::SendToPhy (Ptr<Packet> packetToSend)
  * @param packetCopy TODO: for now we only extract SF info an assume a reward for this DL SF
  */
 void
-ClassAEndDeviceLorawanMacBandit::BanditDelayedFeedbackUpdate (
+ClassAEndDeviceLorawanMacBandit::BanditDelayedFeedbackUpdateOLD (
     const Ptr<Packet> &packetCopy)
 {
   // RENZO Also... update bandit
@@ -228,9 +275,26 @@ ClassAEndDeviceLorawanMacBandit::BanditDelayedFeedbackUpdate (
       "\n\t\t\tThe DR of received msg will feed bandit: '"<< unsigned(lDR)<<"' !!!!!!!!!");
 
   NS_LOG_INFO ("Bandit chosen DR REWARD!:" << reward_for_arm[lDR]);
-  this->adr_bandit_agent->UpdateReward (lDR, reward_for_arm[lDR]);
+  this->m_adrBanditAgent->UpdateReward (lDR, reward_for_arm[lDR]);
 
 }
+
+void
+ClassAEndDeviceLorawanMacBandit::BanditDelayedFeedbackUpdate (
+    Ptr<BanditRewardAns> delayedRewards)
+{
+
+  // Colored Terminal: https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
+  NS_LOG_FUNCTION("\033[1;32m");
+  NS_LOG_FUNCTION(delayedRewards->GetDataRateStatistics() << "chupé petarditos, te llamo a mi amigo:");
+
+  m_banditDelayedRewardIntelligence->UpdateRewardsAns(delayedRewards); // (this->m_currentFCnt)
+
+  std::vector<int> drStatistics = delayedRewards->GetDataRateStatistics();
+
+  NS_LOG_FUNCTION("\033[0m");
+}
+
 
 //////////////////////////
 //  Receiving methods   //
@@ -275,8 +339,9 @@ ClassAEndDeviceLorawanMacBandit::Receive (Ptr<Packet const> packet)
           Simulator::Cancel (m_secondReceiveWindow);
 
 
-          // Parse the MAC commands
+          // Parse the MAC commands (will include a call to OnBanditRewardAns if the MAC is present)
           ParseCommands (fHdr);
+
 
           // TODO Pass the packet up to the NetDevice
 
@@ -285,7 +350,7 @@ ClassAEndDeviceLorawanMacBandit::Receive (Ptr<Packet const> packet)
           m_receivedPacket (packet);
 
           // RENZO Also... update bandit with the delayed Feedback
-	  BanditDelayedFeedbackUpdate (packetCopy);
+	  //BanditDelayedFeedbackUpdateOLD (packetCopy);
 
           // Call the trace source for Pcap Sniffing
           m_receivedPacketRxSnifferTrace(packet);
@@ -376,45 +441,13 @@ ClassAEndDeviceLorawanMacBandit::OnBanditRewardAns (Ptr<MacCommand> banditReward
 
 
 
-  Ptr<BanditRewardAns> petardis = DynamicCast<BanditRewardAns>(banditRewardAns); // I could have used GetObject<> (); See "downcasting" https://www.nsnam.org/docs/manual/html/object-model.html
+  Ptr<BanditRewardAns> delayedRewards = DynamicCast<BanditRewardAns>(banditRewardAns); // I could have used GetObject<> (); See "downcasting" https://www.nsnam.org/docs/manual/html/object-model.html
 
-  NS_LOG_FUNCTION ("\t\t OnBanditRewardAns! Soy bandido y me gusta este comando MAC !!!  "<< petardis->GetDataRateStatistics());
+  NS_LOG_FUNCTION ("\t\t OnBanditRewardAns! Soy bandido y me gusta este comando MAC !!!  " << delayedRewards->GetDataRateStatistics());
 
-  //(Ptr<BanditRewardAns>)banditRewardAns->
+  BanditDelayedFeedbackUpdate(delayedRewards);
+  //m_banditDelayedRewardIntelligence->UpdateRewardsAns (delayedRewards); // Put the logic on BanditDelayedFeedbackUpdate(delayedRewards);
 
-
-//  bool offsetOk = true;
-//  bool dataRateOk = true;
-//
-//  uint8_t rx1DrOffset = rxParamSetupReq->GetRx1DrOffset ();
-//  uint8_t rx2DataRate = rxParamSetupReq->GetRx2DataRate ();
-//  double frequency = rxParamSetupReq->GetFrequency ();
-//
-//  NS_LOG_FUNCTION (this << unsigned (rx1DrOffset) << unsigned (rx2DataRate) <<
-//                   frequency);
-//
-//  // Check that the desired offset is valid
-//  if ( !(0 <= rx1DrOffset && rx1DrOffset <= 5))
-//    {
-//      offsetOk = false;
-//    }
-//
-//  // Check that the desired data rate is valid
-//  if (GetSfFromDataRate (rx2DataRate) == 0
-//      || GetBandwidthFromDataRate (rx2DataRate) == 0)
-//    {
-//      dataRateOk = false;
-//    }
-//
-//  // For now, don't check for validity of frequency
-//  m_secondReceiveWindowDataRate = rx2DataRate;
-//  m_rx1DrOffset = rx1DrOffset;
-//  m_secondReceiveWindowFrequency = frequency;
-//
-//  // Craft a RxParamSetupAns as response
-//  NS_LOG_INFO ("Adding RxParamSetupAns reply");
-//  m_macCommandList.push_back (CreateObject<RxParamSetupAns> (offsetOk,
-//                                                             dataRateOk, true));
 
 }
 

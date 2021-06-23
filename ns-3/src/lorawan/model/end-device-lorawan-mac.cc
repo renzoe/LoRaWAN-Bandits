@@ -120,13 +120,14 @@ EndDeviceLorawanMac::EndDeviceLorawanMac ()
       m_address (LoraDeviceAddress (0)),
       // LoraWAN default
       m_receiveWindowDurationInSymbols (8),
+      m_currentFCnt (0),
+      m_retransmitting_old_packet(false),
       // LoraWAN default
       m_controlDataRate (false),
       m_lastKnownLinkMargin (0),
       m_lastKnownGatewayCount (0),
       m_aggregatedDutyCycle (1),
-      m_mType (LorawanMacHeader::CONFIRMED_DATA_UP),
-      m_currentFCnt (0)
+      m_mType (LorawanMacHeader::CONFIRMED_DATA_UP)
 {
   NS_LOG_FUNCTION (this);
 
@@ -204,20 +205,31 @@ EndDeviceLorawanMac::postponeTransmission (Time netxTxDelay, Ptr<Packet> packet)
 
 
 void
+EndDeviceLorawanMac::DoSendBeforeApplyNecessaryOptions (Ptr<Packet> packet)
+{ }
+
+void
 EndDeviceLorawanMac::DoSend (Ptr<Packet> packet)
 {
   NS_LOG_FUNCTION (this);
-  m_retransmitting_old_packet = false; /* Renzo : Added this bool, because at SendToPhy was not possible to recover this information */
+
+  m_retransmitting_old_packet = false; /* [Renzo] : Added this bool, because at SendToPhy was not possible to recover this information */
+  /* [Renzo] To enhance Bandit logic, adding the code here or before on EndDeviceLorawanMac::Send is a good place,
+   * The logic should done before calling the "ApplyNecessaryOptions (frameHdr)" and "packet->AddHeader (frameHdr)" functions.
+   * */
+
   // Checking if this is the transmission of a new packet
   if (packet != m_retxParams.packet)
     {
       NS_LOG_DEBUG ("Received a new packet from application. Resetting retransmission parameters.");
       m_currentFCnt++;
+      NS_LOG_DEBUG ("m_currentFCnt: " << m_currentFCnt << ".");
       NS_LOG_DEBUG ("APP packet: " << packet << ".");
 
       // Add the Lora Frame Header to the packet
       LoraFrameHeader frameHdr;
-      ApplyNecessaryOptions (frameHdr);
+      DoSendBeforeApplyNecessaryOptions(packet); //[Renzo] Bandit logic (we will decide if we add the MAC command)
+      ApplyNecessaryOptions (frameHdr); /* [Renzo] MAC commands should be added before this line to be applied to the current packet --> DONE */
       packet->AddHeader (frameHdr);
 
       NS_LOG_INFO ("Added frame header of size " << frameHdr.GetSerializedSize () <<

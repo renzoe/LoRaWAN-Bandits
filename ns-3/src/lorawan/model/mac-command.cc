@@ -1245,9 +1245,9 @@ BanditRewardReq::BanditRewardReq ()
 }
 
 
-BanditRewardReq::BanditRewardReq (uint16_t fCnt_from, uint8_t fCnt_to) :
-  m_fCnt_from (fCnt_from),
-  m_fCntDelta_to (fCnt_to)
+BanditRewardReq::BanditRewardReq (uint16_t fCntMax, uint8_t fCntDeltaMin) :
+  m_fCntMax (fCntMax),
+  m_fCntDeltaMin (fCntDeltaMin)
 {
   NS_LOG_FUNCTION (this);
 
@@ -1262,8 +1262,8 @@ BanditRewardReq::Serialize (Buffer::Iterator &start) const
 
   // Write the CID
   start.WriteU8 (GetCIDFromMacCommand (m_commandType));
-  start.WriteU16 (m_fCnt_from);
-  start.WriteU8 (m_fCntDelta_to);
+  start.WriteU16 (m_fCntMax);
+  start.WriteU8 (m_fCntDeltaMin);
 }
 
 uint8_t
@@ -1274,8 +1274,8 @@ BanditRewardReq::Deserialize (Buffer::Iterator &start)
   // Consume the CID
   start.ReadU8 ();
 
-  m_fCnt_from = start.ReadU16 ();
-  m_fCntDelta_to = start.ReadU8 ();
+  m_fCntMax = start.ReadU16 ();
+  m_fCntDeltaMin = start.ReadU8 ();
 
 
   return m_serializedSize;
@@ -1287,25 +1287,25 @@ BanditRewardReq::Print (std::ostream &os) const
   NS_LOG_FUNCTION_NOARGS ();
 
   os << "MAC_BanditRewardReq" << std::endl;
-  os << "m_fCnt_from: " << std::bitset<16> (m_fCnt_from) << std::endl;
-  os << "m_fCntDelta_to: " << unsigned (m_fCntDelta_to) << std::endl;
+  os << "m_fCntMax: " << std::bitset<16> (m_fCntMax) << std::endl;
+  os << "m_fCntDeltaMin: " << unsigned (m_fCntDeltaMin) << std::endl;
 }
 
 
 uint16_t
-BanditRewardReq::GetFrameCountFrom (void)
+BanditRewardReq::GetFrameCountMax (void)
 {
     NS_LOG_FUNCTION_NOARGS ();
 
-    return m_fCnt_from;
+    return m_fCntMax;
 }
 
 uint8_t
-BanditRewardReq::GetFrameCountTo (void)
+BanditRewardReq::GetFrameCountDeltaMin (void)
 {
   NS_LOG_FUNCTION_NOARGS ();
 
-  return m_fCntDelta_to;
+  return m_fCntDeltaMin;
 }
 
 
