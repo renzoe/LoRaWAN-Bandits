@@ -282,7 +282,7 @@ ClassAEndDeviceLorawanMacBandit::BanditDelayedFeedbackUpdate (
   m_banditDelayedRewardIntelligence->UpdateRewardsAns(delayedRewards); // (this->m_currentFCnt)
 
 
-  NS_LOG_FUNCTION("m_banditDelayedRewardIntelligence->printArmsAndRewardsVector():\n"<< m_banditDelayedRewardIntelligence->printArmsAndRewardsVector());
+  //NS_LOG_FUNCTION("m_banditDelayedRewardIntelligence->printArmsAndRewardsVector():\n"<< m_banditDelayedRewardIntelligence->printArmsAndRewardsVector());
 
 
 

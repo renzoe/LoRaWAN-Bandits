@@ -75,7 +75,6 @@ BanditDelayedRewardIntelligence::InitBanditAgentAndArms (
 void
 BanditDelayedRewardIntelligence::UpdateUsedArm (size_t armNumber,  int frameCnt)
 {
-  ++m_armsAndRewards[armNumber][0];
   ++std::get<0>(m_armsAndRewardsVector[armNumber]);
 
   if (frameCnt > m_frmCntMaxWithoutStats) m_frmCntMaxWithoutStats = frameCnt;
@@ -141,11 +140,15 @@ BanditDelayedRewardIntelligence::ConsolidateRewardsIntoBandit ()
     {
       if(std::get<0>(m_armsAndRewardsVector[i]) == 0) continue; // The arm was not used! (no reward to update)
 
-      double reward = std::get<1>(m_armsAndRewardsVector[i])/std::get<0>(m_armsAndRewardsVector[i]); // The Packet Delivery Ratio of that Arm
+      double reward = std::get<2>(m_armsAndRewardsVector[i]) = std::get<1>(m_armsAndRewardsVector[i])/std::get<0>(m_armsAndRewardsVector[i]); // The Packet Delivery Ratio of that Arm
       //std::get<2>(m_armsAndRewardsVector[i]) = drStatistics[i]/std::get<0>(m_armsAndRewardsVector[i]); // The "Packet Delivery Ratio" of that "Arm" WARNING Division by 0 !!!!!!!
       NS_LOG_INFO("ConsolidateRewardsIntoBandit. Arm DR=: " <<i<<" , Reward: "<< reward);
       m_adrBanditAgent->UpdateReward(i, reward);
     }
+
+  NS_LOG_FUNCTION("printArmsAndRewardsVector():\n"<< printArmsAndRewardsVector());
+
+  CleanArmsStats ();
 
   //TODO: Call function to CleanArmsStats from the vector!!!
 
@@ -155,9 +158,10 @@ BanditDelayedRewardIntelligence::ConsolidateRewardsIntoBandit ()
 void
 BanditDelayedRewardIntelligence::CleanArmsStats ()
 {
-  // https://stackoverflow.com/questions/3948290/what-is-the-safe-way-to-fill-multidimensional-array-using-stdfill
-
-  std::fill( &m_armsAndRewards[0][0], &m_armsAndRewards[0][0] + sizeof(m_armsAndRewards) /* / sizeof(flags[0][0]) */, 0 );
+  for (unsigned int i = 0; i < m_armsAndRewardsVector.size(); i++)
+    {
+      std::get<0>(m_armsAndRewardsVector[i]) = std::get<1>(m_armsAndRewardsVector[i]) =  std::get<2>(m_armsAndRewardsVector[i]) = 0;
+    }
 }
 
 
@@ -189,9 +193,11 @@ BanditDelayedRewardIntelligence::printArmsAndRewardsVector ()
 {
   std::stringstream ss;
 
+  ss<<"\n";
+
   for (unsigned int i = 0; i < m_armsAndRewardsVector.size(); i++)
     {
-      ss << "(" << std::get<0>(m_armsAndRewardsVector[i]) << " , " << std::get<1>(m_armsAndRewardsVector[i]) <<  " , " << std::get<2>(m_armsAndRewardsVector[i]) << " );";
+      ss << "(" << std::get<0>(m_armsAndRewardsVector[i]) << " , " << std::get<1>(m_armsAndRewardsVector[i]) <<  " , " << std::get<2>(m_armsAndRewardsVector[i]) << " )\n";
     }
 
   return ss.str();

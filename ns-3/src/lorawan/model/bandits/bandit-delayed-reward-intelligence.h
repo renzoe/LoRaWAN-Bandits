@@ -111,9 +111,6 @@ protected:
   static const int HARDCODED_NUMBER_ARMS = 6 ; // TODO: fix this with time to dinamically allocate the "m_armsAndRewards" atributo on InitBanditAgentAndArms(Ptr<AdrBanditAgent> adrBanditAgent)
 
 
-  int m_armsAndRewards[HARDCODED_NUMBER_ARMS][3] = {}; // https://stackoverflow.com/questions/3948290/what-is-the-safe-way-to-fill-multidimensional-array-using-stdfill
-  //std::vector<unsigned long> m_usedArms;
-
   typedef std::tuple <int, int, double> arm_stats; // <packets sent, packets rcv, "reward">
   std::vector<arm_stats> m_armsAndRewardsVector;
 
