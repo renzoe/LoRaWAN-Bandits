@@ -65,7 +65,16 @@ public:
   bool isGetRewardsMacCommandReqNeeded () const;
 
   Ptr<BanditRewardReq> GetRewardsMacCommandReq(uint16_t currentFrame);
+
   void UpdateRewardsAns(Ptr<BanditRewardAns> delayedRewardsAns);
+
+  /**
+   * @brief This function is to decouple the logic from  UpdateRewardsAns (depending on MAC command)
+   * Here we focus only in calculated delayed reward per arm, and we could try different rewards functions.
+   *
+   *
+   */
+  void ConsolidateRewardsIntoBandit();
 
 
   void UpdateUsedArm(size_t armNumber, int frameCnt);
@@ -80,6 +89,7 @@ public:
 
 
   bool m_waitingForStats = false;
+  std::string printArmsAndRewardsVector();
 
 protected:
 
@@ -92,16 +102,20 @@ protected:
   int m_frmCntMaxWithoutStats=0;
 
   int m_requestedMaxFrmCntReward=0;
-  int m_frmCntDeltaMin=0;
+  //int m_frmCntDeltaMin=0;
 
 
-  int m_currentFrmCntReward=0;
+  //int m_currentFrmCntReward=0;
 
 
   static const int HARDCODED_NUMBER_ARMS = 6 ; // TODO: fix this with time to dinamically allocate the "m_armsAndRewards" atributo on InitBanditAgentAndArms(Ptr<AdrBanditAgent> adrBanditAgent)
 
+
   int m_armsAndRewards[HARDCODED_NUMBER_ARMS][3] = {}; // https://stackoverflow.com/questions/3948290/what-is-the-safe-way-to-fill-multidimensional-array-using-stdfill
-  std::vector<unsigned long> m_usedArms;
+  //std::vector<unsigned long> m_usedArms;
+
+  typedef std::tuple <int, int, double> arm_stats; // <packets sent, packets rcv, "reward">
+  std::vector<arm_stats> m_armsAndRewardsVector;
 
 
 };

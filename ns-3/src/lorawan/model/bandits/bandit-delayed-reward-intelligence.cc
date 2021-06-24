@@ -37,6 +37,10 @@ TypeId BanditDelayedRewardIntelligence::GetTypeId (void)
 BanditDelayedRewardIntelligence::BanditDelayedRewardIntelligence ()
 {
   // TODO Auto-generated constructor stub
+  for (int i = 0; i < HARDCODED_NUMBER_ARMS; i++)
+    {
+      this->m_armsAndRewardsVector.push_back (arm_stats (0, 0, 0.0));
+    }
 
 }
 
@@ -50,12 +54,20 @@ void
 BanditDelayedRewardIntelligence::InitBanditAgentAndArms (
     Ptr<AdrBanditAgent> adrBanditAgent)
 {
+
+  // This function is not called, move all to a proper Constructor
   this->m_adrBanditAgent = adrBanditAgent;
-  this->CleanArmsStats();
   this->m_banditNeedsStats = true;
   this->m_waitingForStats = false;
 
+
+  //this->CleanArmsStats();
   //TODO: initialize arms use reward vector
+
+  NS_LOG_INFO("\033[1;31m");
+  NS_LOG_INFO("m_armsAndRewardsVector.size()" << m_armsAndRewardsVector.size());
+  //m_armsAndRewardsVector.size();
+ NS_LOG_INFO("\033[0m");
 }
 
 
@@ -64,6 +76,7 @@ void
 BanditDelayedRewardIntelligence::UpdateUsedArm (size_t armNumber,  int frameCnt)
 {
   ++m_armsAndRewards[armNumber][0];
+  ++std::get<0>(m_armsAndRewardsVector[armNumber]);
 
   if (frameCnt > m_frmCntMaxWithoutStats) m_frmCntMaxWithoutStats = frameCnt;
 
@@ -79,9 +92,12 @@ BanditDelayedRewardIntelligence::GetRewardsMacCommandReq (uint16_t currentFrame)
   uint8_t frameDelta =  currentFrame - m_frmCntMinWithoutStats;
   // Colored Terminal: https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
   NS_LOG_INFO("\033[1;31m");
-  NS_LOG_INFO("GetRewardsReq -- frameDelta = " << unsigned(frameDelta) << "  currentFrame: " << currentFrame);
 
-  Ptr<BanditRewardReq> req = CreateObject<BanditRewardReq> (currentFrame, frameDelta);
+  NS_LOG_INFO("m_armsAndRewardsVector.size(): " << m_armsAndRewardsVector.size());
+  NS_LOG_INFO("printArmsAndRewardsVector: "<< printArmsAndRewardsVector());
+  NS_LOG_INFO("GetRewardsMacCommandReq. frameDelta = " << unsigned(frameDelta) << "  currentFrame: " << currentFrame);
+
+  Ptr<BanditRewardReq> req = CreateObject<BanditRewardReq> (currentFrame, frameDelta); //CreateObject<BanditRewardReq> vs Create<BanditRewardReq>?
   m_waitingForStats= true;
 
   NS_LOG_INFO("\033[0m");
@@ -94,24 +110,44 @@ BanditDelayedRewardIntelligence::UpdateRewardsAns (
 {
 
 
-  //m_frmCntMaxWithoutStats
-
+  m_waitingForStats= false; /*TODO: remove, curerntly not using it?*/
   //if (m_requestedMaxFrmCntReward == currentFCnt) ...
 
   std::vector<int> drStatistics = delayedRewardsAns->GetDataRateStatistics();
 
+  //drStatistics.size() == m_adrBanditAgent->GetNumberOfArms() == m_armsAndRewardsVector.size()
+
   for (size_t i = 0; i < m_adrBanditAgent->GetNumberOfArms() ; i++)
     {
-      m_armsAndRewards[i][0];// if not zero:
-
-      m_armsAndRewards[i][1];//= //drStatistics[i] / m_armsAndRewards[i][0]
+      std::get<1>(m_armsAndRewardsVector[i]) += drStatistics[i]; // The Packet Delivery Ratio of that Arm
+      //std::get<2>(m_armsAndRewardsVector[i]) = drStatistics[i]/std::get<0>(m_armsAndRewardsVector[i]); // The "Packet Delivery Ratio" of that "Arm" WARNING Division by 0 !!!!!!!
     }
-
   //this->m_adrBanditAgent->UpdateReward(m_dataRate, cost_for_arm[m_dataRate]);
 
   m_frmCntMinWithoutStats = m_requestedMaxFrmCntReward+1;
+  //this->CleanArmsStats(); // After updating the bandit, we clean the m_armsAndRewards stats object; This lines gives a Segmentation fault at runtime!!!
 
-  //m_frmCntMinWithoutStats = currentFCnt+1;
+  ConsolidateRewardsIntoBandit ();
+
+
+}
+
+void
+BanditDelayedRewardIntelligence::ConsolidateRewardsIntoBandit ()
+{
+
+
+  for (size_t i = 0; i < m_adrBanditAgent->GetNumberOfArms() ; i++)
+    {
+      if(std::get<0>(m_armsAndRewardsVector[i]) == 0) continue; // The arm was not used! (no reward to update)
+
+      double reward = std::get<1>(m_armsAndRewardsVector[i])/std::get<0>(m_armsAndRewardsVector[i]); // The Packet Delivery Ratio of that Arm
+      //std::get<2>(m_armsAndRewardsVector[i]) = drStatistics[i]/std::get<0>(m_armsAndRewardsVector[i]); // The "Packet Delivery Ratio" of that "Arm" WARNING Division by 0 !!!!!!!
+      NS_LOG_INFO("ConsolidateRewardsIntoBandit. Arm DR=: " <<i<<" , Reward: "<< reward);
+      m_adrBanditAgent->UpdateReward(i, reward);
+    }
+
+  //TODO: Call function to CleanArmsStats from the vector!!!
 
 }
 
@@ -128,6 +164,7 @@ BanditDelayedRewardIntelligence::CleanArmsStats ()
 bool
 BanditDelayedRewardIntelligence::isGetRewardsMacCommandReqNeeded () const
 {
+  // Here we will have the bootstrap logic agressive in the beginning (<64 frames), less frequent later
   return m_banditNeedsStats;
 }
 
@@ -143,6 +180,22 @@ BanditDelayedRewardIntelligence::setBanditNeedsStats (
     bool mBanditNeedsStats)
 {
   m_banditNeedsStats = mBanditNeedsStats;
+}
+
+
+
+std::string
+BanditDelayedRewardIntelligence::printArmsAndRewardsVector ()
+{
+  std::stringstream ss;
+
+  for (unsigned int i = 0; i < m_armsAndRewardsVector.size(); i++)
+    {
+      ss << "(" << std::get<0>(m_armsAndRewardsVector[i]) << " , " << std::get<1>(m_armsAndRewardsVector[i]) <<  " , " << std::get<2>(m_armsAndRewardsVector[i]) << " );";
+    }
+
+  return ss.str();
+
 }
 
 }
