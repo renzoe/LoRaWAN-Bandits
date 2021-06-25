@@ -130,7 +130,7 @@ SimpleGatewayLoraPhy::StartReceive (Ptr<Packet> packet, double rxPowerDbm, uint8
     {
       // If we get to this point, there are no demodulators we can use
       NS_LOG_INFO ("Dropping packet reception of packet with sf = "
-                   << unsigned (sf) << " because we are in TX mode");
+                   << unsigned (sf) << " because we are in TX mode\a\a"); // [Renzo We want to minimize this TX mode of GW will be real issue in 1000+ nodes net if all request a downling]
 
       m_phyRxEndTrace (packet);
 

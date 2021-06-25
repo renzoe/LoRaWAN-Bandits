@@ -102,16 +102,15 @@ protected:
   int m_frmCntMaxWithoutStats=0;
 
   int m_requestedMaxFrmCntReward=0;
+
   //int m_frmCntDeltaMin=0;
-
-
   //int m_currentFrmCntReward=0;
 
 
-  static const int HARDCODED_NUMBER_ARMS = 6 ; // TODO: fix this with time to dinamically allocate the "m_armsAndRewards" atributo on InitBanditAgentAndArms(Ptr<AdrBanditAgent> adrBanditAgent)
+  static const int HARDCODED_NUMBER_ARMS = 6 ; // TODO: fix this with to dinamically allocate the "m_armsAndRewardsVector" atribute on InitBanditAgentAndArms(Ptr<AdrBanditAgent> adrBanditAgent)
 
 
-  typedef std::tuple <int, int, double> arm_stats; // <packets sent, packets rcv, "reward">
+  typedef std::tuple <int, int, double, double> arm_stats; // <packets sent, packets rcv, Packet Delivery Ratio (raw reward), reward scaling factor>
   std::vector<arm_stats> m_armsAndRewardsVector;
 
 

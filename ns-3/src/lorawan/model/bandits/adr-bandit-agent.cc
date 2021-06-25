@@ -63,11 +63,16 @@ AdrBanditAgent::AdrBanditAgent ():
   this->m_aiPolicy = new AIToolbox::Bandit::ThompsonSamplingPolicy (m_experience);
 
 
-//Bootstrap 50%
+//Bootstrap 50%, all arm is equiprobable to be chosen!
   for (int i = 0; i < NUMER_OF_ARMS; i++)
     {
-      m_experience.record (i, 1);
       m_experience.record (i, 0);
+      m_experience.record (i, 0.0625);
+
+      //m_experience.record (i, 8);
+      //m_experience.record (i, pow(2,i));
+      // These values will determine the exploration , and are dependant on the reward of each arms. Both values should be related.
+      // See: BanditDelayedRewardIntelligence::BanditDelayedRewardIntelligence ()
     }
 
 //  m_experience.record (0, 0);
@@ -121,7 +126,7 @@ size_t
 AdrBanditAgent::ChooseArm ()
 {
   NS_LOG_FUNCTION ( "getRewardMatrix:" << "\n" << m_experience.getRewardMatrix());
-  NS_LOG_FUNCTION ( "getM2Matrix (Variance):" << "\n" <<  m_experience.getM2Matrix());
+  //NS_LOG_FUNCTION ( "getM2Matrix (Variance):" << "\n" <<  m_experience.getM2Matrix());
   NS_LOG_FUNCTION ( "getPolicy:" << "\n" <<  m_aiPolicy->getPolicy());
 
 

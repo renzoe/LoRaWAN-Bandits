@@ -121,8 +121,8 @@ ClassAEndDeviceLorawanMacBandit::DoSendBeforeApplyNecessaryOptions (Ptr<Packet> 
 
   //***************************************************************
     //[Renzo] BANDIT chooses next m_dataRate
-    //m_dataRate = this->adr_bandit_agent->ChooseArm();
-    m_dataRate = 4 ; // Debugging with SF7 to create lost frames
+    m_dataRate = this->m_adrBanditAgent->ChooseArm();
+    //m_dataRate = 4 ; // Debugging with SF7 to create lost frames
 
     m_banditDelayedRewardIntelligence->UpdateUsedArm(m_dataRate, this->m_currentFCnt);
 
@@ -437,7 +437,7 @@ ClassAEndDeviceLorawanMacBandit::OnBanditRewardAns (Ptr<MacCommand> banditReward
 
   Ptr<BanditRewardAns> delayedRewards = DynamicCast<BanditRewardAns>(banditRewardAns); // I could have used GetObject<> (); See "downcasting" https://www.nsnam.org/docs/manual/html/object-model.html
 
-  NS_LOG_FUNCTION ("OnBanditRewardAns! I like this MAC command !!!  " << delayedRewards->GetDataRateStatistics());
+  NS_LOG_FUNCTION ("OnBanditRewardAns! I like this MAC command, It has my rewards :D !!!  " << delayedRewards->GetDataRateStatistics());
 
   //m_banditDelayedRewardIntelligence->UpdateRewardsAns (delayedRewards); // Put the logic on function BanditDelayedFeedbackUpdate(delayedRewards);:
   BanditDelayedFeedbackUpdate(delayedRewards);

@@ -39,7 +39,11 @@ BanditDelayedRewardIntelligence::BanditDelayedRewardIntelligence ()
   // TODO Auto-generated constructor stub
   for (int i = 0; i < HARDCODED_NUMBER_ARMS; i++)
     {
-      this->m_armsAndRewardsVector.push_back (arm_stats (0, 0, 0.0));
+      // The exploration will depend a lot on the bootstrapping of the bandit, see AdrBanditAgent::AdrBanditAgent ():.
+      double armReward = pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // armReward= 1 -> equal weight, will prioritize raw PDR.
+
+      //this->m_armsAndRewardsVector.push_back (arm_stats (0, 0, 0.0, pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1)));
+      this->m_armsAndRewardsVector.push_back (arm_stats (0, 0, 0.0, armReward  ));
     }
 
 }
@@ -109,24 +113,24 @@ BanditDelayedRewardIntelligence::UpdateRewardsAns (
 {
 
 
-  m_waitingForStats= false; /*TODO: remove, curerntly not using it?*/
-  //if (m_requestedMaxFrmCntReward == currentFCnt) ...
+  m_waitingForStats= false; /*TODO: remove, currently not using it for the Bandit Intelligence decisions/logic ... */
+
 
   std::vector<int> drStatistics = delayedRewardsAns->GetDataRateStatistics();
 
-  //drStatistics.size() == m_adrBanditAgent->GetNumberOfArms() == m_armsAndRewardsVector.size()
+  //drStatistics.size() == m_adrBanditAgent->GetNumberOfArms() == m_armsAndRewardsVector.size() ; <-- this has to be true.. if not we are in problems!
 
   for (size_t i = 0; i < m_adrBanditAgent->GetNumberOfArms() ; i++)
     {
-      std::get<1>(m_armsAndRewardsVector[i]) += drStatistics[i]; // The Packet Delivery Ratio of that Arm
-      //std::get<2>(m_armsAndRewardsVector[i]) = drStatistics[i]/std::get<0>(m_armsAndRewardsVector[i]); // The "Packet Delivery Ratio" of that "Arm" WARNING Division by 0 !!!!!!!
+      std::get<1>(m_armsAndRewardsVector[i]) += drStatistics[i]; // The Received Packets using that Arm Parameters
     }
-  //this->m_adrBanditAgent->UpdateReward(m_dataRate, cost_for_arm[m_dataRate]);
 
   m_frmCntMinWithoutStats = m_requestedMaxFrmCntReward+1;
-  //this->CleanArmsStats(); // After updating the bandit, we clean the m_armsAndRewards stats object; This lines gives a Segmentation fault at runtime!!!
 
+  //We update the Bandit in a different function, to de-couple the logic even better. This will update and clean the stats.
   ConsolidateRewardsIntoBandit ();
+
+
 
 
 }
@@ -136,21 +140,33 @@ BanditDelayedRewardIntelligence::ConsolidateRewardsIntoBandit ()
 {
 
 
-  for (size_t i = 0; i < m_adrBanditAgent->GetNumberOfArms() ; i++)
+  for (size_t currentArm = 0; currentArm < m_adrBanditAgent->GetNumberOfArms() ; currentArm++)
     {
-      if(std::get<0>(m_armsAndRewardsVector[i]) == 0) continue; // The arm was not used! (no reward to update)
+      int timesArmUsed      = std::get<0>(m_armsAndRewardsVector[currentArm]);
+      if( timesArmUsed == 0) continue; // The arm was not used! (no rewards to update). We avoid div/0
 
-      double reward = std::get<2>(m_armsAndRewardsVector[i]) = std::get<1>(m_armsAndRewardsVector[i])/std::get<0>(m_armsAndRewardsVector[i]); // The Packet Delivery Ratio of that Arm
-      //std::get<2>(m_armsAndRewardsVector[i]) = drStatistics[i]/std::get<0>(m_armsAndRewardsVector[i]); // The "Packet Delivery Ratio" of that "Arm" WARNING Division by 0 !!!!!!!
-      NS_LOG_INFO("ConsolidateRewardsIntoBandit. Arm DR=: " <<i<<" , Reward: "<< reward);
-      m_adrBanditAgent->UpdateReward(i, reward);
+
+      int timesArmWorked    = std::get<1>(m_armsAndRewardsVector[currentArm]);
+      int timesArmWorkedNOT = timesArmUsed - timesArmWorked;
+
+      // std::get<2>(m_armsAndRewardsVector[currentArm]) --> Currently not used, it  was meant to store a PDR-based reward
+      double armWorkedReward    = std::get<3>(m_armsAndRewardsVector[currentArm]);
+      double armWorkedNOTReward = 0;
+
+      NS_LOG_INFO("timesArmWorked: "    << timesArmWorked    <<" , armWorkedReward: "<< armWorkedReward);
+      NS_LOG_INFO("timesArmWorkedNOT: " << timesArmWorkedNOT <<" , armWorkedNOTReward: "<< armWorkedNOTReward);
+
+      //double reward = std::get<2>(m_armsAndRewardsVector[currentArm]) = std::get<1>(m_armsAndRewardsVector[currentArm])/std::get<0>(m_armsAndRewardsVector[i]); // The Packet Delivery Ratio (PDR) of that Arm
+
+      // Every "pull" of this arm will correspond to a  m_adrBanditAgent->UpdateReward(i, reward);
+      for(int i = 0; i < timesArmWorked   ; i++) m_adrBanditAgent->UpdateReward(currentArm, armWorkedReward   );
+      for(int i = 0; i < timesArmWorkedNOT; i++) m_adrBanditAgent->UpdateReward(currentArm, armWorkedNOTReward);
+
     }
 
   NS_LOG_FUNCTION("printArmsAndRewardsVector():\n"<< printArmsAndRewardsVector());
 
   CleanArmsStats ();
-
-  //TODO: Call function to CleanArmsStats from the vector!!!
 
 }
 
@@ -168,7 +184,7 @@ BanditDelayedRewardIntelligence::CleanArmsStats ()
 bool
 BanditDelayedRewardIntelligence::isGetRewardsMacCommandReqNeeded () const
 {
-  // Here we will have the bootstrap logic agressive in the beginning (<64 frames), less frequent later
+  // Here we will have the bootstrap logic: agressive in the beginning (<64 frames), less frequent later
   return m_banditNeedsStats;
 }
 
@@ -194,10 +210,12 @@ BanditDelayedRewardIntelligence::printArmsAndRewardsVector ()
   std::stringstream ss;
 
   ss<<"\n";
+  ss<<"(Sent\t, Rcvd\t, PDR\t, Weight \t)\n";
 
   for (unsigned int i = 0; i < m_armsAndRewardsVector.size(); i++)
     {
-      ss << "(" << std::get<0>(m_armsAndRewardsVector[i]) << " , " << std::get<1>(m_armsAndRewardsVector[i]) <<  " , " << std::get<2>(m_armsAndRewardsVector[i]) << " )\n";
+      ss << "("    << std::get<0>(m_armsAndRewardsVector[i]) << "\t, " << std::get<1>(m_armsAndRewardsVector[i])
+	 <<  "\t, " << std::get<2>(m_armsAndRewardsVector[i]) << "\t, " << std::get<3>(m_armsAndRewardsVector[i])<< " )\n";
     }
 
   return ss.str();

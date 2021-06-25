@@ -163,7 +163,7 @@ NetworkControllerComponentBandit::GetBanditRewardAns (
 
   //Take elements from the list starting at the end
   auto it = packetList.rbegin ();
-  uint16_t frmCurrentIt = (it->second.fCnt); // The max Fcount
+  uint16_t frmCurrentIt = (it->second.fCnt); // The max Fcount .
 
   if (frmCntMinAbs == 0)
     frmCntMinAbs = 1; // FCnt = 0 does not exists, it starts at 1.
@@ -184,8 +184,17 @@ NetworkControllerComponentBandit::GetBanditRewardAns (
       if (frmCntMinAbs == frmCurrentIt) break;
 
       ++it;
+
       frmCurrentIt = (it->second.fCnt);
       NS_LOG_FUNCTION("frmNEXTCurrentIt: " << frmCurrentIt << "   frmCntMinAbs: " << frmCntMinAbs);
+
+      if (it == packetList.rend ()) // [RENZO] Very important to iterate properly.. this whole function could use a refactor.
+	{
+	  NS_LOG_FUNCTION("We prevented the crazy bug!!! \a ");
+	  break;
+	} // A bug could happen if lost frames happened at the beginning, and the frame count was high: We ended up in an infinite loop at
+
+
 
 
     } // The logic I use could be better... I had infinite loop issues with the number Zero, also because it is "unsigned" and we are not using a proper "counter", but real values of  fCnt.

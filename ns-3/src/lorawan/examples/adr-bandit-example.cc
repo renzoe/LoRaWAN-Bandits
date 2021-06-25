@@ -117,7 +117,7 @@ int main (int argc, char *argv[])
 
     LogComponentEnable("BanditPolicy", LOG_LEVEL_ALL);
 
-    //LogComponentEnable("ADRBanditAgent", LOG_LEVEL_ALL);
+    LogComponentEnable("ADRBanditAgent", LOG_LEVEL_ALL);
 
    //LogComponentEnable ("EndDeviceLorawanMac", LOG_LEVEL_ALL);
 
@@ -253,8 +253,8 @@ int main (int argc, char *argv[])
   helper.Install (phyHelper, macHelper, endDevices);
 
   // Install applications in EDs
-  //int appPeriodSeconds = 1200;      // One packet every 20 minutes
-  int appPeriodSeconds = 300;      // One packet every 5 minutes 300
+  int appPeriodSeconds = 1200;      // One packet every 20 minutes
+  //int appPeriodSeconds = 300;      // One packet every 5 minutes 300
 
   /*Renzo: BEWARE! When the max size is excedeed (eg by a MAC command) there simulation does not work and does not print proper debug*/
 
