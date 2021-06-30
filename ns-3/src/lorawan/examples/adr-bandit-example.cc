@@ -98,9 +98,9 @@ int main (int argc, char *argv[])
 
    //LogComponentEnable ("LoraHelper", LOG_LEVEL_ALL);
    // LogComponentEnable ("LoraPacketTracker", LOG_LEVEL_ALL);
-    LogComponentEnable ("NetworkServer", LOG_LEVEL_ALL);
+//    LogComponentEnable ("NetworkServer", LOG_LEVEL_ALL);
 
-    LogComponentEnable ("NetworkController", LOG_LEVEL_ALL);
+//    LogComponentEnable ("NetworkController", LOG_LEVEL_ALL);
    // LogComponentEnable ("NetworkScheduler", LOG_LEVEL_ALL);
    // LogComponentEnable ("NetworkStatus", LOG_LEVEL_ALL);
 
@@ -111,13 +111,12 @@ int main (int argc, char *argv[])
     //LogComponentEnable("ClassAEndDeviceLorawanMac", LOG_LEVEL_ALL);
 
 
-   LogComponentEnable("ClassAEndDeviceLorawanMacBandit", LOG_LEVEL_ALL);
+//   LogComponentEnable("ClassAEndDeviceLorawanMacBandit", LOG_LEVEL_ALL);
    //LogComponentEnable("ClassAEndDeviceLorawanMacBandit", LOG_LEVEL_LOGIC);
 
 
-    LogComponentEnable("BanditPolicy", LOG_LEVEL_ALL);
-
-    LogComponentEnable("ADRBanditAgent", LOG_LEVEL_ALL);
+ //   LogComponentEnable("BanditPolicy", LOG_LEVEL_ALL);
+ //   LogComponentEnable("ADRBanditAgent", LOG_LEVEL_ALL);
 
    //LogComponentEnable ("EndDeviceLorawanMac", LOG_LEVEL_ALL);
 
@@ -128,23 +127,23 @@ int main (int argc, char *argv[])
 
 
 
-   LogComponentEnable ("SimpleGatewayLoraPhy", LOG_LEVEL_ALL);
+ //  LogComponentEnable ("SimpleGatewayLoraPhy", LOG_LEVEL_ALL);
 
 
     /*Debugging new MAC command */
-    LogComponentEnable ("SimpleEndDeviceLoraPhy", LOG_LEVEL_ALL);
-    LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
-    //LogComponentEnable ("LoraFrameHeader", LOG_LEVEL_ALL);
-    LogComponentEnable ("EndDeviceLorawanMac", LOG_LEVEL_ALL);
-
-
-
-    LogComponentEnable ("NetworkControllerComponentBandit", LOG_LEVEL_ALL);
-    LogComponentEnable ("BanditDelayedRewardIntelligence", LOG_LEVEL_ALL);
-
-
-
-    LogComponentEnable ("PeriodicSender", LOG_LEVEL_ALL);
+//    LogComponentEnable ("SimpleEndDeviceLoraPhy", LOG_LEVEL_ALL);
+//    LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
+//    //LogComponentEnable ("LoraFrameHeader", LOG_LEVEL_ALL);
+//    LogComponentEnable ("EndDeviceLorawanMac", LOG_LEVEL_ALL);
+//
+//
+//
+//    LogComponentEnable ("NetworkControllerComponentBandit", LOG_LEVEL_ALL);
+//    LogComponentEnable ("BanditDelayedRewardIntelligence", LOG_LEVEL_ALL);
+//
+//
+//
+//    LogComponentEnable ("PeriodicSender", LOG_LEVEL_ALL);
 
 
 
@@ -246,19 +245,19 @@ int main (int argc, char *argv[])
 
   // Create the LoraNetDevices of the end devices
   phyHelper.SetDeviceType (LoraPhyHelper::ED);
-  //macHelper.SetDeviceType (LorawanMacHelper::ED_A);
-  macHelper.SetDeviceType (LorawanMacHelper::ED_A_ADR_BANDIT);
+  //macHelper.SetDeviceType (LorawanMacHelper::ED_A); // We create normal ADR nodes
+  macHelper.SetDeviceType (LorawanMacHelper::ED_A_ADR_BANDIT); // We create ADR Bandits nodes
   macHelper.SetAddressGenerator (addrGen);
   macHelper.SetRegion (LorawanMacHelper::EU);
   helper.Install (phyHelper, macHelper, endDevices);
 
   // Install applications in EDs
   int appPeriodSeconds = 1200;      // One packet every 20 minutes
-  //int appPeriodSeconds = 300;      // One packet every 5 minutes 300
+  //int appPeriodSeconds = 300;      // One packet every 5 minutes (300)
 
   /*Renzo: BEWARE! When the max size is excedeed (eg by a MAC command) there simulation does not work and does not print proper debug*/
 
-  int packetSizeBytes = 30;   /*49, 50 --> When we piggyback MAC answers at SF cause problems: (LoraTap has header of 15 Bytes)
+  int packetSizeBytes = 30;   /*49, 50 --> When we piggyback MAC answers at SF=12 cause problems: (LoraTap has a header of 15 Bytes)
   	 EndDeviceLorawanMac:DoSend(): Attempting to send a packet larger than the maximum allowed size at this DataRate (DR0). Transmission canceled. */
 
   PeriodicSenderHelper appHelper = PeriodicSenderHelper ();

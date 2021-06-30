@@ -40,7 +40,8 @@ BanditDelayedRewardIntelligence::BanditDelayedRewardIntelligence ()
   for (int i = 0; i < HARDCODED_NUMBER_ARMS; i++)
     {
       // The exploration will depend a lot on the bootstrapping of the bandit, see AdrBanditAgent::AdrBanditAgent ():.
-      double armReward = pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // armReward= 1 -> equal weight, will prioritize raw PDR.
+      //double armReward = pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // armReward= 1 -> equal weight, will prioritize raw PDR.
+      double armReward = pow(2, 0); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // armReward= 1 -> equal weight, will prioritize raw PDR.
 
       //this->m_armsAndRewardsVector.push_back (arm_stats (0, 0, 0.0, pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1)));
       this->m_armsAndRewardsVector.push_back (arm_stats (0, 0, 0.0, armReward  ));
@@ -84,6 +85,23 @@ BanditDelayedRewardIntelligence::UpdateUsedArm (size_t armNumber,  int frameCnt)
   if (frameCnt > m_frmCntMaxWithoutStats) m_frmCntMaxWithoutStats = frameCnt;
 
   // here we could also put the logic to set the m_needStats boolean
+
+
+  if (frameCnt < 10)
+    {
+      setBanditNeedsStats (true);
+      return;
+    }
+
+  if (frameCnt % 10 == 0)  // it is a multiple of 10
+    {
+      setBanditNeedsStats (true);
+    }
+  else
+    {
+      setBanditNeedsStats (false);
+    }
+
 }
 
 Ptr<BanditRewardReq>

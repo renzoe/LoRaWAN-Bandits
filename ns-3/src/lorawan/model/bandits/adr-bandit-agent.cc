@@ -24,8 +24,9 @@
 //#include <Eigen/Core>
 #include <eigen3/Eigen/Core>
 //#include <AIToolbox/Bandit/Types.hpp>
-#include <AIToolbox/Bandit/Policies/ThompsonSamplingPolicy.hpp>
 #include <AIToolbox/Bandit/Experience.hpp>
+#include <AIToolbox/Bandit/Policies/ThompsonSamplingPolicy.hpp>
+#include <AIToolbox/Bandit/Policies/QSoftmaxPolicy.hpp>
 
 using namespace AIToolbox::Bandit;
 
@@ -61,28 +62,25 @@ AdrBanditAgent::AdrBanditAgent ():
   //this->policy = Create<BanditPolicy> (*(this->experience)); // TODO work with ns-3 constructors that take input params
   //this->m_aiPolicy = new AIToolbox::Bandit::ThompsonSamplingPolicy (*(this->m_experience));
   this->m_aiPolicy = new AIToolbox::Bandit::ThompsonSamplingPolicy (m_experience);
+  //this->m_aiPolicy = new AIToolbox::Bandit::QSoftmaxPolicy (m_experience, 0.1);
 
 
 //Bootstrap 50%, all arm is equiprobable to be chosen!
   for (int i = 0; i < NUMER_OF_ARMS; i++)
     {
       m_experience.record (i, 0);
-      m_experience.record (i, 0.0625);
+
+      //m_experience.record (i, 0.0625);
+
+      m_experience.record (i, 1);
+
+      //m_experience.record (i, 1);
 
       //m_experience.record (i, 8);
       //m_experience.record (i, pow(2,i));
       // These values will determine the exploration , and are dependant on the reward of each arms. Both values should be related.
       // See: BanditDelayedRewardIntelligence::BanditDelayedRewardIntelligence ()
     }
-
-//  m_experience.record (0, 0);
-//  m_experience.record (0, 0);
-//  m_experience.record (0, 0);
-//  m_experience.record (0, 1);
-//  m_experience.record (1, 1);
-//  m_experience.record (1, 1);
-//  m_experience.record (1, 1);
-//  m_experience.record (1, 0);
 
 //  NS_LOG_FUNCTION(
 //      "getRewardMatrix:" << "\n" << m_experience.getRewardMatrix());
