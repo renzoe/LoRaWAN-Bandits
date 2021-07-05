@@ -50,8 +50,8 @@ int main (int argc, char *argv[])
   int nPeriods = 20;
 
   int nGateways = 1;
-  //double radius = 6400;
-  double radius = 2400;
+  double radius = 6400;
+  //double radius = 2400;
 
 
   double maxRandomLoss = 10;
@@ -138,8 +138,12 @@ int main (int argc, char *argv[])
 //
 //
 //
-//    LogComponentEnable ("NetworkControllerComponentBandit", LOG_LEVEL_ALL);
-//    LogComponentEnable ("BanditDelayedRewardIntelligence", LOG_LEVEL_ALL);
+
+//   LogComponentEnable ("NetworkControllerComponentBandit", LOG_LEVEL_ALL); // We can debug how the NS answers to the MAC BanditRewardReq and prepares the Reward in the BanditRewardAns
+//   LogComponentEnable ("BanditDelayedRewardIntelligence", LOG_LEVEL_ALL); // We can debug (among many things) how the bandits creates the MAC BanditRewardReq
+//   LogComponentEnable("ClassAEndDeviceLorawanMacBandit", LOG_LEVEL_ALL); // We can debug when the bandit receives the MAC BanditRewardAns
+
+
 //
 //
 //
@@ -160,10 +164,13 @@ int main (int argc, char *argv[])
 
    // Create a simple wireless channel
    ///////////////////////////////////
+   /// //
 
    Ptr<LogDistancePropagationLossModel> loss = CreateObject<LogDistancePropagationLossModel> ();
    loss->SetPathLossExponent (3.76);
    loss->SetReference (1, 7.7);
+
+   // [RN] Discussion about this values (7.7) https://gitter.im/ns-3-lorawan/Lobby?at=5c1e3fe72863d8612b71b730
 
    Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable> ();
    x->SetAttribute ("Min", DoubleValue (0.0));
@@ -188,17 +195,19 @@ int main (int argc, char *argv[])
 
 
    // // Gateway mobility
-   // Ptr<ListPositionAllocator> positionAllocGw = CreateObject<ListPositionAllocator> ();
-   // positionAllocGw->Add (Vector (0.0, 0.0, 15.0));
+   Ptr<ListPositionAllocator> positionAllocGw = CreateObject<ListPositionAllocator> ();
+   positionAllocGw->Add (Vector (0.0, 0.0, 15.0)); // a gateway in the center of the cartesian cordinates!
    // positionAllocGw->Add (Vector (-5000.0, -5000.0, 15.0));
    // positionAllocGw->Add (Vector (-5000.0, 5000.0, 15.0));
    // positionAllocGw->Add (Vector (5000.0, -5000.0, 15.0));
    // positionAllocGw->Add (Vector (5000.0, 5000.0, 15.0));
-   // mobilityGw.SetPositionAllocator (positionAllocGw);
-   // mobilityGw.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
-   mobilityGw.SetPositionAllocator ("ns3::UniformDiscPositionAllocator", "rho", DoubleValue (radius),
-                                  "X", DoubleValue (0.0), "Y", DoubleValue (0.0));
-   mobilityGw.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
+    mobilityGw.SetPositionAllocator (positionAllocGw);
+    mobilityGw.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
+
+   //mobilityGw.SetPositionAllocator ("ns3::UniformDiscPositionAllocator", "rho", DoubleValue (radius),
+   //                               "X", DoubleValue (0.0), "Y", DoubleValue (0.0));// [RN] Super Wrong! I was putting the GW at random!!
+
+   //mobilityGw.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
 
    // Create the LoraPhyHelper
    LoraPhyHelper phyHelper = LoraPhyHelper ();
@@ -246,7 +255,7 @@ int main (int argc, char *argv[])
   // Create the LoraNetDevices of the end devices
   phyHelper.SetDeviceType (LoraPhyHelper::ED);
   //macHelper.SetDeviceType (LorawanMacHelper::ED_A); // We create normal ADR nodes
-  macHelper.SetDeviceType (LorawanMacHelper::ED_A_ADR_BANDIT); // We create ADR Bandits nodes
+  macHelper.SetDeviceType (LorawanMacHelper::ED_A_ADR_BANDIT); // We create ADR Bandits nodes :)
   macHelper.SetAddressGenerator (addrGen);
   macHelper.SetRegion (LorawanMacHelper::EU);
   helper.Install (phyHelper, macHelper, endDevices);
@@ -257,7 +266,7 @@ int main (int argc, char *argv[])
 
   /*Renzo: BEWARE! When the max size is excedeed (eg by a MAC command) there simulation does not work and does not print proper debug*/
 
-  int packetSizeBytes = 30;   /*49, 50 --> When we piggyback MAC answers at SF=12 cause problems: (LoraTap has a header of 15 Bytes)
+  int packetSizeBytes = 30;   /* 49, 50 --> When we piggyback MAC answers at SF=12 cause problems: (LoraTap has a header of 15 Bytes)
   	 EndDeviceLorawanMac:DoSend(): Attempting to send a packet larger than the maximum allowed size at this DataRate (DR0). Transmission canceled. */
 
   PeriodicSenderHelper appHelper = PeriodicSenderHelper ();
@@ -301,6 +310,12 @@ int main (int argc, char *argv[])
   helper.EnablePeriodicDeviceStatusPrinting (endDevices, gateways, "nodeData.txt", stateSamplePeriod);
   helper.EnablePeriodicPhyPerformancePrinting (gateways, "phyPerformance.txt", stateSamplePeriod);
   helper.EnablePeriodicGlobalPerformancePrinting ("globalPerformance.txt", stateSamplePeriod);
+
+
+  // phyPerformance: SENT  RECEIVED   INTERFERED NO_MORE_RECEIVERS  UNDER_SENSITIVITY  LOST_BECAUSE_TX
+  // nodeData : currentTime.GetSeconds () , object->GetId () ;  pos.x  ;  pos.y ;  dr (data rate) ;   unsigned(txPower)
+
+
 
   //[Renzo] PCAP Helper
   // https://gitlab.com/nsnam/ns-3-dev/-/blob/master/src/lr-wpan/helper/lr-wpan-helper.cc#L319

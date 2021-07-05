@@ -41,10 +41,12 @@ BanditDelayedRewardIntelligence::BanditDelayedRewardIntelligence ()
     {
       // The exploration will depend a lot on the bootstrapping of the bandit, see AdrBanditAgent::AdrBanditAgent ():.
       //double armReward = pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // armReward= 1 -> equal weight, will prioritize raw PDR.
+
+      //double armReward = pow(2, i); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // prioritizes energy
       double armReward = pow(2, 0); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // armReward= 1 -> equal weight, will prioritize raw PDR.
 
-      //this->m_armsAndRewardsVector.push_back (arm_stats (0, 0, 0.0, pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1)));
-      this->m_armsAndRewardsVector.push_back (arm_stats (0, 0, 0.0, armReward  ));
+      //this->m_armsAndRewardsVector.push_back (arm_stats (0 , 0 , 0.0 , pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1)));
+      this->m_armsAndRewardsVector.push_back (arm_stats (0 , 0 , 0.0 , armReward  ));
     }
 
 }
@@ -125,6 +127,7 @@ BanditDelayedRewardIntelligence::GetRewardsMacCommandReq (uint16_t currentFrame)
   return req;
 }
 
+/*function Called from ClassAEndDeviceLorawanMacBandit::BanditDelayedFeedbackUpdate  */
 void
 BanditDelayedRewardIntelligence::UpdateRewardsAns (
     Ptr<BanditRewardAns> delayedRewardsAns)

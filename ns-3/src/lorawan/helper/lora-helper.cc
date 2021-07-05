@@ -231,15 +231,15 @@ LoraHelper::DoPrintDeviceStatus (NodeContainer endDevices, NodeContainer gateway
                  << pos.x << " " << pos.y << " " << dr << " "
                  << unsigned(txPower) << std::endl;
     }
-  // for (NodeContainer::Iterator j = gateways.Begin (); j != gateways.End (); ++j)
-  //   {
-  //     Ptr<Node> object = *j;
-  //     Ptr<MobilityModel> position = object->GetObject<MobilityModel> ();
-  //     Vector pos = position->GetPosition ();
-  //     outputFile << currentTime.GetSeconds () << " "
-  //                << object->GetId () <<  " "
-  //                << pos.x << " " << pos.y << " " << "-1 -1" << std::endl;
-  //   }
+//   for (NodeContainer::Iterator j = gateways.Begin (); j != gateways.End (); ++j)
+//     {
+//       Ptr<Node> object = *j;
+//       Ptr<MobilityModel> position = object->GetObject<MobilityModel> ();
+//       Vector pos = position->GetPosition ();
+//       outputFile << currentTime.GetSeconds () << " "
+//                  << object->GetId () <<  " "
+//                  << pos.x << " " << pos.y << " " << "-1 -1" << std::endl;
+//     }
   outputFile.close ();
 }
 

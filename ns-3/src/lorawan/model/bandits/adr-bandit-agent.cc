@@ -68,11 +68,12 @@ AdrBanditAgent::AdrBanditAgent ():
 //Bootstrap 50%, all arm is equiprobable to be chosen!
   for (int i = 0; i < NUMER_OF_ARMS; i++)
     {
+      m_experience.record (i, 1);
       m_experience.record (i, 0);
 
       //m_experience.record (i, 0.0625);
 
-      m_experience.record (i, 1);
+      //m_experience.record (i, 1);
 
       //m_experience.record (i, 1);
 
