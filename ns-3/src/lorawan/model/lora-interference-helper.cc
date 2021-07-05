@@ -125,6 +125,20 @@ std::vector<std::vector<double>> LoraInterferenceHelper::collisionSnirAloha= {
     {-inf, -inf, -inf, -inf, -inf, inf} // SF12
 };
 
+
+// LoRa Collision Matrix (Croce 2018)
+// "Impact of LoRa Imperfect Orthogonality: Analysis of Link-Level Performance"
+  std::vector<std::vector<double>> LoraInterferenceHelper::collisionSnirCroce = {
+    // SF7  SF8  SF9  SF10 SF11 SF12
+    { 1 , -8 , -9 ,  -9,  -9,  -9}, // SF7
+    {-11,  1 , -11, -12, -13, -13}, // SF8
+    {-15, -13,  1 , -13, -14, -15}, // SF9
+    {-19, -18, -17,   1, -17, -18}, // SF10
+    {-22, -22, -21, -20,   1, -20}, // SF11
+    {-25, -25, -25, -24, -23,   1} // SF12
+};
+
+
 // LoRa Collision Matrix (Goursaud)
 // Values are inverted w.r.t. the paper since here we interpret this as an
 // _isolation_ matrix instead of a cochannel _rejection_ matrix like in

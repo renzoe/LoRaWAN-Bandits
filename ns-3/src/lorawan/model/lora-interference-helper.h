@@ -201,6 +201,8 @@ public:
   static std::vector<std::vector<double>> collisionSnirAloha;
   static std::vector<std::vector<double>> collisionSnirGoursaud;
 
+  static std::vector<std::vector<double>> collisionSnirCroce; // [Renzo] Interference from Croce 2018
+
 private:
   void SetCollisionMatrix (enum CollisionMatrix collisionMatrix);
 

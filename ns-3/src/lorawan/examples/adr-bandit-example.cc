@@ -247,6 +247,15 @@ int main (int argc, char *argv[])
       mobilityEd.Install (endDevices.Get (i));
    }
 
+  // Make it so that nodes are at a certain height > 0
+  for (NodeContainer::Iterator j = endDevices.Begin (); j != endDevices.End (); ++j)
+    {
+      Ptr<MobilityModel> mobility = (*j)->GetObject<MobilityModel> ();
+      Vector position = mobility->GetPosition ();
+      position.z = 1.2;
+      mobility->SetPosition (position);
+    }
+
   // Create a LoraDeviceAddressGenerator
   uint8_t nwkId = 54;
   uint32_t nwkAddr = 1864;
@@ -266,7 +275,7 @@ int main (int argc, char *argv[])
 
   /*Renzo: BEWARE! When the max size is excedeed (eg by a MAC command) there simulation does not work and does not print proper debug*/
 
-  int packetSizeBytes = 30;   /* 49, 50 --> When we piggyback MAC answers at SF=12 cause problems: (LoraTap has a header of 15 Bytes)
+  int packetSizeBytes = 32;   /* 49, 50 --> When we piggyback MAC answers at SF=12 cause problems: (LoraTap has a header of 15 Bytes)
   	 EndDeviceLorawanMac:DoSend(): Attempting to send a packet larger than the maximum allowed size at this DataRate (DR0). Transmission canceled. */
 
   PeriodicSenderHelper appHelper = PeriodicSenderHelper ();
