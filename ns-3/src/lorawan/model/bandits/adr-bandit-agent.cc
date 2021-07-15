@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2021 Renzo E. Navas
+ * Copyright (c) 2021 INRIA
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -72,41 +72,28 @@ AdrBanditAgent::AdrBanditAgent ():
       m_experience.record (i, 0);
 
       //m_experience.record (i, 0.0625);
-      //m_experience.record (i, 1);
-
-      //m_experience.record (i, 1);
-
-      //m_experience.record (i, 1);
-
       m_experience.record (i, 1);
+
+      //m_experience.record (i, 1);
+
+      //m_experience.record (i, 1);
+
+      //m_experience.record (i, 8);
       //m_experience.record (i, pow(2,i));
       // These values will determine the exploration , and are dependant on the reward of each arms. Both values should be related.
       // See: BanditDelayedRewardIntelligence::BanditDelayedRewardIntelligence ()
     }
 
-//  NS_LOG_FUNCTION(
-//      "getRewardMatrix:" << "\n" << m_experience.getRewardMatrix());
-//  NS_LOG_FUNCTION("getM2Matrix:" << "\n" << m_experience.getM2Matrix());
-//
 //  NS_LOG_FUNCTION("sampleAction:" << m_aiPolicy->sampleAction());
 //  NS_LOG_FUNCTION("sampleAction:" << m_aiPolicy->sampleAction());
-//  NS_LOG_FUNCTION("sampleAction:" << m_aiPolicy->sampleAction());
-//  NS_LOG_FUNCTION("sampleAction:" << m_aiPolicy->sampleAction());
-//  NS_LOG_FUNCTION("sampleAction:" << m_aiPolicy->sampleAction());
-//  NS_LOG_FUNCTION("sampleAction:" << m_aiPolicy->sampleAction());
-//  NS_LOG_FUNCTION("sampleAction:" << m_aiPolicy->sampleAction());
-//  NS_LOG_FUNCTION("sampleAction:" << m_aiPolicy->sampleAction());
-//  NS_LOG_FUNCTION("sampleAction:" << m_aiPolicy->sampleAction());
-//  NS_LOG_FUNCTION("sampleAction:" << m_aiPolicy->sampleAction());
-//
-//  NS_LOG_FUNCTION("getPolicy:" << m_aiPolicy->getPolicy());
-//
-//
+
+  //  NS_LOG_FUNCTION("getPolicy:" << m_aiPolicy->getPolicy());
+
+
 //  NS_LOG_FUNCTION(m_experience.getTimesteps ());
 //  NS_LOG_FUNCTION(m_experience.getVisitsTable ());
-
-//  NS_LOG_FUNCTION ( "getRewardMatrix:" << "\n" << experience->getRewardMatrix());
-//  NS_LOG_FUNCTION ( "getM2Matrix:" << "\n" <<  experience->getM2Matrix());
+//  NS_LOG_FUNCTION("getRewardMatrix:" << "\n" << m_experience.getRewardMatrix());
+//  NS_LOG_FUNCTION("getM2Matrix:"     << "\n" << m_experience.getM2Matrix());
 
 }
 

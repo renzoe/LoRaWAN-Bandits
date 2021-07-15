@@ -308,11 +308,12 @@ int main (int argc, char *argv[])
   ForwarderHelper forwarderHelper;
   forwarderHelper.Install (gateways);
 
-  // Connect our traces
-  Config::ConnectWithoutContext ("/NodeList/*/DeviceList/0/$ns3::LoraNetDevice/Mac/$ns3::EndDeviceLorawanMac/TxPower",
-                                 MakeCallback (&OnTxPowerChange));
-  Config::ConnectWithoutContext ("/NodeList/*/DeviceList/0/$ns3::LoraNetDevice/Mac/$ns3::EndDeviceLorawanMac/DataRate",
-                                 MakeCallback (&OnDataRateChange));
+  // Connect our traces ([Renzo] Disable for big simulations to go faster)
+  //Config::ConnectWithoutContext ("/NodeList/*/DeviceList/0/$ns3::LoraNetDevice/Mac/$ns3::EndDeviceLorawanMac/TxPower",
+  //                               MakeCallback (&OnTxPowerChange));
+  //Config::ConnectWithoutContext ("/NodeList/*/DeviceList/0/$ns3::LoraNetDevice/Mac/$ns3::EndDeviceLorawanMac/DataRate",
+  //                               MakeCallback (&OnDataRateChange));
+
 
   // Activate printing of ED MAC parameters
   Time stateSamplePeriod = Seconds (1200);
@@ -330,6 +331,8 @@ int main (int argc, char *argv[])
   // https://gitlab.com/nsnam/ns-3-dev/-/blob/master/src/lr-wpan/helper/lr-wpan-helper.cc#L319
   // https://gitlab.com/nsnam/ns-3-dev/-/blob/master/src/wifi/helper/wifi-helper.cc#L612
   //helper.EnablePcapAll(std::string ("ADR-Bandit-Example"), true);
+
+  // [Renzo] Disable for big simulations to go faster:
   helper.EnablePcap(std::string ("ADR-Bandit-Example-ED"), endDevices , false);
   helper.EnablePcap(std::string ("ADR-Bandit-Example-GW"), gateways , true);
   helper.EnablePcap(std::string ("ADR-Bandit-Example-NS"), networkServers , true);

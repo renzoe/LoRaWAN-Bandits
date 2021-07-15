@@ -1,6 +1,6 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /*
- * Copyright (c) 2021 Renzo E. Navas
+ * Copyright (c) 2021 INRIA
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -42,8 +42,8 @@ BanditDelayedRewardIntelligence::BanditDelayedRewardIntelligence ()
       // The exploration will depend a lot on the bootstrapping of the bandit, see AdrBanditAgent::AdrBanditAgent ():.
       //double armReward = pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // armReward= 1 -> equal weight, will prioritize raw PDR.
 
-      double armReward = pow(2, i); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // prioritizes energy
-      //double armReward = pow(2, 0); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // armReward= 1 -> equal weight, will prioritize raw PDR.
+      //double armReward = pow(2, i); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // prioritizes energy
+      double armReward = pow(2, 0); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // armReward= 1 -> equal weight, will prioritize raw PDR.
 
       //this->m_armsAndRewardsVector.push_back (arm_stats (0 , 0 , 0.0 , pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1)));
       this->m_armsAndRewardsVector.push_back (arm_stats (0 , 0 , 0.0 , armReward  ));
