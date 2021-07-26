@@ -21,8 +21,8 @@
 #include "ns3/adr-bandit-agent.h"
 #include "ns3/log.h"
 #include <boost/multi_array.hpp>
-//#include <Eigen/Core>
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
+//#include <eigen3/Eigen/Core>
 //#include <AIToolbox/Bandit/Types.hpp>
 #include <AIToolbox/Bandit/Experience.hpp>
 #include <AIToolbox/Bandit/Policies/ThompsonSamplingPolicy.hpp>
