@@ -65,7 +65,8 @@ AdrBanditAgent::AdrBanditAgent ():
   //this->m_aiPolicy = new AIToolbox::Bandit::QSoftmaxPolicy (m_experience, 0.1);
 
 
-//Bootstrap 50%, all arm is equiprobable to be chosen!
+//Bootstraping Arms. In 0 , 1: Any arm is equiprobable to be chosen!
+//We use this  distributions until first feedback update!
   for (int i = 0; i < NUMER_OF_ARMS; i++)
     {
 
@@ -74,12 +75,9 @@ AdrBanditAgent::AdrBanditAgent ():
       //m_experience.record (i, 0.0625);
       m_experience.record (i, 1);
 
-      //m_experience.record (i, 1);
-
-      //m_experience.record (i, 1);
-
       //m_experience.record (i, 8);
       //m_experience.record (i, pow(2,i));
+
       // These values will determine the exploration , and are dependant on the reward of each arms. Both values should be related.
       // See: BanditDelayedRewardIntelligence::BanditDelayedRewardIntelligence ()
     }
@@ -87,7 +85,7 @@ AdrBanditAgent::AdrBanditAgent ():
 //  NS_LOG_FUNCTION("sampleAction:" << m_aiPolicy->sampleAction());
 //  NS_LOG_FUNCTION("sampleAction:" << m_aiPolicy->sampleAction());
 
-  //  NS_LOG_FUNCTION("getPolicy:" << m_aiPolicy->getPolicy());
+//  NS_LOG_FUNCTION("getPolicy:" << m_aiPolicy->getPolicy());
 
 
 //  NS_LOG_FUNCTION(m_experience.getTimesteps ());

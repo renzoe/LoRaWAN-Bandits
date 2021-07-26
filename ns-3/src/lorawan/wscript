@@ -31,6 +31,11 @@ def build(bld):
     module.cxxflags = ['-std=c++17']
     #module.env.append_value('CPPPATH', '/usr/include/mpi') # for includes? , also needed for the linker?
     
+    # from https://github.com/jashanj0tsingh/ns-fuzzylite/blob/master/example/wscript [RN 22/07/2021: Does not change anything...]
+    #module.includes = ['/usr/local/include/AIToolbox']
+    #module.lib =  ['AIToolboxMDP']
+    #module.libpath = ['/usr/local/lib64/']
+    #print (bld.env)
     
     module.source = [
         'model/lora-net-device.cc',

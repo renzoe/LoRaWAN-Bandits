@@ -61,7 +61,7 @@ TypeId AdrComponent::GetTypeId (void)
                    "Number of packets to use for averaging",
                    IntegerValue (4),
                    MakeIntegerAccessor (&AdrComponent::historyRange),
-                   MakeIntegerChecker<int> (0, 100))
+                   MakeIntegerChecker<int> (0, 10000)) // [RN] This automatic ADR message is not good fo bandit tests
     .AddAttribute ("ChangeTransmissionPower",
                    "Whether to toggle the transmission power or not",
                    BooleanValue (true),

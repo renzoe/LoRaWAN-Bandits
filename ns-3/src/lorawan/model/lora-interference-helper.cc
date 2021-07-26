@@ -126,6 +126,7 @@ std::vector<std::vector<double>> LoraInterferenceHelper::collisionSnirAloha= {
 };
 
 
+//  [Renzo]
 // LoRa Collision Matrix (Croce 2018)
 // "Impact of LoRa Imperfect Orthogonality: Analysis of Link-Level Performance"
   std::vector<std::vector<double>> LoraInterferenceHelper::collisionSnirCroce = {
@@ -154,7 +155,7 @@ std::vector<std::vector<double>> LoraInterferenceHelper::collisionSnirAloha= {
 };
 
 LoraInterferenceHelper::CollisionMatrix LoraInterferenceHelper::collisionMatrix =
-    LoraInterferenceHelper::GOURSAUD;
+    LoraInterferenceHelper::CROCE;
 
 NS_OBJECT_ENSURE_REGISTERED (LoraInterferenceHelper);
 
@@ -171,6 +172,10 @@ LoraInterferenceHelper::SetCollisionMatrix (
     case LoraInterferenceHelper::GOURSAUD:
       NS_LOG_DEBUG ("Setting the GOURSAUD collision matrix");
       m_collisionSnir = LoraInterferenceHelper::collisionSnirGoursaud;
+      break;
+    case LoraInterferenceHelper::CROCE:
+      NS_LOG_DEBUG ("Setting the CROCE collision matrix");
+      m_collisionSnir = LoraInterferenceHelper::collisionSnirCroce;
       break;
     }
 }

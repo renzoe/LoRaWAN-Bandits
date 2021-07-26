@@ -149,6 +149,9 @@ int main (int argc, char *argv[])
 //
 //    LogComponentEnable ("PeriodicSender", LOG_LEVEL_ALL);
 
+  //    LogComponentEnable ("LoraInterferenceHelper", LOG_LEVEL_ALL); // To test interference Matrix
+
+
 
 
 
@@ -271,7 +274,7 @@ int main (int argc, char *argv[])
 
   // Install applications in EDs
   int appPeriodSeconds = 1200;      // One packet every 20 minutes
-  //int appPeriodSeconds = 300;      // One packet every 5 minutes (300)
+  //int appPeriodSeconds = 300;      // One packet every 5 minutes (300 s)
 
   /*Renzo: BEWARE! When the max size is excedeed (eg by a MAC command) there simulation does not work and does not print proper debug*/
 
@@ -332,16 +335,17 @@ int main (int argc, char *argv[])
   // https://gitlab.com/nsnam/ns-3-dev/-/blob/master/src/wifi/helper/wifi-helper.cc#L612
   //helper.EnablePcapAll(std::string ("ADR-Bandit-Example"), true);
 
-  // [Renzo] Disable for big simulations to go faster:
-  helper.EnablePcap(std::string ("ADR-Bandit-Example-ED"), endDevices , false);
-  helper.EnablePcap(std::string ("ADR-Bandit-Example-GW"), gateways , true);
-  helper.EnablePcap(std::string ("ADR-Bandit-Example-NS"), networkServers , true);
+  // [Renzo] Disable for big simulations to go faster (but not that much):
+  //helper.EnablePcap(std::string ("ADR-Bandit-Example-ED"), endDevices , false);
+  //helper.EnablePcap(std::string ("ADR-Bandit-Example-GW"), gateways , true);
+  //helper.EnablePcap(std::string ("ADR-Bandit-Example-NS"), networkServers , true);
 
 
 
   /*Renzo Notes:
-   * SDR component: ./waf --run "src/lorawan/examples/adr-bandit-example  --nDevices=1 --HistoryRange=19 --PeriodsToSimulate=5"
-   * only decreases 3 setps, but could do 4 steps at once. It takes one more message to decrese one step more...  */
+   * ADR component: ./waf --run "src/lorawan/examples/adr-bandit-example  --nDevices=1 --HistoryRange=19 --PeriodsToSimulate=5"
+   * Only decreases 3 setps, but with modifs could do 4 steps at once. (Resume: it takes two messageq to decease 4 steps total)  */
+
 
 
   LoraPacketTracker& tracker = helper.GetPacketTracker ();

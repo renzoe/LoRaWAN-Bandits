@@ -34,18 +34,20 @@ TypeId BanditDelayedRewardIntelligence::GetTypeId (void)
     ;
   return tid;
 }
+
+
 BanditDelayedRewardIntelligence::BanditDelayedRewardIntelligence ()
 {
-  // TODO Auto-generated constructor stub
+
+  // We set-up the arms rewards values:
   for (int i = 0; i < HARDCODED_NUMBER_ARMS; i++)
     {
-      // The exploration will depend a lot on the bootstrapping of the bandit, see AdrBanditAgent::AdrBanditAgent ():.
-      //double armReward = pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // armReward= 1 -> equal weight, will prioritize raw PDR.
+      // The exploration will depend a lot on the "bootstrapping" phase of the bandit, see AdrBanditAgent::AdrBanditAgent ():.
 
-      //double armReward = pow(2, i); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // prioritizes energy
-      double armReward = pow(2, 0); // pow(2, i);//pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1); // armReward= 1 -> equal weight, will prioritize raw PDR.
+      double armReward = pow(2, i); // prioritizes energy
+      //double armReward = pow(2, 0); //pow(2, HARDCODED_NUMBER_ARMS-1); // armReward = 1 -> equal weight, will prioritize raw PDR.
 
-      //this->m_armsAndRewardsVector.push_back (arm_stats (0 , 0 , 0.0 , pow(2, i)/pow(2, HARDCODED_NUMBER_ARMS-1)));
+
       this->m_armsAndRewardsVector.push_back (arm_stats (0 , 0 , 0.0 , armReward  ));
     }
 
@@ -57,12 +59,13 @@ BanditDelayedRewardIntelligence::~BanditDelayedRewardIntelligence ()
 }
 
 
+
 void
 BanditDelayedRewardIntelligence::InitBanditAgentAndArms (
     Ptr<AdrBanditAgent> adrBanditAgent)
 {
 
-  // This function is not called, move all to a proper Constructor
+  // This function is *not* called , for now. Todo move all to a proper Constructor?
   this->m_adrBanditAgent = adrBanditAgent;
   this->m_banditNeedsStats = true;
   this->m_waitingForStats = false;
@@ -73,10 +76,47 @@ BanditDelayedRewardIntelligence::InitBanditAgentAndArms (
 
   NS_LOG_INFO("\033[1;31m");
   NS_LOG_INFO("m_armsAndRewardsVector.size()" << m_armsAndRewardsVector.size());
-  //m_armsAndRewardsVector.size();
- NS_LOG_INFO("\033[0m");
+
+  NS_LOG_INFO("\033[0m");
 }
 
+void
+BanditDelayedRewardIntelligence::setBanditNeedStats (int frameCnt)
+{
+  if (frameCnt < 20) //If Frame is lower than 15 we do not ask for feedback
+    {
+      setBanditNeedsStats (false);
+    }
+  else if (bernoulliDistribution (generator)) // We ask for feedback with p= p1 (1/15)
+    {
+      setBanditNeedsStats (true);
+    }
+  else
+    {
+      setBanditNeedsStats (false);
+    }
+
+// Previous code (First 10 alwayas ask, and then ask every 10 frames.. result: a lot of collisions!)
+//  if (frameCnt < 10)
+//    {
+//      setBanditNeedsStats (true);
+//      return;
+//    }
+//
+//  if (frameCnt % 10 == 0)  // it is a multiple of 10
+//    {
+//      setBanditNeedsStats (true);
+//    }
+//  else
+//    {
+//      setBanditNeedsStats (false);
+//    }
+
+}
+
+/**
+ *
+ */
 
 
 void
@@ -86,23 +126,10 @@ BanditDelayedRewardIntelligence::UpdateUsedArm (size_t armNumber,  int frameCnt)
 
   if (frameCnt > m_frmCntMaxWithoutStats) m_frmCntMaxWithoutStats = frameCnt;
 
-  // here we could also put the logic to set the m_needStats boolean
+  // We also determine if the Bandit needs Feedback (Rewards)
+  setBanditNeedStats (frameCnt);
 
 
-  if (frameCnt < 10)
-    {
-      setBanditNeedsStats (true);
-      return;
-    }
-
-  if (frameCnt % 10 == 0)  // it is a multiple of 10
-    {
-      setBanditNeedsStats (true);
-    }
-  else
-    {
-      setBanditNeedsStats (false);
-    }
 
 }
 
@@ -201,13 +228,6 @@ BanditDelayedRewardIntelligence::CleanArmsStats ()
     }
 }
 
-
-bool
-BanditDelayedRewardIntelligence::isGetRewardsMacCommandReqNeeded () const
-{
-  // Here we will have the bootstrap logic: agressive in the beginning (<64 frames), less frequent later
-  return m_banditNeedsStats;
-}
 
 
 bool

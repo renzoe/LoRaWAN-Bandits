@@ -83,6 +83,8 @@ public:
 protected:
   Experience      m_experience;
   PolicyInterface * m_aiPolicy;
+
+
   Ptr<BanditPolicy> m_policy; // Originally a Wrapper for AIToolbox::Bandit::PolicyInterface but probably we do not need it. (TODO: see)
 
   //void MySub (const T&);    // Method 1  (prefer this syntax)

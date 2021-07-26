@@ -29,6 +29,8 @@
 #include "ns3/mac-command.h"
 //#include "ns3/network-controller-components.h"
 //#include "ns3/end-device-status.h" // for ReceivedPacketList
+#include <random> // for bernoulli distrib...
+
 
 namespace ns3 {
 namespace lorawan {
@@ -56,13 +58,15 @@ public:
   void InitBanditAgentAndArms(Ptr<AdrBanditAgent> adrBanditAgent); /* Could be on constructor */
 
 
-
-
   void setBanditNeedsStats (bool mBanditNeedsStats = true);
+
+  /**
+   * @brief Determines if the bandit needs stats/feedback
+   *
+   * @return true if if it needs, false otherwise
+   */
   bool isBanditNeedsStats () const;
 
-
-  bool isGetRewardsMacCommandReqNeeded () const;
 
   Ptr<BanditRewardReq> GetRewardsMacCommandReq(uint16_t currentFrame);
 
@@ -77,6 +81,14 @@ public:
   void ConsolidateRewardsIntoBandit();
 
 
+  /**
+   * @brief This function stores the used arms (even if we do not have feedback yet).
+   * It also sets the internal boolean m_banditNeedsStats that determines if we need bandit feedback or not.
+   * The strategy of the feedback request frequency is determined here.
+   *
+   * @param armNumber The arm that was played
+   * @param frameCnt The frame count of the packet that was sent using this arm configuration
+   */
   void UpdateUsedArm(size_t armNumber, int frameCnt);
 
   void CleanArmsStats();
@@ -92,6 +104,14 @@ public:
   std::string printArmsAndRewardsVector();
 
 protected:
+
+  /**
+   * @brief This function determines the strategy to ask for delayed feedback.
+   * E.g., first N frames never ask, and then only ask with p=0.1
+   *
+   * @param frameCnt the Frame number, the strategy will depend on the frame.
+   */
+  void setBanditNeedStats (int frameCnt);
 
   bool m_banditNeedsStats = true;
 
@@ -112,6 +132,12 @@ protected:
 
   typedef std::tuple <int, int, double, double> arm_stats; // <packets sent, packets rcv, Packet Delivery Ratio (raw reward), reward scaling factor>
   std::vector<arm_stats> m_armsAndRewardsVector;
+
+  // Static/shared members (Maybe not a good idea... maybe a global static object.)
+  // https://stackoverflow.com/questions/3409428/putting-class-static-members-definition-into-cpp-file-technical-limitation
+  // https://stackoverflow.com/questions/46874055/why-is-inline-required-on-static-inline-variables
+  static inline std::default_random_engine generator;
+  static inline std::bernoulli_distribution bernoulliDistribution{ 0.05 }; // p of asking for STATS
 
 
 };

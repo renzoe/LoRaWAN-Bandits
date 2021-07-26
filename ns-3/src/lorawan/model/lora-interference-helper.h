@@ -132,6 +132,7 @@ public:
   enum CollisionMatrix {
     GOURSAUD,
     ALOHA,
+    CROCE,
   };
 
   static TypeId GetTypeId (void);

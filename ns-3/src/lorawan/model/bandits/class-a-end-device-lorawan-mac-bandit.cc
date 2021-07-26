@@ -119,6 +119,11 @@ ClassAEndDeviceLorawanMacBandit::DoSendBeforeApplyNecessaryOptions (Ptr<Packet> 
 
   NS_LOG_INFO("DoSendBeforeApplyNecessaryOptions");
 
+  // Classic ADR dissabled:
+  m_enableDRAdapt = false; // Renzo: we disable it for bandits! ---> I put it in DoSendBeforeApplyNecessaryOptions
+  //LoraFrameHeader.m_adrAckReq in EndDeviceLorawanMac::ApplyNecessaryOptions  supossedly is always false, but I see some real frames set to true
+
+
   //***************************************************************
     //[Renzo] BANDIT chooses next m_dataRate
     m_dataRate = this->m_adrBanditAgent->ChooseArm();
@@ -151,9 +156,9 @@ ClassAEndDeviceLorawanMacBandit::DoSendBeforeApplyNecessaryOptions (Ptr<Packet> 
 
         uint16_t currentFrame = (this->m_currentFCnt); // unsigned (0)
 
-        if(m_banditDelayedRewardIntelligence->isGetRewardsMacCommandReqNeeded())
+        if(m_banditDelayedRewardIntelligence->isBanditNeedsStats()) // If the bandit needs stats...
           {
-  	  Ptr<BanditRewardReq> req = m_banditDelayedRewardIntelligence->GetRewardsMacCommandReq (currentFrame);
+  	  Ptr<BanditRewardReq> req = m_banditDelayedRewardIntelligence->GetRewardsMacCommandReq (currentFrame); // We add the appopiate MAC command
   	  this->AddMacCommand (req);
           }
 
@@ -177,7 +182,7 @@ ClassAEndDeviceLorawanMacBandit::SendToPhy (Ptr<Packet> packetToSend)
   NS_LOG_DEBUG ("PacketToSend: " << packetToSend << "\t\tBandit!!!!!!!!!!!!!!");
 
   // Data Rate Adaptation as in LoRaWAN specification, V1.0.2 (2016) --> ADR Backoff
-  m_enableDRAdapt = false; // Renzo: we disable it for bandits!
+  //m_enableDRAdapt = false; // Renzo: we disable it for bandits! ---> I put it in DoSendBeforeApplyNecessaryOptions
 
   if (m_enableDRAdapt && (m_dataRate > 0)
       && (m_retxParams.retxLeft < m_maxNumbTx)
