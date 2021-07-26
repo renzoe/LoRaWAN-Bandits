@@ -25,7 +25,7 @@ sudo apt install python3 python3-dev pkg-config sqlite3 #
 sudo apt install python3-setuptools bzr # Previous line and this enables python bindings.
 
 sudo apt install python3-pip
-pip3 install PyBindGen
+sudo pip3 install PyBindGen # Better to use --user, but waf does not recognize it later
 
 #https://www.nsnam.org/wiki/Python_bindings
 #https://www.nsnam.org/docs/manual/html/python.html#working-with-python-bindings 
@@ -39,25 +39,34 @@ git clone git@github.com:renzoe/2021-06-LoRaWAN-Bandits.git
 
 Configure NS-3 , go to the  `./ns-3` folder, then:
 ```
-./waf configure --enable-examples --enable-tests --disable-werror 
-./waf build ? not yet
-# if no python bindings use with ./waf --disable-python 
+./waf configure --enable-examples --enable-tests --disable-werror --disable-python 
+# if no python bindings use with ./waf --disable-python : currently there is a binding error with fd-net-device module
 ```
 
 Set up  `AIToolboxMDP` library:
 ```
 ./config_external-libs.sh # this copies the .so to /usr/local/lib and the includes
 
-#Other dependencies of ATtoolbox (boost, Eigen):
-sudo apt-get install libboost-all-dev #500 mb! Maybe make a static lib AIToolboxMDP.a?
-sudo apt install libeigen3-dev
+#Other dependencies of ATtoolbox (boost, Eigen3.3, liblpsolve55):
+sudo apt install libboost-all-dev #500 mb! (TODO: Maybe use a static lib AIToolboxMDP.a?)
+
+#sudo apt install libeigen3-dev # No need to apt install: I include the header library in the /config_external-libs.sh 
+
+sudo apt install lp-solve 
+sudo cp /usr/lib/lp_solve/liblpsolve55.so  /usr/lib/liblpsolve55.so # Because in ubuntu the library is not on a path that the linker ld looks
 ```
 
-Testing NS-3 and LoRaWAN module
+Building NS-3 and Testing LoRaWAN module
 ```
-./test.py
+./waf build 
+./test.py -s lorawan -v
+```
 
+Testing One Bandit!
 ```
+./waf --run "src/lorawan/examples/adr-bandit-example  --nDevices=1 --HistoryRange=10000 --PeriodsToSimulate=100"
+```
+
 
 ###  Particular LoRaWAN Bandits Dependencies
 
