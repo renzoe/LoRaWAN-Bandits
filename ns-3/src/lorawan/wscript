@@ -7,7 +7,7 @@ def configure(conf):
 #     conf.check_nonfatal(header_name='stdint.h', define_name='HAVE_STDINT_H')
 #     conf.env['libAIToolboxMDP'] = conf.check(mandatory=True, lib='AIToolboxMDP', uselib_store='AITOOLBOXMDP')
 #  https://waf.io/apidocs/tutorial.html
-     conf.env.append_value("LINKFLAGS", ["-L/usr/local/lib64/"])
+     conf.env.append_value("LINKFLAGS", ["-L/usr/lib64/"])
      conf.env.append_value("LIB", ["AIToolboxMDP"])
      
 # but the linker still needs the libpath in the env: https://unix.stackexchange.com/questions/168340/where-is-ld-library-path-how-do-i-set-the-ld-library-path-env-variable  
