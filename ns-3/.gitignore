@@ -3,7 +3,7 @@
 *.patch
 *.rej
 
-
+*.o
 *.pyc
 *.pyo
 
