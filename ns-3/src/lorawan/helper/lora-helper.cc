@@ -231,6 +231,8 @@ LoraHelper::DoPrintDeviceStatus (NodeContainer endDevices, NodeContainer gateway
                  << pos.x << " " << pos.y << " " << dr << " "
                  << unsigned(txPower) << std::endl;
     }
+
+// [renzo] Here we can print the info for the gateways
 //   for (NodeContainer::Iterator j = gateways.Begin (); j != gateways.End (); ++j)
 //     {
 //       Ptr<Node> object = *j;

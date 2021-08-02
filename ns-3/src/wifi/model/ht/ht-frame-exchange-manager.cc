@@ -27,9 +27,6 @@
 #include "ns3/wifi-utils.h"
 #include "ns3/snr-tag.h"
 #include "ns3/ctrl-headers.h"
-#include "ns3/channel-access-manager.h"
-#include "ns3/wifi-protection-manager.h"
-#include "ns3/wifi-ack-manager.h"
 
 #undef NS_LOG_APPEND_CONTEXT
 #define NS_LOG_APPEND_CONTEXT std::clog << "[mac=" << m_self << "] "
@@ -67,6 +64,7 @@ void
 HtFrameExchangeManager::DoDispose (void)
 {
   NS_LOG_FUNCTION (this);
+  m_agreements.clear ();
   m_msduAggregator = 0;
   m_mpduAggregator = 0;
   m_psdu = 0;
@@ -128,10 +126,10 @@ HtFrameExchangeManager::NeedSetupBlockAck (Mac48Address recipient, uint8_t tid)
 }
 
 void
-HtFrameExchangeManager::SendAddBaRequest (Mac48Address dest, uint8_t tid, uint16_t timeout,
-                                          bool immediateBAck)
+HtFrameExchangeManager::SendAddBaRequest (Mac48Address dest, uint8_t tid, uint16_t startingSeq,
+                                          uint16_t timeout, bool immediateBAck)
 {
-  NS_LOG_FUNCTION (this << dest << +tid << timeout << immediateBAck);
+  NS_LOG_FUNCTION (this << dest << +tid << startingSeq << timeout << immediateBAck);
   NS_LOG_DEBUG ("Send ADDBA request to " << dest);
 
   WifiMacHeader hdr;
@@ -166,7 +164,7 @@ HtFrameExchangeManager::SendAddBaRequest (Mac48Address dest, uint8_t tid, uint16
   reqHdr.SetBufferSize (0);
   reqHdr.SetTimeout (timeout);
   // set the starting sequence number for the BA agreement
-  reqHdr.SetStartingSequence (m_txMiddle->GetNextSeqNumberByTidAndAddress (tid, dest));
+  reqHdr.SetStartingSequence (startingSeq);
 
   GetBaManager (tid)->CreateAgreement (&reqHdr, dest);
 
@@ -355,7 +353,14 @@ HtFrameExchangeManager::StartFrameExchange (Ptr<QosTxop> edca, Time availableTim
   if (hdr.IsQosData () && !hdr.GetAddr1 ().IsGroup ()
       && NeedSetupBlockAck (hdr.GetAddr1 (), hdr.GetQosTid ()))
     {
-      SendAddBaRequest (hdr.GetAddr1 (), hdr.GetQosTid (), edca->GetBlockAckInactivityTimeout (), true);
+      // if the peeked MPDU has been already transmitted, use its sequence number
+      // as the starting sequence number for the BA agreement, otherwise use the
+      // next available sequence number
+      uint16_t startingSeq = (hdr.IsRetry () ? hdr.GetSequenceNumber ()
+                                             : m_txMiddle->GetNextSeqNumberByTidAndAddress (hdr.GetQosTid (),
+                                                                                            hdr.GetAddr1 ()));
+      SendAddBaRequest (hdr.GetAddr1 (), hdr.GetQosTid (), startingSeq,
+                        edca->GetBlockAckInactivityTimeout (), true);
       return true;
     }
 
@@ -1263,7 +1268,7 @@ HtFrameExchangeManager::SendBlockAck (const RecipientBlockAckAgreement& agreemen
   // time, in microseconds between the end of the PPDU carrying the frame that
   // elicited the response and the end of the PPDU carrying the BlockAck frame.
   Time baDurationId = durationId - m_phy->GetSifs ()
-                      - m_phy->CalculateTxDuration (psdu->GetSize (), blockAckTxVector, m_phy->GetPhyBand ());
+                      - m_phy->CalculateTxDuration (psdu, blockAckTxVector, m_phy->GetPhyBand ());
   // The TXOP holder may exceed the TXOP limit in some situations (Sec. 10.22.2.8 of 802.11-2016)
   if (baDurationId.IsStrictlyNegative ())
     {
@@ -1338,7 +1343,7 @@ HtFrameExchangeManager::ReceiveMpdu (Ptr<WifiMacQueueItem> mpdu, RxSignalInfo rx
           CtrlBAckResponseHeader blockAck;
           mpdu->GetPacket ()->PeekHeader (blockAck);
           uint8_t tid = blockAck.GetTidInfo ();
-          GetBaManager (tid)->NotifyGotBlockAck (&blockAck, hdr.GetAddr2 (), rxSnr,
+          GetBaManager (tid)->NotifyGotBlockAck (blockAck, hdr.GetAddr2 (), {tid}, rxSnr,
                                                  tag.Get (), m_txParams.m_txVector);
 
           // cancel the timer

@@ -38,14 +38,15 @@ class Event : public SimpleRefCount<Event>
 {
 public:
   /**
-   * Create an Event with the given parameters.
+   * Create an Event with the given parameters. Note that <i>rxPower</i> will
+   * be moved into this object.
    *
    * \param ppdu the PPDU
    * \param txVector the TXVECTOR
    * \param duration duration of the PPDU
    * \param rxPower the received power per band (W)
    */
-  Event (Ptr<const WifiPpdu> ppdu, const WifiTxVector& txVector, Time duration, RxPowerWattPerChannelBand rxPower);
+  Event (Ptr<const WifiPpdu> ppdu, const WifiTxVector& txVector, Time duration,  RxPowerWattPerChannelBand&& rxPower);
   ~Event ();
 
   /**
@@ -90,20 +91,20 @@ public:
    *
    * \return the received power (W) for all bands.
    */
-  RxPowerWattPerChannelBand GetRxPowerWPerBand (void) const;
+  const RxPowerWattPerChannelBand& GetRxPowerWPerBand (void) const;
   /**
    * Return the TXVECTOR of the PPDU.
    *
    * \return the TXVECTOR of the PPDU
    */
-  WifiTxVector GetTxVector (void) const;
+  const WifiTxVector& GetTxVector (void) const;
   /**
    * Update the received power (W) for all bands, i.e. add up the received power
    * to the current received power, for each band.
    *
-   * \param the received power (W) for all bands.
+   * \param rxPower the received power (W) for all bands.
    */
-  void UpdateRxPowerW (RxPowerWattPerChannelBand rxPower);
+  void UpdateRxPowerW (const RxPowerWattPerChannelBand& rxPower);
 
 
 private:
@@ -194,14 +195,14 @@ public:
    *
    * \return Event
    */
-  Ptr<Event> Add (Ptr<const WifiPpdu> ppdu, const WifiTxVector& txVector, Time duration, RxPowerWattPerChannelBand rxPower, bool isStartOfdmaRxing = false);
+  Ptr<Event> Add (Ptr<const WifiPpdu> ppdu, const WifiTxVector& txVector, Time duration, RxPowerWattPerChannelBand& rxPower, bool isStartOfdmaRxing = false);
 
   /**
    * Add a non-Wifi signal to interference helper.
    * \param duration the duration of the signal
    * \param rxPower received power per band (W)
    */
-  void AddForeignSignal (Time duration, RxPowerWattPerChannelBand rxPower);
+  void AddForeignSignal (Time duration, RxPowerWattPerChannelBand& rxPower);
   /**
    * Calculate the SNIR at the start of the payload and accumulate
    * all SNIR changes in the SNIR vector for each MPDU of an A-MPDU.
@@ -265,7 +266,7 @@ public:
    * \param event the event to be updated
    * \param rxPower the received power (W) per band to be added to the current event
    */
-  void UpdateEvent (Ptr<Event> event, RxPowerWattPerChannelBand rxPower);
+  void UpdateEvent (Ptr<Event> event, const RxPowerWattPerChannelBand& rxPower);
 
 
 protected:
@@ -281,18 +282,30 @@ protected:
    */
   double CalculateSnr (double signal, double noiseInterference, uint16_t channelWidth, uint8_t nss) const;
   /**
-   * Calculate the success rate of the chunk given the SINR, duration, and Wi-Fi mode.
-   * The duration and mode are used to calculate how many bits are present in the chunk.
+   * Calculate the success rate of the chunk given the SINR, duration, and TXVECTOR.
+   * The duration and TXVECTOR are used to calculate how many bits are present in the chunk.
    *
    * \param snir the SINR
    * \param duration the duration of the chunk
    * \param mode the WifiMode
    * \param txVector the TXVECTOR
+   * \param field the PPDU field to which the chunk belongs to
    *
    * \return the success rate
    */
-  double CalculateChunkSuccessRate (double snir, Time duration, WifiMode mode, const WifiTxVector& txVector) const;
-
+  double CalculateChunkSuccessRate (double snir, Time duration, WifiMode mode, const WifiTxVector& txVector, WifiPpduField field) const;
+  /**
+   * Calculate the success rate of the payload chunk given the SINR, duration, and TXVECTOR.
+   * The duration and TXVECTOR are used to calculate how many bits are present in the payload chunk.
+   *
+   * \param snir the SINR
+   * \param duration the duration of the chunk
+   * \param txVector the TXVECTOR
+   * \param staId the station ID of the PSDU (only used for MU)
+   *
+   * \return the success rate
+   */
+  double CalculatePayloadChunkSuccessRate (double snir, Time duration, const WifiTxVector& txVector, uint16_t staId = SU_STA_ID) const;
 
 private:
   /**
@@ -363,18 +376,6 @@ private:
    */
   double CalculateNoiseInterferenceW (Ptr<Event> event, NiChangesPerBand *nis, WifiSpectrumBand band) const;
   /**
-   * Calculate the success rate of the payload chunk given the SINR, duration, and Wi-Fi mode.
-   * The duration and mode are used to calculate how many bits are present in the chunk.
-   *
-   * \param snir the SINR
-   * \param duration the duration of the chunk
-   * \param txVector the TXVECTOR
-   * \param staId the station ID of the PSDU (only used for MU)
-   *
-   * \return the success rate
-   */
-  double CalculatePayloadChunkSuccessRate (double snir, Time duration, const WifiTxVector& txVector, uint16_t staId) const;
-  /**
    * Calculate the error rate of the given PHY payload only in the provided time
    * window (thus enabling per MPDU PER information). The PHY payload can be divided into
    * multiple chunks (e.g. due to interference from other transmissions).
@@ -431,18 +432,18 @@ private:
    * Returns an iterator to the first NiChange that is later than moment
    *
    * \param moment time to check from
-   * \param band identify the band to check
+   * \param niIt iterator of the band to check
    * \returns an iterator to the list of NiChanges
    */
-  NiChanges::iterator GetNextPosition (Time moment, WifiSpectrumBand band);
+  NiChanges::iterator GetNextPosition (Time moment, NiChangesPerBand::iterator niIt);
   /**
    * Returns an iterator to the last NiChange that is before than moment
    *
    * \param moment time to check from
-   * \param band identify the band to check
+   * \param niIt iterator of the band to check
    * \returns an iterator to the list of NiChanges
    */
-  NiChanges::iterator GetPreviousPosition (Time moment, WifiSpectrumBand band);
+  NiChanges::iterator GetPreviousPosition (Time moment, NiChangesPerBand::iterator niIt);
 
   /**
    * Add NiChange to the list at the appropriate position and
@@ -450,10 +451,10 @@ private:
    *
    * \param moment time to check from
    * \param change the NiChange to add
-   * \param band identify the band to check
+   * \param niIt iterator of the band to check
    * \returns the iterator of the new event
    */
-  NiChanges::iterator AddNiChangeEvent (Time moment, NiChange change, WifiSpectrumBand band);
+  NiChanges::iterator AddNiChangeEvent (Time moment, NiChange change, NiChangesPerBand::iterator niIt);
 };
 
 } //namespace ns3

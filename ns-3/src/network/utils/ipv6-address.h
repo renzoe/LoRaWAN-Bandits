@@ -99,17 +99,6 @@ public:
   void Set (uint8_t address[16]);
 
   /**
-   * \brief Comparison operation between two Ipv6Addresses.
-   *
-   * \deprecated Use the == operator (same functionality)
-   *
-   * \param other the IPv6 address to which to compare this address
-   * \return true if the addresses are equal, false otherwise
-   */
-  NS_DEPRECATED_3_31
-  bool IsEqual (const Ipv6Address& other) const;
-
-  /**
    * \brief Serialize this address to a 16-byte buffer.
    * \param buf the output buffer to which this address gets overwritten with this
    * Ipv6Address
@@ -544,6 +533,12 @@ public:
   void GetBytes (uint8_t buf[16]) const;
 
   /**
+   * \brief Convert the Prefix into an IPv6 Address.
+   * \return an IPv6 address representing the prefix
+   */
+  Ipv6Address ConvertToIpv6Address () const;
+
+  /**
    * \brief Get prefix length.
    * \return prefix length
    */
@@ -560,17 +555,6 @@ public:
     * \return minimum prefix length
     */
   uint8_t GetMinimumPrefixLength () const;
-
-  /**
-   * \brief Comparison operation between two Ipv6Prefix.
-   *
-   * \deprecated Use the == operator (same functionality)
-   *
-   * \param other the IPv6 prefix to which to compare this prefix
-   * \return true if the prefixes are equal, false otherwise
-   */
-  NS_DEPRECATED_3_31
-  bool IsEqual (const Ipv6Prefix& other) const;
 
   /**
    * \brief Print this address to the given output stream.

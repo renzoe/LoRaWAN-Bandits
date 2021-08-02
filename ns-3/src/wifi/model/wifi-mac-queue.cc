@@ -75,7 +75,7 @@ WifiMacQueue::~WifiMacQueue ()
   m_nQueuedBytes.clear ();
 }
 
-static std::list<Ptr<WifiMacQueueItem>> g_emptyWifiMacQueue;
+static std::list<Ptr<WifiMacQueueItem>> g_emptyWifiMacQueue; //!< empty Wi-Fi MAC queue
 
 const WifiMacQueue::ConstIterator WifiMacQueue::EMPTY = g_emptyWifiMacQueue.end ();
 
@@ -95,8 +95,6 @@ WifiMacQueue::GetMaxDelay (void) const
 bool
 WifiMacQueue::TtlExceeded (ConstIterator &it)
 {
-  NS_LOG_FUNCTION (this);
-
   if (Simulator::Now () > (*it)->GetTimeStamp () + m_maxDelay)
     {
       NS_LOG_DEBUG ("Removing packet that stayed in the queue for too long (" <<

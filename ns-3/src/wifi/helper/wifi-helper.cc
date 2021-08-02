@@ -491,8 +491,8 @@ WifiPhyHelper::GetRadiotapHeader (
         {
           data2 |= RadiotapHeader::HE_DATA2_RU_OFFSET_KNOWN;
           //HeRu indices start at 1 whereas RadioTap starts at 0
-          data2 |= (((txVector.GetHeMuUserInfo (staId).ru.index - 1) << 8) & 0x3f00);
-          data2 |= (((!txVector.GetHeMuUserInfo (staId).ru.primary80MHz) << 15) & 0x8000);
+          data2 |= (((txVector.GetHeMuUserInfo (staId).ru.GetIndex () - 1) << 8) & 0x3f00);
+          data2 |= (((!txVector.GetHeMuUserInfo (staId).ru.GetPrimary80MHz ()) << 15) & 0x8000);
         }
 
       uint16_t data3 = 0;
@@ -508,7 +508,7 @@ WifiPhyHelper::GetRadiotapHeader (
       uint16_t data5 = 0;
       if (preamble == WIFI_PREAMBLE_HE_MU || preamble == WIFI_PREAMBLE_HE_TB)
         {
-          HeRu::RuType ruType = txVector.GetHeMuUserInfo (staId).ru.ruType;
+          HeRu::RuType ruType = txVector.GetHeMuUserInfo (staId).ru.GetRuType ();
           switch (ruType)
             {
             case HeRu::RU_26_TONE:
@@ -769,37 +769,6 @@ WifiHelper::SetStandard (WifiStandard standard)
   m_standard = standard;
 }
 
-// NS_DEPRECATED_3_32
-void
-WifiHelper::SetStandard (WifiPhyStandard standard)
-{
-  switch (standard)
-    {
-    case WIFI_PHY_STANDARD_80211a:
-      m_standard = WIFI_STANDARD_80211a;
-      return;
-    case WIFI_PHY_STANDARD_80211b:
-      m_standard = WIFI_STANDARD_80211b;
-      return;
-    case WIFI_PHY_STANDARD_80211g:
-      m_standard = WIFI_STANDARD_80211g;
-      return;
-    // remove the next value from WifiPhyStandard when deprecation ends
-    case WIFI_PHY_STANDARD_80211n_2_4GHZ:
-      m_standard = WIFI_STANDARD_80211n_2_4GHZ;
-      return;
-    // remove the next value from WifiPhyStandard when deprecation ends
-    case WIFI_PHY_STANDARD_80211n_5GHZ:
-      m_standard = WIFI_STANDARD_80211n_5GHZ;
-      return;
-    case WIFI_PHY_STANDARD_80211ac:
-      m_standard = WIFI_STANDARD_80211ac;
-      return;
-    default:
-      NS_FATAL_ERROR ("Unsupported value of WifiPhyStandard");
-    }
-}
-
 void
 WifiHelper::SetSelectQueueCallback (SelectQueueCallback f)
 {
@@ -966,12 +935,14 @@ WifiHelper::EnableLogComponents (void)
   LogComponentEnable ("QosTxop", LOG_LEVEL_ALL);
   LogComponentEnable ("RegularWifiMac", LOG_LEVEL_ALL);
   LogComponentEnable ("RraaWifiManager", LOG_LEVEL_ALL);
+  LogComponentEnable ("RrMultiUserScheduler", LOG_LEVEL_ALL);
   LogComponentEnable ("RrpaaWifiManager", LOG_LEVEL_ALL);
   LogComponentEnable ("SimpleFrameCaptureModel", LOG_LEVEL_ALL);
   LogComponentEnable ("SpectrumWifiPhy", LOG_LEVEL_ALL);
   LogComponentEnable ("StaWifiMac", LOG_LEVEL_ALL);
   LogComponentEnable ("SupportedRates", LOG_LEVEL_ALL);
   LogComponentEnable ("TableBasedErrorRateModel", LOG_LEVEL_ALL);
+  LogComponentEnable ("ThompsonSamplingWifiManager", LOG_LEVEL_ALL);
   LogComponentEnable ("ThresholdPreambleDetectionModel", LOG_LEVEL_ALL);
   LogComponentEnable ("Txop", LOG_LEVEL_ALL);
   LogComponentEnable ("VhtConfiguration", LOG_LEVEL_ALL);
@@ -997,6 +968,7 @@ WifiHelper::EnableLogComponents (void)
   LogComponentEnable ("WifiSpectrumSignalParameters", LOG_LEVEL_ALL);
   LogComponentEnable ("WifiTxCurrentModel", LOG_LEVEL_ALL);
   LogComponentEnable ("WifiTxParameters", LOG_LEVEL_ALL);
+  LogComponentEnable ("WifiTxTimer", LOG_LEVEL_ALL);
   LogComponentEnable ("YansErrorRateModel", LOG_LEVEL_ALL);
   LogComponentEnable ("YansWifiChannel", LOG_LEVEL_ALL);
   LogComponentEnable ("YansWifiPhy", LOG_LEVEL_ALL);

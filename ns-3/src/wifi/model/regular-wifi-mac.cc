@@ -477,7 +477,6 @@ RegularWifiMac::SetupEdcaQueue (AcIndex ac)
   edca->SetDroppedMpduCallback (MakeCallback (&DroppedMpduTracedCallback::operator(),
                                               &m_droppedMpduCallback));
   edca->SetAccessCategory (ac);
-  edca->CompleteConfig ();
 
   m_edca.insert (std::make_pair (ac, edca));
 }
@@ -921,32 +920,32 @@ RegularWifiMac::GetTypeId (void)
                    MakeUintegerChecker<uint16_t> (0, 11398))
     .AddAttribute ("VO_MaxAmpduSize",
                    "Maximum length in bytes of an A-MPDU for AC_VO access class "
-                   "(capped to 65535 for HT PPDUs, 1048575 for VHT PPDUs, and 8388607 for HE PPDUs). "
+                   "(capped to 65535 for HT PPDUs, 1048575 for VHT PPDUs, and 6500631 for HE PPDUs). "
                    "Value 0 means A-MPDU aggregation is disabled for that AC.",
                    UintegerValue (0),
                    MakeUintegerAccessor (&RegularWifiMac::m_voMaxAmpduSize),
-                   MakeUintegerChecker<uint32_t> ())
+                   MakeUintegerChecker<uint32_t> (0, 6500631))
     .AddAttribute ("VI_MaxAmpduSize",
                    "Maximum length in bytes of an A-MPDU for AC_VI access class "
-                   "(capped to 65535 for HT PPDUs, 1048575 for VHT PPDUs, and 8388607 for HE PPDUs). "
+                   "(capped to 65535 for HT PPDUs, 1048575 for VHT PPDUs, and 6500631 for HE PPDUs). "
                    "Value 0 means A-MPDU aggregation is disabled for that AC.",
                    UintegerValue (65535),
                    MakeUintegerAccessor (&RegularWifiMac::m_viMaxAmpduSize),
-                   MakeUintegerChecker<uint32_t> ())
+                   MakeUintegerChecker<uint32_t> (0, 6500631))
     .AddAttribute ("BE_MaxAmpduSize",
                    "Maximum length in bytes of an A-MPDU for AC_BE access class "
-                   "(capped to 65535 for HT PPDUs, 1048575 for VHT PPDUs, and 8388607 for HE PPDUs). "
+                   "(capped to 65535 for HT PPDUs, 1048575 for VHT PPDUs, and 6500631 for HE PPDUs). "
                    "Value 0 means A-MPDU aggregation is disabled for that AC.",
                    UintegerValue (65535),
                    MakeUintegerAccessor (&RegularWifiMac::m_beMaxAmpduSize),
-                   MakeUintegerChecker<uint32_t> ())
+                   MakeUintegerChecker<uint32_t> (0, 6500631))
     .AddAttribute ("BK_MaxAmpduSize",
                    "Maximum length in bytes of an A-MPDU for AC_BK access class "
-                   "(capped to 65535 for HT PPDUs, 1048575 for VHT PPDUs, and 8388607 for HE PPDUs). "
+                   "(capped to 65535 for HT PPDUs, 1048575 for VHT PPDUs, and 6500631 for HE PPDUs). "
                    "Value 0 means A-MPDU aggregation is disabled for that AC.",
                    UintegerValue (0),
                    MakeUintegerAccessor (&RegularWifiMac::m_bkMaxAmpduSize),
-                   MakeUintegerChecker<uint32_t> ())
+                   MakeUintegerChecker<uint32_t> (0, 6500631))
     .AddAttribute ("VO_BlockAckThreshold",
                    "If number of packets in VO queue reaches this value, "
                    "block ack mechanism is used. If this value is 0, block ack is never used."
@@ -1076,8 +1075,9 @@ RegularWifiMac::GetTypeId (void)
                      "A PSDU whose response was not received before the timeout, along with "
                      "an identifier of the type of timeout (see WifiTxTimer::Reason) and the "
                      "TXVECTOR used to transmit the PSDU. This trace source is fired when a "
-                     "BlockAck is missing after an A-MPDU or a BlockAckReq (possibly in the "
-                     "context of the acknowledgment of a DL MU PPDU in SU format).",
+                     "BlockAck is missing after an A-MPDU, a BlockAckReq (possibly in the "
+                     "context of the acknowledgment of a DL MU PPDU in SU format) or a TB PPDU "
+                     "(in the latter case the missing BlockAck is a Multi-STA BlockAck).",
                      MakeTraceSourceAccessor (&RegularWifiMac::m_psduResponseTimeoutCallback),
                      "ns3::RegularWifiMac::PsduResponseTimeoutCallback")
     .AddTraceSource ("PsduMapResponseTimeout",
@@ -1085,8 +1085,9 @@ RegularWifiMac::GetTypeId (void)
                      "along with an identifier of the type of timeout (see WifiTxTimer::Reason), "
                      "the set of MAC addresses of the stations that did not respond and the total "
                      "number of stations that had to respond. This trace source is fired when not "
-                     "all the addressed stations respond to an MU-BAR Trigger frame (either sent as "
-                     "a SU frame or aggregated to PSDUs in the DL MU PPDU.",
+                     "all the addressed stations responded to an MU-BAR Trigger frame (either sent as "
+                     "a SU frame or aggregated to PSDUs in the DL MU PPDU), a Basic Trigger Frame or "
+                     "a BSRP Trigger Frame.",
                      MakeTraceSourceAccessor (&RegularWifiMac::m_psduMapResponseTimeoutCallback),
                      "ns3::RegularWifiMac::PsduMapResponseTimeoutCallback")
   ;

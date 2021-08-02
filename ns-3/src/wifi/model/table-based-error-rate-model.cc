@@ -33,8 +33,8 @@
 
 namespace ns3 {
 
-static const double SNR_PRECISION = 2;
-static const double TABLED_BASED_ERROR_MODEL_PRECISION = 1e-5;
+static const double SNR_PRECISION = 2; //!< precision for SNR
+static const double TABLED_BASED_ERROR_MODEL_PRECISION = 1e-5; //!< precision for PER
 
 NS_OBJECT_ENSURE_REGISTERED (TableBasedErrorRateModel);
 
@@ -141,9 +141,9 @@ TableBasedErrorRateModel::GetMcsForMode (WifiMode mode)
 }
 
 double
-TableBasedErrorRateModel::DoGetChunkSuccessRate (WifiMode mode, const WifiTxVector& txVector, double snr, uint64_t nbits, uint16_t staId) const
+TableBasedErrorRateModel::DoGetChunkSuccessRate (WifiMode mode, const WifiTxVector& txVector, double snr, uint64_t nbits, uint8_t numRxAntennas, WifiPpduField field, uint16_t staId) const
 {
-  NS_LOG_FUNCTION (this << mode << txVector << snr << nbits << staId);
+  NS_LOG_FUNCTION (this << mode << txVector << snr << nbits << +numRxAntennas << field << staId);
   uint64_t size = std::max<uint64_t> (1, (nbits / 8));
   double roundedSnr = RoundSnr (RatioToDb (snr), SNR_PRECISION);
   uint8_t mcs = GetMcsForMode (mode);

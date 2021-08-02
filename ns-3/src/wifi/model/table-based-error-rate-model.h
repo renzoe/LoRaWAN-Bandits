@@ -47,9 +47,6 @@ public:
   TableBasedErrorRateModel ();
   ~TableBasedErrorRateModel ();
 
-  //Inherited from ErrorRateModel
-  double DoGetChunkSuccessRate (WifiMode mode, const WifiTxVector& txVector, double snr, uint64_t nbits, uint16_t staId) const;
-
   /**
    * \brief Utility function to convert WifiMode to an MCS value
    * \param mode the WifiMode
@@ -59,6 +56,9 @@ public:
 
 
 private:
+  double DoGetChunkSuccessRate (WifiMode mode, const WifiTxVector& txVector, double snr, uint64_t nbits,
+                                uint8_t numRxAntennas, WifiPpduField field, uint16_t staId) const override;
+
   /**
    * Round SNR (in dB) to the specified precision
    *

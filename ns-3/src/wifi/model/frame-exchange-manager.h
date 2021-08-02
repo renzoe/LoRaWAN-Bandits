@@ -31,14 +31,15 @@
 #include "wifi-phy.h"
 #include "wifi-tx-timer.h"
 #include "wifi-tx-parameters.h"
+// Needed to compile wave bindings
+#include "ns3/wifi-protection-manager.h"
+#include "ns3/wifi-ack-manager.h"
+#include "channel-access-manager.h"
 
 namespace ns3 {
 
-class ChannelAccessManager;
 struct RxSignalInfo;
-class WifiProtectionManager;
 struct WifiProtection;
-class WifiAckManager;
 struct WifiAcknowledgment;
 
 /**
@@ -235,7 +236,7 @@ public:
   void NotifyOffNow (void);
 
 protected:
-  virtual void DoDispose ();
+  void DoDispose () override;
 
   /**
    * Fragment the given MPDU if needed. If fragmentation is needed, return the
@@ -539,9 +540,7 @@ private:
   WifiTxParameters m_txParams;                    //!< the TX parameters for the current frame
   Ptr<Packet> m_fragmentedPacket;                 //!< the MSDU being fragmented
   bool m_moreFragments;                           //!< true if a fragment has to be sent after a SIFS
-  TypeId m_protectionManagerTypeId;               //!< TypeId of the protection manager to install
   Ptr<WifiProtectionManager> m_protectionManager; //!< Protection manager
-  TypeId m_acknowledgmentManagerTypeId;           //!< TypeId of the acknowledgment manager to install
   Ptr<WifiAckManager> m_ackManager;               //!< Acknowledgment manager
 };
 

@@ -4,13 +4,15 @@
 .doc:
   stage: documentation
   before_script:
-    - apt-get update
-    - DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
-    - apt-get install -y doxygen graphviz make imagemagick dia texlive texlive-font-utils python3-sphinx latexmk texlive texlive-science texlive-formats-extra texlive-base python3-jinja2 python3-pygments texlive-fonts-extra
-    - apt-get --quiet install git gcc g++ python python3 python-dev qt5-default openmpi-bin openmpi-common openmpi-doc libopenmpi-dev gsl-bin libgsl-dev ccache flex bison libfl-dev sqlite sqlite3 libsqlite3-dev libxml2 libxml2-dev libgtk-3-dev libboost-all-dev --yes
-    - sed -i "s/EPS,PDF,//g" /etc/ImageMagick-6/policy.xml
-    - sed -i "s/none/read\ |\ write/g" /etc/ImageMagick-6/policy.xml
-  image: ubuntu
+    - pacman -Syu --noconfirm
+    - pacman -Sy base-devel python ccache gsl libgcrypt gtk3 boost --noconfirm
+    - pacman -Sy git doxygen graphviz imagemagick dia texlive-core texlive-bin texlive-latexextra python-sphinx --noconfirm
+    # no policy is a good policy.
+    - mv /etc/ImageMagick-7/policy.xml /etc/ImageMagick-7/policy.xml.bak
+#    - sed -i "s/EPS,PDF,//g" /etc/ImageMagick-7/policy.xml
+#    - sed -i "s/none/read\ |\ write/g" /etc/ImageMagick-7/policy.xml
+  image: archlinux
+  timeout: 2h
 #  artifacts:
 #    paths:
 #      - public
@@ -24,9 +26,16 @@ doxygen:
     - CXX="ccache $COMPILER" ./waf configure --enable-examples --enable-tests --enable-asserts -d release
     - ./waf
 #    - mkdir -p public/doxygen
-    - git remote add ns-3-origin https://gitlab.com/nsnam/ns-3-dev.git
+    - git remote add ns-3-origin https://gitlab.com/nsnam/ns-3-dev.git || true
     - git fetch ns-3-origin
-    - doc/doxygen.warnings.report.sh -f "$(git diff --name-only ns-3-origin/master --diff-filter=d | tr '\n' ' ' | sed 's/ $//g;s/ /\\\|/g')"
+#    - doc/doxygen.warnings.report.sh -f "$(git diff --name-only ns-3-origin/master --diff-filter=d | tr '\n' ' ' | sed 's/ $//g;s/ /\\\|/g')"
+    - export CHANGED_FILES=$(git diff --name-only ns-3-origin/master --diff-filter=d | tr '\n' ' ' | sed 's/ $//g;s/ /\\\|/g')
+    - doc/doxygen.warnings.report.sh -f "$CHANGED_FILES"
+#    - doc/doxygen.warnings.report.sh -f "$CHANGED_FILES" || EXIT_CODE=$?
+#    - if [ -z $EXIT_CODE ]; then export EXIT_CODE=0; fi;
+#    - if [ $EXIT_CODE -ne 0 ]; then if [ -z $CHANGED_FILES ]; then exit 0; fi; fi;
+#    - exit $EXIT_CODE
+
 #    - doxygen doc/doxygen.conf
 #    - mv doc/html/ public/doxygen
   cache:

@@ -136,11 +136,20 @@ SOURCEFIGS = \
 	$(SRC)/internet/doc/figures/dce-linux-reno-vs-ns3-linux-reno.png \
 	$(SRC)/internet/doc/figures/dce-linux-reno-vs-ns3-new-reno.png \
 	$(SRC)/internet/doc/figures/ns3-new-reno-vs-ns3-linux-reno.png \
+	$(SRC)/internet/doc/figures/ns3-bbr-vs-linux-bbr.png \
 	$(SRC)/wifi/doc/source/figures/WifiArchitecture.dia \
 	$(SRC)/wifi/doc/source/figures/PhyEntityHierarchy.dia \
 	$(SRC)/wifi/doc/source/figures/WifiPpduHierarchy.dia \
 	$(SRC)/wifi/doc/source/figures/FemHierarchy.dia \
 	$(SRC)/wifi/doc/source/figures/snir.dia \
+	$(SRC)/wifi/doc/source/figures/ack-su-format.pdf \
+	$(SRC)/wifi/doc/source/figures/ack-su-format.png \
+	$(SRC)/wifi/doc/source/figures/mu-bar.pdf \
+	$(SRC)/wifi/doc/source/figures/mu-bar.png \
+	$(SRC)/wifi/doc/source/figures/aggr-mu-bar.pdf \
+	$(SRC)/wifi/doc/source/figures/aggr-mu-bar.png \
+	$(SRC)/wifi/doc/source/figures/ul-ofdma.pdf \
+	$(SRC)/wifi/doc/source/figures/ul-ofdma.png \
 	$(SRC)/wifi/doc/source/figures/clear-channel.eps \
 	$(SRC)/wifi/doc/source/figures/nist-frame-success-rate.eps \
 	$(SRC)/wifi/doc/source/figures/nist-frame-success-rate-n.eps \

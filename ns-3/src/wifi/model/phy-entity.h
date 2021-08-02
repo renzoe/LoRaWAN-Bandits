@@ -209,8 +209,6 @@ public:
    * \param txVector the transmission parameters
    *
    * \return the WifiMode used for the SIG field
-   *
-   * This method is overridden by child classes.
    */
   virtual WifiMode GetSigMode (WifiPpduField field, const WifiTxVector& txVector) const;
 
@@ -244,8 +242,6 @@ public:
    * \param txVector the transmission parameters
    *
    * \return the duration of the PPDU field
-   *
-   * This method is overridden by child classes.
    */
   virtual Time GetDuration (WifiPpduField field, const WifiTxVector& txVector) const;
   /**
@@ -324,9 +320,6 @@ public:
    * \param ppduDuration the transmission duration of the PPDU
    *
    * \return the amendment-specific WifiPpdu
-   *
-   * This method is overridden by child classes to create their
-   * corresponding PPDU, e.g., HtPhy creates HtPpdu.
    */
   virtual Ptr<WifiPpdu> BuildPpdu (const WifiConstPsduMap & psdus, const WifiTxVector& txVector, Time ppduDuration);
 
@@ -365,13 +358,12 @@ public:
    * \param rxPowersW the receive power in W per band
    * \param rxDuration the duration of the PPDU
    */
-  virtual void StartReceivePreamble (Ptr<WifiPpdu> ppdu, RxPowerWattPerChannelBand rxPowersW,
+  virtual void StartReceivePreamble (Ptr<WifiPpdu> ppdu, RxPowerWattPerChannelBand& rxPowersW,
                                      Time rxDuration);
   /**
    * Start receiving a given field.
    *
-   * This method will call the DoStartReceiveField (which will should
-   * be overridden by child classes).
+   * This method will call the DoStartReceiveField.
    * EndReceiveField is also scheduled after the duration of the field
    * (except for the special case of preambles \see DoStartReceivePreamble).
    * The PHY is kept in CCA busy during the reception of the field (except for
@@ -384,8 +376,7 @@ public:
   /**
    * End receiving a given field.
    *
-   * This method will call the DoEndReceiveField (which will should
-   * be overridden by child classes) to obtain the outcome of the reception.
+   * This method will call the DoEndReceiveField  to obtain the outcome of the reception.
    * In case of success, reception of the next field is triggered.
    * In case of failure, the indications in the returned \see PhyFieldRxStatus
    * are performed.
@@ -442,6 +433,14 @@ public:
   virtual uint16_t GetMeasurementChannelWidth (const Ptr<const WifiPpdu> ppdu) const;
 
   /**
+   * Return the channel width used in the reception spectrum model.
+   *
+   * \param txVector the TXVECTOR of the PPDU that is being received
+   * \return the channel width (in MHz) used for RxSpectrumModel
+   */
+  virtual uint16_t GetRxChannelWidth (const WifiTxVector& txVector) const;
+
+  /**
    * This function is called by SpectrumWifiPhy to send
    * the PPDU while performing amendment-specific actions.
    * \see SpectrumWifiPhy::StartTx
@@ -462,15 +461,6 @@ public:
   void Transmit (Time txDuration, Ptr<WifiPpdu> ppdu, std::string type);
 
   /**
-   * Get the channel width over which the PPDU will be effectively
-   * be transmitted.
-   *
-   * \param ppdu the PPDU to send
-   * \return the effective channel width (in MHz) used for the tranmsission
-   */
-  virtual uint16_t GetTransmissionChannelWidth (Ptr<const WifiPpdu> ppdu) const;
-
-  /**
    * \param psduMap the PSDU(s) to transmit indexed by STA-ID
    * \param txVector the TXVECTOR used for the transmission of the PPDU
    * \param band the frequency band being used
@@ -478,18 +468,6 @@ public:
    * \return the total amount of time this PHY will stay busy for the transmission of the PPDU
    */
   virtual Time CalculateTxDuration (WifiConstPsduMap psduMap, const WifiTxVector& txVector, WifiPhyBand band) const;
-
-  /**
-   * Check whether the given PPDU can be received by this PHY entity. Normally,
-   * a PPDU can be received if it is transmitted over a channel that overlaps
-   * the primary20 channel of this PHY entity.
-   *
-   * \param ppdu the given PPDU
-   * \param txCenterFreq the center frequency (MHz) of the channel over which the
-   *        PPDU is transmitted
-   * \return true if this PPDU can be received, false otherwise
-   */
-  virtual bool CanReceivePpdu (Ptr<WifiPpdu> ppdu, uint16_t txCenterFreq) const;
 
 protected:
   /**
@@ -510,9 +488,6 @@ protected:
 
   /**
    * Return the PPDU formats of the PHY.
-   *
-   * This method should be implemented (overridden) by each child
-   * class introducing new formats.
    *
    * \return the PPDU formats of the PHY
    */
@@ -547,7 +522,7 @@ protected:
    * \param rxPowersW the receive power in W per band
    * \return the event holding the incoming PPDU's information
    */
-  virtual Ptr<Event> DoGetEvent (Ptr<const WifiPpdu> ppdu, RxPowerWattPerChannelBand rxPowersW);
+  virtual Ptr<Event> DoGetEvent (Ptr<const WifiPpdu> ppdu, RxPowerWattPerChannelBand& rxPowersW);
   /**
    * End receiving the preamble, perform amendment-specific actions, and
    * provide the status of the reception.
@@ -740,16 +715,16 @@ protected:
    * Create an event using WifiPhy's InterferenceHelper class.
    * Wrapper used by child classes.
    *
-   * \copydoc InterferenceHelper::Add(Ptr<const WifiPpdu>, WifiTxVector, Time, RxPowerWattPerChannelBand, bool)
+   * \copydoc InterferenceHelper::Add
    */
-  Ptr<Event> CreateInterferenceEvent (Ptr<const WifiPpdu> ppdu, const WifiTxVector& txVector, Time duration, RxPowerWattPerChannelBand rxPower, bool isStartOfdmaRxing = false);
+  Ptr<Event> CreateInterferenceEvent (Ptr<const WifiPpdu> ppdu, const WifiTxVector& txVector, Time duration, RxPowerWattPerChannelBand& rxPower, bool isStartOfdmaRxing = false);
   /**
    * Update an event in WifiPhy's InterferenceHelper class.
    * Wrapper used by child classes.
    *
-   * \copydoc InterferenceHelper::UpdateEvent(Ptr<Event>, RxPowerWattPerChannelBand)
+   * \copydoc InterferenceHelper::UpdateEvent
    */
-  void UpdateInterferenceEvent (Ptr<Event> event, RxPowerWattPerChannelBand rxPower);
+  void UpdateInterferenceEvent (Ptr<Event> event, const RxPowerWattPerChannelBand& rxPower);
   /**
    * Notify WifiPhy's InterferenceHelper of the end of the reception,
    * clear maps and end of MPDU event, and eventually reset WifiPhy.

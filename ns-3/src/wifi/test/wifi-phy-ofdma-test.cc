@@ -53,6 +53,7 @@ NS_LOG_COMPONENT_DEFINE ("WifiPhyOfdmaTest");
 
 static const uint8_t DEFAULT_CHANNEL_NUMBER = 36;
 static const uint32_t DEFAULT_FREQUENCY = 5180; // MHz
+static const WifiPhyBand DEFAULT_WIFI_BAND = WIFI_PHY_BAND_5GHZ;
 static const uint16_t DEFAULT_CHANNEL_WIDTH = 20; // MHz
 static const uint16_t DEFAULT_GUARD_WIDTH = DEFAULT_CHANNEL_WIDTH; // MHz (expanded to channel width to model spectrum mask)
 
@@ -136,9 +137,8 @@ public:
   OfdmaSpectrumWifiPhy (uint16_t staId);
   virtual ~OfdmaSpectrumWifiPhy ();
 
-  // Inherited
-  virtual void DoInitialize (void) override;
-  virtual void DoDispose (void) override;
+  void DoInitialize (void) override;
+  void DoDispose (void) override;
 
   using WifiPhy::Reset;
 
@@ -168,6 +168,8 @@ public:
 
   /**
    * Since we assume trigger frame was previously received from AP, this is used to set its UID
+   *
+   * \param uid the PPDU UID of the trigger frame
    */
   void SetTriggerFrameUid (uint64_t uid);
 
@@ -307,9 +309,9 @@ public:
   virtual ~TestDlOfdmaPhyTransmission ();
 
 private:
-  virtual void DoSetup (void);
-  virtual void DoTeardown (void);
-  virtual void DoRun (void);
+  void DoSetup (void) override;
+  void DoTeardown (void) override;
+  void DoRun (void) override;
 
   /**
    * Receive success function for STA 1
@@ -498,18 +500,12 @@ TestDlOfdmaPhyTransmission::SendMuPpdu (uint16_t rxStaId1, uint16_t rxStaId2)
       NS_ASSERT_MSG (false, "Unsupported channel width");
     }
   
-  HeRu::RuSpec ru1;
-  ru1.primary80MHz = true;
-  ru1.ruType = ruType;
-  ru1.index = 1;
+  HeRu::RuSpec ru1 (ruType, 1, true);
   txVector.SetRu (ru1, rxStaId1);
   txVector.SetMode (HePhy::GetHeMcs7 (), rxStaId1);
   txVector.SetNss (1, rxStaId1);
 
-  HeRu::RuSpec ru2;
-  ru2.primary80MHz = (m_channelWidth == 160) ? false : true;
-  ru2.ruType = ruType;
-  ru2.index = 2;
+  HeRu::RuSpec ru2 (ruType, (m_channelWidth == 160 ? 1 : 2), (m_channelWidth == 160 ? false : true));
   txVector.SetRu (ru2, rxStaId2);
   txVector.SetMode (HePhy::GetHeMcs9 (), rxStaId2);
   txVector.SetNss (1, rxStaId2);
@@ -964,9 +960,9 @@ public:
   virtual ~TestUlOfdmaPpduUid ();
 
 private:
-  virtual void DoSetup (void);
-  virtual void DoTeardown (void);
-  virtual void DoRun (void);
+  void DoSetup (void) override;
+  void DoTeardown (void) override;
+  void DoRun (void) override;
 
   /**
    * Transmitted PPDU information function for AP
@@ -1165,19 +1161,13 @@ TestUlOfdmaPpduUid::SendMuPpdu (void)
   WifiTxVector txVector = WifiTxVector (HePhy::GetHeMcs7 (), 0, WIFI_PREAMBLE_HE_MU, 800, 1, 1, 0, DEFAULT_CHANNEL_WIDTH, false, false);
 
   uint16_t rxStaId1 = 1;
-  HeRu::RuSpec ru1;
-  ru1.primary80MHz = false;
-  ru1.ruType = HeRu::RU_106_TONE;
-  ru1.index = 1;
+  HeRu::RuSpec ru1 (HeRu::RU_106_TONE, 1, false);
   txVector.SetRu (ru1, rxStaId1);
   txVector.SetMode (HePhy::GetHeMcs7 (), rxStaId1);
   txVector.SetNss (1, rxStaId1);
 
   uint16_t rxStaId2 = 2;
-  HeRu::RuSpec ru2;
-  ru2.primary80MHz = false;
-  ru2.ruType = HeRu::RU_106_TONE;
-  ru2.index = 2;
+  HeRu::RuSpec ru2 (HeRu::RU_106_TONE, 2, false);
   txVector.SetRu (ru2, rxStaId2);
   txVector.SetMode (HePhy::GetHeMcs9 (), rxStaId2);
   txVector.SetNss (1, rxStaId2);
@@ -1212,10 +1202,7 @@ TestUlOfdmaPpduUid::SendTbPpdu (void)
   WifiTxVector txVector2 = txVector1;
 
   uint16_t rxStaId1 = 1;
-  HeRu::RuSpec ru1;
-  ru1.primary80MHz = false;
-  ru1.ruType = HeRu::RU_106_TONE;
-  ru1.index = 1;
+  HeRu::RuSpec ru1 (HeRu::RU_106_TONE, 1, false);
   txVector1.SetRu (ru1, rxStaId1);
   txVector1.SetMode (HePhy::GetHeMcs7 (), rxStaId1);
   txVector1.SetNss (1, rxStaId1);
@@ -1230,10 +1217,7 @@ TestUlOfdmaPpduUid::SendTbPpdu (void)
   psdus1.insert (std::make_pair (rxStaId1, psdu1));
 
   uint16_t rxStaId2 = 2;
-  HeRu::RuSpec ru2;
-  ru2.primary80MHz = false;
-  ru2.ruType = HeRu::RU_106_TONE;
-  ru2.index = 2;
+  HeRu::RuSpec ru2 (HeRu::RU_106_TONE, 2, false);
   txVector2.SetRu (ru2, rxStaId2);
   txVector2.SetMode (HePhy::GetHeMcs9 (), rxStaId2);
   txVector2.SetNss (1, rxStaId2);
@@ -1344,9 +1328,9 @@ public:
   virtual ~TestMultipleHeTbPreambles ();
 
 private:
-  virtual void DoSetup (void);
-  virtual void DoTeardown (void);
-  virtual void DoRun (void);
+  void DoSetup (void) override;
+  void DoTeardown (void) override;
+  void DoRun (void) override;
 
   /**
    * Receive HE TB PPDU function.
@@ -1455,10 +1439,8 @@ TestMultipleHeTbPreambles::RxHeTbPpdu (uint64_t uid, uint16_t staId, double txPo
   WifiConstPsduMap psdus;
   WifiTxVector txVector = WifiTxVector (HePhy::GetHeMcs7 (), 0, WIFI_PREAMBLE_HE_TB, 800, 1, 1, 0, DEFAULT_CHANNEL_WIDTH, false, false);
 
-  HeRu::RuSpec ru;
-  ru.primary80MHz = false;
-  ru.ruType = HeRu::RU_106_TONE;
-  ru.index = staId;
+  HeRu::RuSpec ru (HeRu::RU_106_TONE, staId, false);
+  ru.SetPhyIndex (DEFAULT_CHANNEL_WIDTH, 0);
   txVector.SetRu (ru, staId);
   txVector.SetMode (HePhy::GetHeMcs7 (), staId);
   txVector.SetNss (1, staId);
@@ -1479,7 +1461,7 @@ TestMultipleHeTbPreambles::RxHeTbPpdu (uint64_t uid, uint16_t staId, double txPo
   //Send non-OFDMA part
   Time nonOfdmaDuration = m_phy->GetHePhy ()->CalculateNonOfdmaDurationForHeTb (txVector);
   uint32_t centerFrequency = m_phy->GetHePhy ()->GetCenterFrequencyForNonOfdmaPart (txVector, staId);
-  uint16_t ruWidth = HeRu::GetBandwidth (txVector.GetRu (staId).ruType);
+  uint16_t ruWidth = HeRu::GetBandwidth (txVector.GetRu (staId).GetRuType ());
   uint16_t channelWidth = ruWidth < 20 ? 20 : ruWidth;
   Ptr<SpectrumValue> rxPsd = WifiSpectrumValueHelper::CreateHeOfdmTxPowerSpectralDensity (centerFrequency, channelWidth, txPowerWatts, m_phy->GetGuardBandwidth (channelWidth));
   Ptr<WifiSpectrumSignalParameters> rxParams = Create<WifiSpectrumSignalParameters> ();
@@ -1656,15 +1638,16 @@ public:
   virtual ~TestUlOfdmaPhyTransmission ();
 
 private:
-  virtual void DoSetup (void);
-  virtual void DoTeardown (void);
-  virtual void DoRun (void);
+  void DoSetup (void) override;
+  void DoTeardown (void) override;
+  void DoRun (void) override;
 
   /**
    * Get TXVECTOR for HE TB PPDU.
    * \param txStaId the ID of the TX STA
    * \param index the RU index used for the transmission
    * \param bssColor the BSS color of the TX STA
+   * \return the TXVECTOR for HE TB PPDU
    */
   WifiTxVector GetTxVectorForHeTbPpdu (uint16_t txStaId, std::size_t index, uint8_t bssColor) const;
   /**
@@ -1758,6 +1741,7 @@ private:
    * \param expectedState the expected state of the PHY
    */
   void CheckPhyState (Ptr<OfdmaSpectrumWifiPhy> phy, WifiPhyState expectedState);
+  /// \copydoc CheckPhyState
   void DoCheckPhyState (Ptr<OfdmaSpectrumWifiPhy> phy, WifiPhyState expectedState);
 
   /**
@@ -1920,17 +1904,14 @@ TestUlOfdmaPhyTransmission::GetTxVectorForHeTbPpdu (uint16_t txStaId, std::size_
       NS_ASSERT_MSG (false, "Unsupported channel width");
     }
 
-  HeRu::RuSpec ru;
-  if (m_channelWidth == 160 && (index == 1))
+  bool primary80MHz = true;
+  if (m_channelWidth == 160 && index == 2)
     {
-      ru.primary80MHz = true;
+      primary80MHz = false;
+      index = 1;
     }
-  else
-    {
-      ru.primary80MHz = false;
-    }
-  ru.ruType = ruType;
-  ru.index = index;
+  HeRu::RuSpec ru (ruType, index, primary80MHz);
+  ru.SetPhyIndex (m_channelWidth, 0);
   txVector.SetRu (ru, txStaId);
   txVector.SetMode (HePhy::GetHeMcs7 (), txStaId);
   txVector.SetNss (1, txStaId);
@@ -2806,9 +2787,9 @@ public:
   virtual ~TestPhyPaddingExclusion ();
 
 private:
-  virtual void DoSetup (void);
-  virtual void DoTeardown (void);
-  virtual void DoRun (void);
+  void DoSetup (void) override;
+  void DoTeardown (void) override;
+  void DoRun (void) override;
 
   /**
    * Send HE TB PPDU function
@@ -2862,6 +2843,7 @@ private:
    * \param expectedState the expected state of the PHY
    */
   void CheckPhyState (Ptr<OfdmaSpectrumWifiPhy> phy, WifiPhyState expectedState);
+  /// \copydoc CheckPhyState
   void DoCheckPhyState (Ptr<OfdmaSpectrumWifiPhy> phy, WifiPhyState expectedState);
 
   /**
@@ -2916,10 +2898,7 @@ TestPhyPaddingExclusion::SendHeTbPpdu (uint16_t txStaId, std::size_t index, std:
 
   WifiTxVector txVector = WifiTxVector (HePhy::GetHeMcs7 (), 0, WIFI_PREAMBLE_HE_TB, 800, 1, 1, 0, DEFAULT_CHANNEL_WIDTH, false, false, 1);
 
-  HeRu::RuSpec ru;
-  ru.primary80MHz = false;
-  ru.ruType = HeRu::RU_106_TONE;
-  ru.index = index;
+  HeRu::RuSpec ru (HeRu::RU_106_TONE, index, false);
   txVector.SetRu (ru, txStaId);
   txVector.SetMode (HePhy::GetHeMcs7 (), txStaId);
   txVector.SetNss (1, txStaId);
@@ -3225,9 +3204,9 @@ public:
   virtual ~TestUlOfdmaPowerControl ();
 
 private:
-  virtual void DoSetup (void);
-  virtual void DoTeardown (void);
-  virtual void DoRun (void);
+  void DoSetup (void) override;
+  void DoTeardown (void) override;
+  void DoRun (void) override;
 
   /**
    * Send a MU BAR through the AP to the STAs listed in the provided vector.
@@ -3326,7 +3305,6 @@ TestUlOfdmaPowerControl::SetupBa (Address destination)
 void
 TestUlOfdmaPowerControl::SendMuBar (std::vector <uint16_t> staIds)
 {
-#ifdef NOTYET
   NS_ASSERT (!staIds.empty () && staIds.size () <= 2);
 
   //Build MU-BAR trigger frame
@@ -3347,7 +3325,7 @@ TestUlOfdmaPowerControl::SendMuBar (std::vector <uint16_t> staIds)
     {
       CtrlTriggerUserInfoField& ui = muBar.AddUserInfoField ();
       ui.SetAid12 (staId);
-      ui.SetRuAllocation ({true, ru, index});
+      ui.SetRuAllocation ({ru, index, true});
       ui.SetUlFecCodingType (true);
       ui.SetUlMcs (7);
       ui.SetUlDcm (false);
@@ -3410,12 +3388,11 @@ TestUlOfdmaPowerControl::SendMuBar (std::vector <uint16_t> staIds)
 
   Time nav = m_apDev->GetPhy ()->GetSifs ();
   uint16_t staId = staIds.front (); //either will do
-  nav += m_phyAp->CalculateTxDuration (GetBlockAckSize (BlockAckType::COMPRESSED), muBar.GetHeTbTxVector (staId), DEFAULT_FREQUENCY, staId);
+  nav += m_phyAp->CalculateTxDuration (GetBlockAckSize (BlockAckType::COMPRESSED), muBar.GetHeTbTxVector (staId), DEFAULT_WIFI_BAND, staId);
   psdu->SetDuration (nav);
   psdus.insert (std::make_pair (SU_STA_ID, psdu));
 
   m_phyAp->Send (psdus, txVector);
-#endif
 }
 
 void
@@ -3683,7 +3660,7 @@ WifiPhyOfdmaTestSuite::WifiPhyOfdmaTestSuite ()
   AddTestCase (new TestMultipleHeTbPreambles, TestCase::QUICK);
   AddTestCase (new TestUlOfdmaPhyTransmission, TestCase::QUICK);
   AddTestCase (new TestPhyPaddingExclusion, TestCase::QUICK);
-  AddTestCase (new TestUlOfdmaPowerControl, TestCase::QUICK); //FIXME: requires changes at MAC layer
+  AddTestCase (new TestUlOfdmaPowerControl, TestCase::QUICK);
 }
 
 static WifiPhyOfdmaTestSuite wifiPhyOfdmaTestSuite; ///< the test suite

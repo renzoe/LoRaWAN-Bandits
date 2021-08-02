@@ -38,6 +38,10 @@ def configure(conf):
         conf.env['MODULES_NOT_BUILT'].append('openflow')
         return 
 
+    if not conf.require_boost_incs('openflow', 'NS-3 OpenFlow Integration'):
+        conf.env['MODULES_NOT_BUILT'].append('openflow')
+        return 
+
     test_code = '''
 #include "openflow/openflow.h"
 #include "openflow/nicira-ext.h"
@@ -105,6 +109,9 @@ int main()
                                  conf.env['OPENFLOW'], "openflow library not found")
     if conf.env['OPENFLOW']:
         conf.env['ENABLE_OPENFLOW'] = True
+        # Openflow library has some strncpy() usage that can trigger warnings
+        if conf.env['BUILD_PROFILE'] == 'optimized':
+            conf.env.append_value('CXXFLAGS', '-Wno-stringop-truncation')
     else:
         # Add this module to the list of modules that won't be built
         # if they are enabled.
@@ -119,6 +126,7 @@ def build(bld):
 
     # Build the Switch module
     obj = bld.create_ns3_module('openflow', ['internet'])
+    obj.use.append('BOOST')
     obj.source = [
         ]
 

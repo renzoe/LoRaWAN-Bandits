@@ -60,12 +60,11 @@ public:
      */
     static TypeId GetTypeId (void);
 
-    // Inherited
-    TypeId GetInstanceTypeId (void) const;
-    void Print (std::ostream &os) const;
-    uint32_t GetSerializedSize (void) const;
-    void Serialize (Buffer::Iterator start) const;
-    uint32_t Deserialize (Buffer::Iterator start);
+    TypeId GetInstanceTypeId (void) const override;
+    void Print (std::ostream &os) const override;
+    uint32_t GetSerializedSize (void) const override;
+    void Serialize (Buffer::Iterator start) const override;
+    uint32_t Deserialize (Buffer::Iterator start) override;
 
     /**
      * Set the Multi-User (MU) flag.
@@ -193,11 +192,13 @@ public:
    */
   virtual ~HePpdu ();
 
-  // Inherited
   Time GetTxDuration (void) const override;
   Ptr<WifiPpdu> Copy (void) const override;
   WifiPpduType GetType (void) const override;
   uint16_t GetStaId (void) const override;
+  uint16_t GetTransmissionChannelWidth (void) const override;
+  bool CanBeReceived (uint16_t txCenterFreq, uint16_t p20MinFreq,
+                      uint16_t p20MaxFreq) const override;
 
   /**
    * Get the payload of the PPDU.
@@ -223,7 +224,6 @@ public:
   void SetTxPsdFlag (TxPsdFlag flag);
 
 protected:
-  // Inherited
   std::string PrintPayload (void) const override;
 
   /**
@@ -245,7 +245,6 @@ protected:
   WifiTxVector::HeMuUserInfoMap m_muUserInfos; //!< the HE MU specific per-user information (to be removed once HE-SIG-B headers are implemented)
 
 private:
-  // Inherited
   WifiTxVector DoGetTxVector (void) const override;
 
   /**

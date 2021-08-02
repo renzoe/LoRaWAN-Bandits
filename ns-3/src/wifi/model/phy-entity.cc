@@ -359,7 +359,7 @@ PhyEntity::DoEndReceiveField (WifiPpduField field, Ptr<Event> event)
 }
 
 void
-PhyEntity::StartReceivePreamble (Ptr<WifiPpdu> ppdu, RxPowerWattPerChannelBand rxPowersW,
+PhyEntity::StartReceivePreamble (Ptr<WifiPpdu> ppdu, RxPowerWattPerChannelBand& rxPowersW,
                                  Time /* rxDuration */)
 {
   //The total RX power corresponds to the maximum over all the bands
@@ -717,7 +717,7 @@ PhyEntity::GetReceptionStatus (Ptr<const WifiPsdu> psdu, Ptr<Event> event, uint1
 std::pair<uint16_t, WifiSpectrumBand>
 PhyEntity::GetChannelWidthAndBand (const WifiTxVector& txVector, uint16_t /* staId */) const
 {
-  uint16_t channelWidth = std::min (m_wifiPhy->GetChannelWidth (), txVector.GetChannelWidth ());
+  uint16_t channelWidth = GetRxChannelWidth (txVector);
   return std::make_pair (channelWidth, m_wifiPhy->GetPrimaryBand (channelWidth));
 }
 
@@ -736,7 +736,7 @@ PhyEntity::AddPreambleEvent (Ptr<Event> event)
 }
 
 Ptr<Event>
-PhyEntity::DoGetEvent (Ptr<const WifiPpdu> ppdu, RxPowerWattPerChannelBand rxPowersW)
+PhyEntity::DoGetEvent (Ptr<const WifiPpdu> ppdu, RxPowerWattPerChannelBand& rxPowersW)
 {
   Ptr<Event> event = CreateInterferenceEvent (ppdu, ppdu->GetTxVector (), ppdu->GetTxDuration (), rxPowersW);
 
@@ -748,13 +748,13 @@ PhyEntity::DoGetEvent (Ptr<const WifiPpdu> ppdu, RxPowerWattPerChannelBand rxPow
 }
 
 Ptr<Event>
-PhyEntity::CreateInterferenceEvent (Ptr<const WifiPpdu> ppdu, const WifiTxVector& txVector, Time duration, RxPowerWattPerChannelBand rxPower, bool isStartOfdmaRxing /* = false */)
+PhyEntity::CreateInterferenceEvent (Ptr<const WifiPpdu> ppdu, const WifiTxVector& txVector, Time duration, RxPowerWattPerChannelBand& rxPower, bool isStartOfdmaRxing /* = false */)
 {
   return m_wifiPhy->m_interference.Add (ppdu, txVector, duration, rxPower, isStartOfdmaRxing);
 }
 
 void
-PhyEntity::UpdateInterferenceEvent (Ptr<Event> event, RxPowerWattPerChannelBand rxPower)
+PhyEntity::UpdateInterferenceEvent (Ptr<Event> event, const RxPowerWattPerChannelBand& rxPower)
 {
   m_wifiPhy->m_interference.UpdateEvent (event, rxPower);
 }
@@ -1008,7 +1008,13 @@ PhyEntity::GetCurrentEvent (void) const
 uint16_t
 PhyEntity::GetMeasurementChannelWidth (const Ptr<const WifiPpdu> ppdu) const
 {
-  return std::min (m_wifiPhy->GetChannelWidth (), ppdu->GetTxVector ().GetChannelWidth ());
+  return GetRxChannelWidth (ppdu->GetTxVector ());
+}
+
+uint16_t
+PhyEntity::GetRxChannelWidth (const WifiTxVector& txVector) const
+{
+  return std::min (m_wifiPhy->GetChannelWidth (), txVector.GetChannelWidth ());
 }
 
 uint64_t
@@ -1063,40 +1069,12 @@ PhyEntity::GetTxMaskRejectionParams (void) const
   return m_wifiPhy->GetTxMaskRejectionParams ();
 }
 
-uint16_t
-PhyEntity::GetTransmissionChannelWidth (Ptr<const WifiPpdu> ppdu) const
-{
-  return ppdu->GetTxVector ().GetChannelWidth ();
-}
-
 Time
 PhyEntity::CalculateTxDuration (WifiConstPsduMap psduMap, const WifiTxVector& txVector, WifiPhyBand band) const
 {
   NS_ASSERT (psduMap.size () == 1);
   const auto & it = psduMap.begin ();
   return WifiPhy::CalculateTxDuration (it->second->GetSize (), txVector, band, it->first);
-}
-
-bool
-PhyEntity::CanReceivePpdu (Ptr<WifiPpdu> ppdu, uint16_t txCenterFreq) const
-{
-  NS_LOG_FUNCTION (this << ppdu << txCenterFreq);
-
-  uint16_t txChannelWidth = ppdu->GetTxVector ().GetChannelWidth ();
-  uint16_t minTxFreq = txCenterFreq - txChannelWidth / 2;
-  uint16_t maxTxFreq = txCenterFreq + txChannelWidth / 2;
-
-  // if the channel width is a multiple of 20 MHz, then we consider the primary20 channel
-  uint16_t width = (m_wifiPhy->GetChannelWidth () % 20 == 0 ? 20 : m_wifiPhy->GetChannelWidth ());
-  uint16_t minP20Freq = m_wifiPhy->GetOperatingChannel ().GetPrimaryChannelCenterFrequency (width) - width / 2;
-  uint16_t maxP20Freq = m_wifiPhy->GetOperatingChannel ().GetPrimaryChannelCenterFrequency (width) + width / 2;
-
-  if (minTxFreq > minP20Freq || maxTxFreq < maxP20Freq)
-    {
-      NS_LOG_INFO ("Received PPDU does not overlap with the primary20 channel");
-      return false;
-    }
-  return true;
 }
 
 } //namespace ns3

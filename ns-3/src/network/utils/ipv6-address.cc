@@ -925,16 +925,6 @@ bool Ipv6Address::IsLinkLocal () const
   return false;
 }
 
-bool Ipv6Address::IsEqual (const Ipv6Address& other) const
-{
-  NS_LOG_FUNCTION (this << other);
-  if (!memcmp (m_address, other.m_address, 16))
-    {
-      return true;
-    }
-  return false;
-}
-
 bool Ipv6Address::IsInitialized (void) const
 {
   NS_LOG_FUNCTION (this);
@@ -1107,6 +1097,15 @@ void Ipv6Prefix::GetBytes (uint8_t buf[16]) const
   memcpy (buf, m_prefix, 16);
 }
 
+Ipv6Address Ipv6Prefix::ConvertToIpv6Address () const
+{
+  uint8_t prefixBytes[16];
+  memcpy (prefixBytes, m_prefix, 16);
+
+  Ipv6Address convertedPrefix = Ipv6Address (prefixBytes);
+  return convertedPrefix;
+}
+
 uint8_t Ipv6Prefix::GetPrefixLength () const
 {
   NS_LOG_FUNCTION (this);
@@ -1145,15 +1144,6 @@ uint8_t Ipv6Prefix::GetMinimumPrefixLength () const
     }
 
   return 128 - prefixLength;
-}
-
-bool Ipv6Prefix::IsEqual (const Ipv6Prefix& other) const
-{
-  if (!memcmp (m_prefix, other.m_prefix, 16))
-    {
-      return true;
-    }
-  return false;
 }
 
 std::ostream& operator << (std::ostream& os, Ipv6Prefix const& prefix)

@@ -643,10 +643,10 @@ QosTxop::GotAddBaResponse (const MgtAddBaResponseHeader *respHdr, Mac48Address r
       // Add BA Response is received. In this case, the starting sequence number
       // shall be set equal to the sequence number of such packet.
       uint16_t startingSeq = m_txMiddle->GetNextSeqNumberByTidAndAddress (tid, recipient);
-      Ptr<const WifiMacQueueItem> peekedItem = PeekNextMpdu (tid, recipient);
-      if (peekedItem != 0 && peekedItem->GetHeader ().IsRetry ())
+      WifiMacQueue::ConstIterator peekedIt = m_queue->PeekByTidAndAddress (tid, recipient);
+      if (peekedIt != m_queue->end () && (*peekedIt)->GetHeader ().IsRetry ())
         {
-          startingSeq = peekedItem->GetHeader ().GetSequenceNumber ();
+          startingSeq = (*peekedIt)->GetHeader ().GetSequenceNumber ();
         }
       m_baManager->UpdateAgreement (respHdr, recipient, startingSeq);
     }
@@ -679,13 +679,6 @@ QosTxop::CompleteMpduTx (Ptr<WifiMacQueueItem> mpdu)
     {
       m_baManager->StorePacket (mpdu);
     }
-}
-
-void
-QosTxop::CompleteConfig (void)
-{
-  NS_LOG_FUNCTION (this);
-  m_baManager->SetTxMiddle (m_txMiddle);
 }
 
 void
@@ -786,6 +779,12 @@ bool
 QosTxop::IsQosTxop (void) const
 {
   return true;
+}
+
+AcIndex
+QosTxop::GetAccessCategory (void) const
+{
+  return m_ac;
 }
 
 } //namespace ns3

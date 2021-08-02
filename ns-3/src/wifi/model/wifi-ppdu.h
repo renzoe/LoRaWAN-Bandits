@@ -99,11 +99,33 @@ public:
   /**
    * Get the total transmission duration of the PPDU.
    *
-   * This method is overridden by child classes.
-   *
    * \return the transmission duration of the PPDU
    */
   virtual Time GetTxDuration (void) const;
+
+  /**
+   * Get the channel width over which the PPDU will effectively be
+   * transmitted.
+   *
+   * \param ppdu the PPDU to send
+   * \return the effective channel width (in MHz) used for the tranmsission
+   */
+  virtual uint16_t GetTransmissionChannelWidth (void) const;
+
+  /**
+   * Check whether the given PPDU can be received on the specified primary
+   * channel. Normally, a PPDU can be received if it is transmitted over a
+   * channel that overlaps the primary20 channel of a PHY entity.
+   *
+   * \param ppdu the given PPDU
+   * \param txCenterFreq the center frequency (MHz) of the channel over which the
+   *        PPDU is transmitted
+   * \param p20MinFreq the minimum frequency (MHz) of the primary channel
+   * \param p20MaxFreq the maximum frequency (MHz) of the primary channel
+   * \return true if this PPDU can be received, false otherwise
+   */
+  virtual bool CanBeReceived (uint16_t txCenterFreq, uint16_t p20MinFreq,
+                              uint16_t p20MaxFreq) const;
 
   /**
    * Get the modulation used for the PPDU.
@@ -162,8 +184,6 @@ protected:
 private:
   /**
    * Get the TXVECTOR used to send the PPDU.
-   *
-   * This method should be overridden by child classes.
    *
    * \return the TXVECTOR of the PPDU.
    */
