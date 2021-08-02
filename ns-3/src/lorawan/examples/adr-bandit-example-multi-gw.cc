@@ -24,6 +24,10 @@
 #include "ns3/config.h"
 #include "ns3/rectangle.h"
 #include "ns3/hex-grid-position-allocator.h"
+#include "ns3/correlated-shadowing-propagation-loss-model.h"
+#include "ns3/building-penetration-loss.h"
+#include "ns3/building-allocator.h"
+#include "ns3/buildings-helper.h"
 
 using namespace ns3;
 using namespace lorawan;
@@ -51,8 +55,16 @@ int main (int argc, char *argv[])
 
   // Topology of the Simulation (re-taken from adr-example.cc)
   double mobileNodeProbability = 0;
-  double sideLength = 10000;
-  int gatewayDistance = 10000;
+  int gatewayDistance = 2000;
+  double sideLength = 2200;//gatewayDistance * 1.1;
+
+  // Channel model
+  bool realisticChannelModel = true;
+  bool isPrintBuildings = true;
+
+
+
+
 
 
   double maxRandomLoss = 10;
@@ -104,7 +116,8 @@ int main (int argc, char *argv[])
 
 
    int gatewayRings = 2 + (std::sqrt(2) * sideLength) / (gatewayDistance);
-   int nGateways = 3*gatewayRings*gatewayRings-3*gatewayRings+1;
+   //int nGateways = 3*gatewayRings*gatewayRings-3*gatewayRings+1;
+   int nGateways = 7;
 
    std::cout << "sideLength" << sideLength << std::endl;
    std::cout << "gatewayDistance" << gatewayDistance << std::endl;
@@ -186,34 +199,58 @@ int main (int argc, char *argv[])
    // Set the EDs to require Data Rate control from the NS
    Config::SetDefault ("ns3::EndDeviceLorawanMac::DRControl", BooleanValue (true));
 
-   // Create a simple wireless channel
-   ///////////////////////////////////
-   /// //
+   /************************
+    *  Create the channel  *
+    ************************/
+   // [RN] Buildings and Shadowing From complete-network-example.cc
 
+   // 1)  LogDistancePropagationLossModel
    Ptr<LogDistancePropagationLossModel> loss = CreateObject<LogDistancePropagationLossModel> ();
    loss->SetPathLossExponent (3.76);
    loss->SetReference (1, 7.7);
 
    // [RN] Discussion about this values (7.7) https://gitter.im/ns-3-lorawan/Lobby?at=5c1e3fe72863d8612b71b730
 
-   Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable> ();
-   x->SetAttribute ("Min", DoubleValue (0.0));
-   x->SetAttribute ("Max", DoubleValue (maxRandomLoss));
+   // 1b) Disable Random Loss
+//   Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable> ();
+//   x->SetAttribute ("Min", DoubleValue (0.0));
+//   x->SetAttribute ("Max", DoubleValue (maxRandomLoss));
+//
+//   Ptr<RandomPropagationLossModel> randomLoss = CreateObject<RandomPropagationLossModel> ();
+//   randomLoss->SetAttribute ("Variable", PointerValue (x));
+//
+//   loss->SetNext (randomLoss);
+   if (realisticChannelModel)
+     {
+       // Create the correlated shadowing component
+       Ptr<CorrelatedShadowingPropagationLossModel> shadowing =
+           CreateObject<CorrelatedShadowingPropagationLossModel> ();
 
-   Ptr<RandomPropagationLossModel> randomLoss = CreateObject<RandomPropagationLossModel> ();
-   randomLoss->SetAttribute ("Variable", PointerValue (x));
+       // Aggregate shadowing to the logdistance loss
+       loss->SetNext (shadowing);
 
-   loss->SetNext (randomLoss);
+       // Add the effect to the channel propagation loss
+       Ptr<BuildingPenetrationLoss> buildingLoss = CreateObject<BuildingPenetrationLoss> ();
 
+       shadowing->SetNext (buildingLoss);
+     }
+
+
+   // Z)
    Ptr<PropagationDelayModel> delay = CreateObject<ConstantSpeedPropagationDelayModel> ();
 
    Ptr<LoraChannel> channel = CreateObject<LoraChannel> (loss, delay);
 
-   // Helpers
-   //////////
 
+
+
+   /************************
+    *  Create the helpers  *
+    ************************/
+
+   //MobilityHelpers (Help to set the position of the devices, in this case will be static)
    MobilityHelper mobilityEd, mobilityGw;
-   // End Device mobility
+   // a) End Device mobility
    mobilityEd.SetPositionAllocator ("ns3::RandomRectanglePositionAllocator",
                                     "X", PointerValue (CreateObjectWithAttributes<UniformRandomVariable>
                                                        ("Min", DoubleValue(-sideLength),
@@ -223,7 +260,7 @@ int main (int argc, char *argv[])
                                                         "Max", DoubleValue(sideLength))));
 
 
-   // // Gateway mobility
+   // b) Gateway mobility
    //Ptr<ListPositionAllocator> positionAllocGw = CreateObject<ListPositionAllocator> ();
    //positionAllocGw->Add (Vector (0.0, 0.0, 15.0)); // a gateway in the center of the cartesian cordinates!
    // positionAllocGw->Add (Vector (-5000.0, -5000.0, 15.0));
@@ -241,6 +278,7 @@ int main (int argc, char *argv[])
 
    //mobilityGw.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
 
+   // Other Helpers
    // Create the LoraPhyHelper
    LoraPhyHelper phyHelper = LoraPhyHelper ();
    phyHelper.SetChannel (channel);
@@ -252,9 +290,9 @@ int main (int argc, char *argv[])
    LoraHelper helper = LoraHelper ();
    helper.EnablePacketTracking ();
 
-   ////////////////
-   // Create GWs //
-   ////////////////
+   /*********************
+    *  Create Gateways  *
+    *********************/
 
    NodeContainer gateways;
    gateways.Create (nGateways);
@@ -265,8 +303,9 @@ int main (int argc, char *argv[])
    macHelper.SetDeviceType (LorawanMacHelper::GW);
    helper.Install (phyHelper, macHelper, gateways);
 
-   // Create EDs
-   /////////////
+   /************************
+    *  Create End Devices  *
+    ************************/
 
    NodeContainer endDevices;
    endDevices.Create (nDevices);
@@ -303,6 +342,70 @@ int main (int argc, char *argv[])
   macHelper.SetRegion (LorawanMacHelper::EU);
   helper.Install (phyHelper, macHelper, endDevices);
 
+
+  /**********************
+  *  Handle buildings  *
+  **********************/
+
+
+   double xLength = 130;
+   double deltaX = 32;
+   double yLength = 64;
+   double deltaY = 17;
+
+   double radius = sideLength;
+   int gridWidth  = 2 * radius / (xLength + deltaX); //2* sideLength ;
+   int gridHeight = 2 * radius / (yLength + deltaY);
+   if (realisticChannelModel == false)
+     {
+       gridWidth = 0;
+       gridHeight = 0;
+     }
+
+
+
+   Ptr<GridBuildingAllocator> gridBuildingAllocator;
+   gridBuildingAllocator = CreateObject<GridBuildingAllocator> ();
+   gridBuildingAllocator->SetAttribute ("GridWidth", UintegerValue (gridWidth));
+   gridBuildingAllocator->SetAttribute ("LengthX", DoubleValue (xLength));
+   gridBuildingAllocator->SetAttribute ("LengthY", DoubleValue (yLength));
+   gridBuildingAllocator->SetAttribute ("DeltaX", DoubleValue (deltaX));
+   gridBuildingAllocator->SetAttribute ("DeltaY", DoubleValue (deltaY));
+   gridBuildingAllocator->SetAttribute ("Height", DoubleValue (6));
+   gridBuildingAllocator->SetBuildingAttribute ("NRoomsX", UintegerValue (2));
+   gridBuildingAllocator->SetBuildingAttribute ("NRoomsY", UintegerValue (4));
+   gridBuildingAllocator->SetBuildingAttribute ("NFloors", UintegerValue (2));
+   gridBuildingAllocator->SetAttribute (
+       "MinX", DoubleValue (-gridWidth * (xLength + deltaX) / 2 + deltaX / 2));
+   gridBuildingAllocator->SetAttribute (
+       "MinY", DoubleValue (-gridHeight * (yLength + deltaY) / 2 + deltaY / 2));
+   BuildingContainer bContainer = gridBuildingAllocator->Create (gridWidth * gridHeight);
+
+
+   BuildingsHelper::Install (endDevices);
+   BuildingsHelper::Install (gateways);
+
+
+
+   // Print the buildings
+   if (isPrintBuildings)
+     {
+       std::ofstream myfile;
+       myfile.open ("buildings.txt");
+       std::vector<Ptr<Building>>::const_iterator it;
+       int j = 1;
+       for (it = bContainer.Begin (); it != bContainer.End (); ++it, ++j)
+	 {
+	   Box boundaries = (*it)->GetBoundaries ();
+	   myfile << "set object " << j << " rect from " << boundaries.xMin << "," << boundaries.yMin
+		  << " to " << boundaries.xMax << "," << boundaries.yMax << std::endl;
+	 }
+       myfile.close ();
+     }
+
+  /*********************************************
+  *  Install applications on the end devices  *
+  *********************************************/
   // Install applications in EDs
   int appPeriodSeconds = 1200;      // One packet every 20 minutes
   //int appPeriodSeconds = 300;      // One packet every 5 minutes (300 s)
@@ -351,7 +454,10 @@ int main (int argc, char *argv[])
 
   // Activate printing of ED MAC parameters
   Time stateSamplePeriod = Seconds (1200);
+  helper.DoPrintDeviceStatus (gateways, "gwData.txt"); // Renzo: We save the GWs position
   helper.EnablePeriodicDeviceStatusPrinting (endDevices, gateways, "nodeData.txt", stateSamplePeriod); // Renzo: currently I disabled info from gateways
+
+
   helper.EnablePeriodicPhyPerformancePrinting (gateways, "phyPerformance.txt", stateSamplePeriod);
   helper.EnablePeriodicGlobalPerformancePrinting ("globalPerformance.txt", stateSamplePeriod);
 

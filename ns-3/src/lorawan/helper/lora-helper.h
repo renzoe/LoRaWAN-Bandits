@@ -124,6 +124,11 @@ public:
   void DoPrintDeviceStatus (NodeContainer endDevices, NodeContainer gateways,
                             std::string filename);
 
+  /**
+   * Print a summary of the status of (some) devices in the network.
+   */
+  void DoPrintDeviceStatus (NodeContainer gateways, std::string filename);
+
 private:
   /**
    * Actually print the simulation time and re-schedule execution of this

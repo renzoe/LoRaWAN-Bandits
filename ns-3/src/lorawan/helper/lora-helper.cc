@@ -232,7 +232,7 @@ LoraHelper::DoPrintDeviceStatus (NodeContainer endDevices, NodeContainer gateway
                  << unsigned(txPower) << std::endl;
     }
 
-// [renzo] Here we can print the info for the gateways
+// [renzo] Here we can print the info for the gateways, but I disabled for having only Nodes in this file
 //   for (NodeContainer::Iterator j = gateways.Begin (); j != gateways.End (); ++j)
 //     {
 //       Ptr<Node> object = *j;
@@ -242,6 +242,36 @@ LoraHelper::DoPrintDeviceStatus (NodeContainer endDevices, NodeContainer gateway
 //                  << object->GetId () <<  " "
 //                  << pos.x << " " << pos.y << " " << "-1 -1" << std::endl;
 //     }
+  outputFile.close ();
+}
+
+void
+LoraHelper::DoPrintDeviceStatus (NodeContainer gateways, std::string filename)
+{
+  const char * c = filename.c_str ();
+  std::ofstream outputFile;
+  if (Simulator::Now () == Seconds (0))
+    {
+      // Delete contents of the file as it is opened
+      outputFile.open (c, std::ofstream::out | std::ofstream::trunc);
+    }
+  else
+    {
+      // Only append to the file
+      outputFile.open (c, std::ofstream::out | std::ofstream::app);
+    }
+
+  Time currentTime = Simulator::Now();
+  // [renzo] Here we can print the info for the nodes (we use it for gateways..)
+   for (NodeContainer::Iterator j = gateways.Begin (); j != gateways.End (); ++j)
+     {
+       Ptr<Node> object = *j;
+       Ptr<MobilityModel> position = object->GetObject<MobilityModel> ();
+       Vector pos = position->GetPosition ();
+       outputFile << currentTime.GetSeconds () << " "
+                  << object->GetId () <<  " "
+                  << pos.x << " " << pos.y << " " << "-1 -1" << std::endl;
+     }
   outputFile.close ();
 }
 
