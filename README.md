@@ -19,7 +19,7 @@ Bandits for LoRaWAN in  NS-3. Work in the context of WP3 T3.1 of ANR Project INT
 
 This source code uses:
  * Ns-3 (https://www.nsnam.org/wiki/Installation )
-      *  [(v3.33+dev) ns-3-dev master 03/MAY/21 commit [963991426ff02969e177bea65a638cd6284cc225](https://gitlab.com/nsnam/ns-3-dev/-/commit/963991426ff02969e177bea65a638cd6284cc225)    ]
+      *  [(v3.34+dev) ns-3-dev master 01/AGO/21 commit [75f15af2d6aba513886f273124249adaf9236778](https://gitlab.com/nsnam/ns-3-dev/-/commit/75f15af2d6aba513886f273124249adaf9236778)    ] (base v3.34 should work)
  * LoRaWAN ns-3 module (https://github.com/signetlabdei/lorawan)
     * [lorawan develop 30/APR/21 commit  [d412b3081b5741a2587082ec1f67c8ae202ef8e9](https://github.com/signetlabdei/lorawan/commit/d412b3081b5741a2587082ec1f67c8ae202ef8e9) ]
  * AI-Toolbox (https://github.com/Svalorzen/AI-Toolbox ) 
