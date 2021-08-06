@@ -162,7 +162,7 @@ int main (int argc, char *argv[])
 
 
 
-   // Set the EDs to require Data Rate control from the NS
+   // Set the EDs to require Data Rate control from the NS // [Renzo] This should be only true for non-bandits! Fix: Bandit will set this to false.
    Config::SetDefault ("ns3::EndDeviceLorawanMac::DRControl", BooleanValue (true));
 
    // Create a simple wireless channel
@@ -266,8 +266,8 @@ int main (int argc, char *argv[])
 
   // Create the LoraNetDevices of the end devices
   phyHelper.SetDeviceType (LoraPhyHelper::ED);
-  macHelper.SetDeviceType (LorawanMacHelper::ED_A); // We create normal ADR nodes
-  //macHelper.SetDeviceType (LorawanMacHelper::ED_A_ADR_BANDIT); // We create ADR Bandits nodes :)
+  //macHelper.SetDeviceType (LorawanMacHelper::ED_A); // We create normal ADR nodes
+  macHelper.SetDeviceType (LorawanMacHelper::ED_A_ADR_BANDIT); // We create ADR Bandits nodes :)
   macHelper.SetAddressGenerator (addrGen);
   macHelper.SetRegion (LorawanMacHelper::EU);
   helper.Install (phyHelper, macHelper, endDevices);
@@ -336,9 +336,9 @@ int main (int argc, char *argv[])
   //helper.EnablePcapAll(std::string ("ADR-Bandit-Example"), true);
 
   // [Renzo] Disable for big simulations to go faster (but not that much):
-  //helper.EnablePcap(std::string ("ADR-Bandit-Example-ED"), endDevices , false);
-  //helper.EnablePcap(std::string ("ADR-Bandit-Example-GW"), gateways , true);
-  //helper.EnablePcap(std::string ("ADR-Bandit-Example-NS"), networkServers , true);
+  helper.EnablePcap(std::string ("ADR-Bandit-Example-ED"), endDevices , false);
+  helper.EnablePcap(std::string ("ADR-Bandit-Example-GW"), gateways , true);
+  helper.EnablePcap(std::string ("ADR-Bandit-Example-NS"), networkServers , true);
 
 
 

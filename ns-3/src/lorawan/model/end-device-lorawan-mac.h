@@ -449,6 +449,7 @@ protected:
 
   uint16_t m_currentFCnt;
 
+
   //////////////////////////////////////////////////////////////
   //  Protected members needed for Bandit Logic help	      //
   //////////////////////////////////////////////////////////////
@@ -468,6 +469,15 @@ protected:
    * */
   bool m_retransmitting_old_packet;
 
+  //////////////////////////////////////////////////////////////////////
+  //  The m_controlDataRate boolean  (moved from private to protected)//
+  //   In bandits we set this to false.	[Renzo]		              //
+  //////////////////////////////////////////////////////////////////////
+  /**
+   * Whether this device's data rate should be controlled by the NS.
+   */
+  bool m_controlDataRate;
+
 
 private:
   /**
@@ -482,10 +492,6 @@ private:
    */
   Time GetNextTransmissionDelay (void);
 
-  /**
-   * Whether this device's data rate should be controlled by the NS.
-   */
-  bool m_controlDataRate;
 
   /**
    * The event of retransmitting a packet in a consecutive moment if an ACK is not received.

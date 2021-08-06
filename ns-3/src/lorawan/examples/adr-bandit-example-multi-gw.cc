@@ -56,18 +56,14 @@ int main (int argc, char *argv[])
   // Topology of the Simulation (re-taken from adr-example.cc)
   double mobileNodeProbability = 0;
   int gatewayDistance = 2000;
-  double sideLength = 2200;//gatewayDistance * 1.1;
+  double sideLength = gatewayDistance * 1.1;
 
   // Channel model
   bool realisticChannelModel = true;
   bool isPrintBuildings = true;
 
+  double maxRandomLoss = 10; // For the not-realisticChannelModel that uses a random loss
 
-
-
-
-
-  double maxRandomLoss = 10;
   double minSpeed = 2;
   double maxSpeed = 16;
   std::string adrType = "ns3::AdrComponent"; /* [Renzo] Here we can use different ADR implementations (at NS) */
@@ -234,6 +230,17 @@ int main (int argc, char *argv[])
 
        shadowing->SetNext (buildingLoss);
      }
+   else // Not-so reqlistic model: we add a random loss
+     {
+	Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable> ();
+	x->SetAttribute ("Min", DoubleValue (0.0));
+	x->SetAttribute ("Max", DoubleValue (maxRandomLoss));
+
+	Ptr<RandomPropagationLossModel> randomLoss = CreateObject<RandomPropagationLossModel> ();
+	randomLoss->SetAttribute ("Variable", PointerValue (x));
+
+	loss->SetNext (randomLoss);
+     }
 
 
    // Z)
@@ -336,8 +343,8 @@ int main (int argc, char *argv[])
 
   // Create the LoraNetDevices of the end devices
   phyHelper.SetDeviceType (LoraPhyHelper::ED);
-  macHelper.SetDeviceType (LorawanMacHelper::ED_A); // We create normal ADR nodes
-  //macHelper.SetDeviceType (LorawanMacHelper::ED_A_ADR_BANDIT); // We create ADR Bandits nodes :)
+  //macHelper.SetDeviceType (LorawanMacHelper::ED_A); // We create normal ADR nodes
+  macHelper.SetDeviceType (LorawanMacHelper::ED_A_ADR_BANDIT); // We create ADR Bandits nodes :)
   macHelper.SetAddressGenerator (addrGen);
   macHelper.SetRegion (LorawanMacHelper::EU);
   helper.Install (phyHelper, macHelper, endDevices);

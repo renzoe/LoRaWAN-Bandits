@@ -85,7 +85,10 @@ ClassAEndDeviceLorawanMacBandit::ClassAEndDeviceLorawanMacBandit () //:
   NS_LOG_FUNCTION (this  <<  "I am a bandit" );
   this->m_adrBanditAgent = Create<AdrBanditAgent> ();
 
-
+  // We disable m_controlDataRate, set the the bit ADR "Whether this device's data rate should be controlled by the NS." See end-device-lorawan-mac
+  // This is globally set up by defaulk  with "Config::SetDefault ("ns3::EndDeviceLorawanMac::DRControl", BooleanValue (true))"; in the adr-bandit-example.
+  // This solution allows for mixed nodes ADR and non-ADR (Bandits) on same simulation
+  // this->m_controlDataRate = false; // It does not work seeting up here, it get overriden later. I apply this per-packet in DoSendBeforeApplyNecessaryOptions
 
 
   //[Renzo] I am doing a shorcut to have the pointer in the  m_adrBanditRewardHelper TODO: proper constructor/encapsulation
@@ -95,9 +98,6 @@ ClassAEndDeviceLorawanMacBandit::ClassAEndDeviceLorawanMacBandit () //:
   this->m_banditDelayedRewardIntelligence = tmp;
 
   //(this->m_banditDelayedRewardHelper)->m_adrBanditAgent = this->m_adrBanditAgent; // Does not work for some reason..
-
-
-
 
 }
 
@@ -113,15 +113,20 @@ ClassAEndDeviceLorawanMacBandit::~ClassAEndDeviceLorawanMacBandit ()
 void
 ClassAEndDeviceLorawanMacBandit::DoSendBeforeApplyNecessaryOptions (Ptr<Packet> packet)
 {
-  //This function only called one new packets, not on re
+  //This function only called one new packets, not on re-transmission
   // Colored Terminal: https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
   NS_LOG_INFO("\033[1;31m");
 
   NS_LOG_INFO("DoSendBeforeApplyNecessaryOptions");
 
-  // Classic ADR dissabled:
+  // Classic ADR (Adaptation at the ED only) disabled:
   m_enableDRAdapt = false; // Renzo: we disable it for bandits! ---> I put it in DoSendBeforeApplyNecessaryOptions
-  //LoraFrameHeader.m_adrAckReq in EndDeviceLorawanMac::ApplyNecessaryOptions  supossedly is always false, but I see some real frames set to true
+  //LoraFrameHeader.m_adrAckReq in EndDeviceLorawanMac::ApplyNecessaryOptions  will apply this parameters to the loraFrame
+
+  // We disable m_controlDataRate, sets the the ADR bit  "Whether this device's data rate should be controlled by the NS." See end-device-lorawan-mac
+  // This is globally set up by default  with "Config::SetDefault ("ns3::EndDeviceLorawanMac::DRControl", BooleanValue (true))"; in the adr-bandit-example.cc (or others)
+  // This solution allows for mixed nodes ADR and non-ADR (Bandits) on same simulation
+  m_controlDataRate = false;
 
 
   //***************************************************************

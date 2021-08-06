@@ -83,7 +83,7 @@ BanditDelayedRewardIntelligence::InitBanditAgentAndArms (
 void
 BanditDelayedRewardIntelligence::setBanditNeedStats (int frameCnt)
 {
-  if (frameCnt < 20) //If Frame is lower than 15 we do not ask for feedback
+  if (frameCnt < 15) //If Frame is lower than 15 we do not ask for feedback
     {
       setBanditNeedsStats (false);
     }
