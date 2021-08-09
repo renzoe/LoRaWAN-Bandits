@@ -336,9 +336,9 @@ int main (int argc, char *argv[])
   //helper.EnablePcapAll(std::string ("ADR-Bandit-Example"), true);
 
   // [Renzo] Disable for big simulations to go faster (but not that much):
-  helper.EnablePcap(std::string ("ADR-Bandit-Example-ED"), endDevices , false);
-  helper.EnablePcap(std::string ("ADR-Bandit-Example-GW"), gateways , true);
-  helper.EnablePcap(std::string ("ADR-Bandit-Example-NS"), networkServers , true);
+  //helper.EnablePcap(std::string ("ADR-Bandit-Example-ED"), endDevices , false);
+  //helper.EnablePcap(std::string ("ADR-Bandit-Example-GW"), gateways , true);
+  //helper.EnablePcap(std::string ("ADR-Bandit-Example-NS"), networkServers , true);
 
 
 

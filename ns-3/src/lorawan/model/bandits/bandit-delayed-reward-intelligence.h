@@ -29,7 +29,7 @@
 #include "ns3/mac-command.h"
 //#include "ns3/network-controller-components.h"
 //#include "ns3/end-device-status.h" // for ReceivedPacketList
-#include <random> // for bernoulli distrib...
+#include <random> // For the bernoulli distribution
 
 
 namespace ns3 {
@@ -127,13 +127,13 @@ protected:
   //int m_currentFrmCntReward=0;
 
 
-  static const int HARDCODED_NUMBER_ARMS = 6 ; // TODO: fix this with to dinamically allocate the "m_armsAndRewardsVector" atribute on InitBanditAgentAndArms(Ptr<AdrBanditAgent> adrBanditAgent)
+  static const int HARDCODED_NUMBER_ARMS = 6 ; // TODO: fix this with to dynamically allocate the "m_armsAndRewardsVector" attribute on InitBanditAgentAndArms(Ptr<AdrBanditAgent> adrBanditAgent)
 
 
   typedef std::tuple <int, int, double, double> arm_stats; // <packets sent, packets rcv, Packet Delivery Ratio (raw reward), reward scaling factor>
   std::vector<arm_stats> m_armsAndRewardsVector;
 
-  // Static/shared members (Maybe not a good idea... maybe a global static object.)
+  // Static/shared members (Maybe not a good idea... maybe a global static object is better?)
   // https://stackoverflow.com/questions/3409428/putting-class-static-members-definition-into-cpp-file-technical-limitation
   // https://stackoverflow.com/questions/46874055/why-is-inline-required-on-static-inline-variables
   static inline std::default_random_engine generator;

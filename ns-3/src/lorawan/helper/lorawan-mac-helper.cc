@@ -54,7 +54,7 @@ LorawanMacHelper::SetDeviceType (enum DeviceType dt)
       break;
     case ED_A_ADR_BANDIT:
 	/*
-	 * A dirty hack (to avoid modifying code):
+	 * [Renzo] A dirty hack (to avoid modifying code):
 	 * 	We want to create a ClassAEndDeviceLorawanMacBandit End Device, which inherits from ClassAEndDeviceLorawanMac.
 	 * 	After setting the  m_mac ObjectFactory to create a ClassAEndDeviceLorawanMacBandit,
 	 * 	the rest of the code should do the same that will do to a a ClassAEndDeviceLorawanMac.
