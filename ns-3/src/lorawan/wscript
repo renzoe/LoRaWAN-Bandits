@@ -161,6 +161,7 @@ def build(bld):
         'model/bandits/class-a-end-device-lorawan-mac-bandit.h',
         'model/bandits/network-controller-component-bandit.h',
         'model/bandits/bandit-delayed-reward-intelligence.h',
+        'model/bandits/bandit-constants.h',
         ]
 
     if bld.env.ENABLE_EXAMPLES:

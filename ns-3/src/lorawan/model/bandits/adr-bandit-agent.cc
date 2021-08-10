@@ -71,12 +71,13 @@ AdrBanditAgent::AdrBanditAgent ():
     {
 
       m_experience.record (i, 0);
+      m_experience.record (i, 1); // Note 10/08/2021 It is very important that all arms have same instantiation to not bias the initial exploration.
 
-      //m_experience.record (i, 0.0625);
-      m_experience.record (i, 1);
+      //m_experience.record (i, 0 ); // Test 09/08/2021: Start with two 0 , 0 for each arm --> Everybody is fixed on SF12 !! (first arm!!) Probably a bug from the AIBandit implementation
 
-      //m_experience.record (i, 8);
-      //m_experience.record (i, pow(2,i));
+      //m_experience.record (i, banditConstants::rewardsDefinition[i]); // This adds too much bias to the bandit (arms should be equally initialized to pick uf from a uniformly random)
+      //std::cout << "rewardsTOARatioFor32B[i]: " << banditConstants::rewardsDefinition[i] << std::endl;
+
 
       // These values will determine the exploration , and are dependant on the reward of each arms. Both values should be related.
       // See: BanditDelayedRewardIntelligence::BanditDelayedRewardIntelligence ()

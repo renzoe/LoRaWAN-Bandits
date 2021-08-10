@@ -37,16 +37,9 @@ TypeId BanditDelayedRewardIntelligence::GetTypeId (void)
 
 
 /*
- *
- *   Rewards vectors definition
+ *   Rewards vectors definition, Taken from "bandit-constants.h" , TODO parametrize (no need to do a const pointer)
  **/
-
-/*                                   Rewards = {SF12, SF11, SF10, SF9 , SF8  , SF7 }  */
-static inline double rewards_toa_ratio_32B[] = { 1  , 1.8 , 4.0 , 7.3 , 13.6 , 25.2} ; // Time on air ratio for 32Bytes (https://loratiiks.nk/#/airtime)
-//static inline double rewards_energy_simple[] = { 1  , 2   , 4   , 8   , 16   , 32  } ; // Naif energy pondered reward
-//static inline double rewards_pure_pdr[]      = { 1  , 1   , 1   , 1   , 1    , 1   } ; // Naif pure PDR
-
-static inline double* rewards = rewards_toa_ratio_32B;
+static inline const double* rewards = banditConstants::rewardsDefinition;
 
 
 BanditDelayedRewardIntelligence::BanditDelayedRewardIntelligence ()
@@ -60,7 +53,9 @@ BanditDelayedRewardIntelligence::BanditDelayedRewardIntelligence ()
       //double armReward = pow(2, i); // prioritizes energy
       //double armReward = 1; // armReward = 1 -> equal weight, will prioritize raw PDR.
       //double armReward = (i+1); // new! linear +1 rewards
+
       double armReward = rewards[i];
+      //std::cout << "armReward["<< i <<"]: " << armReward << std::endl; // Quick debug
 
       this->m_armsAndRewardsVector.push_back (arm_stats (0 , 0 , 0.0 , armReward  ));
     }
@@ -97,11 +92,11 @@ BanditDelayedRewardIntelligence::InitBanditAgentAndArms (
 void
 BanditDelayedRewardIntelligence::setBanditNeedStats (int frameCnt)
 {
-  if (frameCnt < 15) //If Frame is lower than 15 we do not ask for feedback
+  if (frameCnt < banditConstants::framesForBoostraping) //If Frame is lower than "framesForBoostraping" (e.g., 15) we do not ask for feedback
     {
       setBanditNeedsStats (false);
     }
-  else if (bernoulliDistribution (generator)) // We ask for feedback with p=p1 (1/15)
+  else if (bernoulliDistribution (generator)) // We ask for feedback with p=p1 (banditConstants::pAskingForFeedback)
     {
       setBanditNeedsStats (true);
     }
@@ -110,7 +105,7 @@ BanditDelayedRewardIntelligence::setBanditNeedStats (int frameCnt)
       setBanditNeedsStats (false);
     }
 
-// Previous code: (First 10 frames ALWAYS ask, and then ask every 10 frames.. result: a lot of collisions!)
+// Previous code: (First 10 frames ALWAYS ask, and then ask every 10 frames.. results in a lot of collisions!)
 //  if (frameCnt < 10)
 //    {
 //      setBanditNeedsStats (true);

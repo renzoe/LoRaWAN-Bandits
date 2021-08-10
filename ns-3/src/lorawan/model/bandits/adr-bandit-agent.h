@@ -27,6 +27,7 @@
 #define SRC_LORAWAN_MODEL_BANDITS_ADR_BANDIT_AGENT_H_
 
 #include "ns3/object.h"
+#include "ns3/bandit-constants.h"
 #include "ns3/bandit-policy.h"
 #include <AIToolbox/Bandit/Experience.hpp>
 

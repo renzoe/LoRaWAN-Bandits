@@ -27,7 +27,7 @@
 #include "ns3/packet.h"
 #include "ns3/adr-bandit-agent.h"
 #include "ns3/mac-command.h"
-//#include "ns3/network-controller-components.h"
+#include "ns3/bandit-constants.h"
 //#include "ns3/end-device-status.h" // for ReceivedPacketList
 #include <random> // For the bernoulli distribution
 
@@ -136,8 +136,8 @@ protected:
   // Static/shared members (Maybe not a good idea... maybe a global static object is better?)
   // https://stackoverflow.com/questions/3409428/putting-class-static-members-definition-into-cpp-file-technical-limitation
   // https://stackoverflow.com/questions/46874055/why-is-inline-required-on-static-inline-variables
-  static inline std::default_random_engine generator;
-  static inline std::bernoulli_distribution bernoulliDistribution{ 0.05 }; // p of asking for STATS
+  static inline std::default_random_engine generator; /* This makes the simulation deterministic if all inputs are the same TODO: see if we want better randomness use other RNG */
+  static inline std::bernoulli_distribution bernoulliDistribution{ banditConstants::pAskingForFeedback }; // p of asking for STATS
 
 
 };
