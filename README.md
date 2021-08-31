@@ -84,7 +84,33 @@ Building NS-3 and Testing LoRaWAN module
 ## 2) Running Bandits Simulation
 
 ###  Main File
-The Main Bandits Simulation function is in `./ns-3-dev/src/lorawan/examples/adr-bandit-example.cc`
+The Main Bandits Simulation file can be found
+* for Single GW  is `./ns-3-dev/src/lorawan/examples/adr-bandit-example.cc`
+* for Multi-GWs  `./ns-3-dev/src/lorawan/examples/adr-bandit-example-multi-gw.cc`
+
+####  Example single GW
+A typical run:
+
+`./waf --run "src/lorawan/examples/adr-bandit-example  --nDevices=1000 --HistoryRange=10000 --PeriodsToSimulate=100"`
+
+Notes:
+
+* If you are using the LoRaWAN's Network Server ADR you should set the `HistoryRange=10` (To simulate The Things Network ADR):
+     +  ` ./waf --run "src/lorawan/examples/adr-bandit-example  --nDevices=1000 --HistoryRange=10 --PeriodsToSimulate=100"`
+
+* Also, we are using an `AVERAGE` value of the of `HistoryRange`, while TTN uses the `MAXIMUM` value. You can change this with
+modifying the attributes `MultiplePacketsCombiningMethod` (and `MultipleGWCombiningMethod)` from the file  `./ns-3-dev/src/lorawan/model/adr-component.c` 
+
+
+
+####  Example Multi-GWs
+A typical run:
+
+`./waf --run "src/lorawan/examples/adr-bandit-example-multi-gw  --nDevices=2000 --HistoryRange=10000 --PeriodsToSimulate=100"`
+
+Note: 
+* We are using an `AVERAGE` value to combine GWs values for the same packet (!). You can change this with
+modifying the attribute`MultipleGWCombiningMethod` from the file  `./ns-3-dev/src/lorawan/model/adr-component.c`   (Suggestion: try with `MAXIMUM`?)
 
 
 ## 3) Capturing Simulation Data
