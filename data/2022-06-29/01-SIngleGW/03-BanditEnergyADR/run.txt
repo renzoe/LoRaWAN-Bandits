@@ -1,0 +1,2 @@
+$ ./waf --run "src/lorawan/examples/adr-bandit-example  --nDevices=1000 --HistoryRange=10000 --PeriodsToSimulate=100"
+
