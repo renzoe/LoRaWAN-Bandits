@@ -1,0 +1,98 @@
+
+AI-Toolbox
+
+https://github.com/Svalorzen/AI-Toolbox
+
+mkdir build
+cd build/
+//cmake ..
+cmake -DMAKE_LIB=1  ..
+make
+--------
+(this generates .a static library, but we want an .so,  static):
+cmake -D BUILD_SHARED_LIBS=1  ..
+make
+
+The .so has to be in the LD_LIBRARY_PATH when we execture ns-3
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib64/
+
+oher option to -DMAKE_LIB=1 was by hand edit src/CMakeLists.txt:
+if (MAKE_MDP)
+    add_library(AIToolboxMDP
+    	SHARED
+        
+ test: https://cmake.org/cmake/help/latest/command/add_library.html#command:add_library
+        
+
+
+---------------------
+
+Need to add to detect LPsolve (update: not really needed, it was recognized automatically)
+/usr/lib64
+in FindLPsolve.cmak file
+
+cmake -P cmake_install.cmake
+
+----------------
+LPSpsolve
+https://command-not-found.com/lp_solve
+
+dnf install lpsolve-devel // fedora
+apt-get install lp-solve // -dev??  (for ubuntu)
+
+
+http://lpsolve.sourceforge.net/5.5/
+
+
+--------------
+[RN update 26/JUl]
+Probably I also installed boost c++ library
+
+--------------
+Eigen:
+https://tutorialforlinux.com/2020/09/25/step-by-step-eigen-c-fedora-31-installation-guide/2/
+
+download:
+http://eigen.tuxfamily.org/index.php?title=Main_Page
+https://gitlab.com/libeigen/eigen/-/archive/3.3.9/eigen-3.3.9.tar.gz
+
+>mkdir build
+>cd build
+>cmake ..
+
+-- ************************************************************
+-- 
+-- Configured Eigen 3.3.9
+-- 
+-- Some things you can do now:
+-- --------------+--------------------------------------------------------------
+-- Command       |   Description
+-- --------------+--------------------------------------------------------------
+-- make install  | Install Eigen. Headers will be installed to:
+--               |     <CMAKE_INSTALL_PREFIX>/<INCLUDE_INSTALL_DIR>
+--               |   Using the following values:
+--               |     CMAKE_INSTALL_PREFIX: /usr/local
+--               |     INCLUDE_INSTALL_DIR:  include/eigen3
+--               |   Change the install location of Eigen headers using:
+--               |     cmake . -DCMAKE_INSTALL_PREFIX=yourprefix
+--               |   Or:
+--               |     cmake . -DINCLUDE_INSTALL_DIR=yourdir
+-- make doc      | Generate the API documentation, requires Doxygen & LaTeX
+-- make check    | Build and run the unit-tests. Read this page:
+--               |   http://eigen.tuxfamily.org/index.php?title=Tests
+-- make blas     | Build BLAS library (not the same thing as Eigen)
+-- make uninstall| Removes files installed by make install
+-- --------------+--------------------------------------------------------------
+-- 
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/rnavas/Development/cpp/eigen-3.3.9/build
+
+
+>sudo make install
+
+--------------
+
+
+
+

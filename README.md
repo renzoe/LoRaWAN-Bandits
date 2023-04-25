@@ -1,6 +1,8 @@
-# LoRaWAN-Bandits (2021)
+# LoRaWAN-Bandits
 
-Bandits for LoRaWAN in  NS-3. Work in the context of WP3 T3.1 of ANR Project INTELLIGENTSIA ( https://intelligentsia.roc.cnam.fr/ )
+Bandits for LoRaWAN in  NS-3. Work in the context of WP3 T3.1 of ANR Project INTELLIGENTSIA ( https://intelligentsia.roc.cnam.fr/ ).
+
+Most of the source code development was made on the first half of the year 2021.
 
 
 ## Index
@@ -13,20 +15,30 @@ Bandits for LoRaWAN in  NS-3. Work in the context of WP3 T3.1 of ANR Project INT
 ## 1) Environment Set-Up and Test
 
 
-###  Installing from a vanilla Ubuntu 21.04 ("Minima instalation")
+###  Installing in a vanilla `Ubuntu 21.04 x86_64` and `Ubuntu 22.10 ARM64`
+**Note**:  Please instantiate the VM with at least `20GB` of HHDD (12GB is not enough. 16GB is ok for Ubuntu 21.04 x86_64).
 
-**Note**: Tested on a VM on Virtual Box. Rreserve 16GB HHDD at least (12GB is not enough).
+Tested on:
+* `Ubuntu 21.04 x86_64` VM on `Virtual Box` using as host a `x86_64` running `Fedora 33`.
+* `Ubuntu 21.04 x86_64` VM on `VMWare Player` using as host a `x86_64` running `Ubuntu 20.04`.
+* `Ubuntu 22.10 ARM64`  VM on `VMWare Fusion (13.0.1)` using as host a `arm64` running `macOS 13.3.1 (Ventura)`.
 
-This source code uses:
- * Ns-3 (https://www.nsnam.org/wiki/Installation )
+
+
+
+
+
+
+This source code uses these other open source projects (no need to download nor compile, already included):
+ * `Ns-3` (https://www.nsnam.org/wiki/Installation )
       *  [(v3.34+dev) ns-3-dev master 01/AGO/21 commit [75f15af2d6aba513886f273124249adaf9236778](https://gitlab.com/nsnam/ns-3-dev/-/commit/75f15af2d6aba513886f273124249adaf9236778)    ] (base v3.34 should work)
- * LoRaWAN ns-3 module (https://github.com/signetlabdei/lorawan)
+ * `LoRaWAN ns-3 module` (https://github.com/signetlabdei/lorawan)
     * [lorawan develop 30/APR/21 commit  [d412b3081b5741a2587082ec1f67c8ae202ef8e9](https://github.com/signetlabdei/lorawan/commit/d412b3081b5741a2587082ec1f67c8ae202ef8e9) ]
- * AI-Toolbox (https://github.com/Svalorzen/AI-Toolbox ) 
+ * `AI-Toolbox` (https://github.com/Svalorzen/AI-Toolbox ) 
    *  [AI-Toolbox master  23/APR/21 commit [7046d767a8f048f6985fb7166eb8dc7ea353199f](https://github.com/Svalorzen/AI-Toolbox/commit/7046d767a8f048f6985fb7166eb8dc7ea353199f) ]
- *
+ 
 
-####  Installing Dependencies
+####  A) Installing Dependencies
 Install basic dependencies 
 ```
 sudo apt update
@@ -36,87 +48,138 @@ sudo apt install build-essential # To install gcc (C compiler)
 
 Cloning The LoRaWAN Bandits Repo (i.e., this repo!)
 ```
-git clone git@gitlab.inria.fr:intelligentsia/LoRaWAN-Bandits.git
+git clone https://github.com/renzoe/LoRaWAN-Bandits.git
 ```
 
 Go to the  `./ns-3` folder. 
 
 Set up  `AIToolboxMDP` library: (1) Copy the library:
 ```
-./config_external-libs.sh # this copies the .so to /usr/lib and the includes to /usr/local/include
+sudo ./config_external-libs.sh # this copies the .so to /usr/lib and the includes to /usr/local/include 
 ```
 
 Set up  `AIToolboxMDP` library: (2) Install its depedencies:
 ```
 #Other dependencies of lib ATToolbox (boost, Eigen3.3, liblpsolve55):
 #a) Boost:
-sudo apt install libboost-all-dev #500 mb! (TODO: Maybe use a static lib AIToolboxMDP.a?)
+sudo apt install libboost-all-dev #500 mb!
 
-#b) Eigen3.3: No need, is an all-headers lib, we already copied it with ./config_external-libs.sh 
-#sudo apt install libeigen3-dev # No need to apt install but just in case.
+#b) Eigen3.3: There is no need, is an all-headers lib, we already copied it with ./config_external-libs.sh 
+#sudo apt install libeigen3-dev # No need to apt install, we already copied the headers.
 
 #c) lp solve 5.5
-sudo apt install lp-solve # Removed "apt install liblpsolve55-dev" (TODO: check if was needed on clean install)
-sudo cp /usr/lib/lp_solve/liblpsolve55.so  /usr/lib/liblpsolve55.so # Because in ubuntu the library is not on a path that the linker ld looks (TODO: check if a linker cache update solves this)
+sudo apt install lp-solve # No need for "apt install liblpsolve55-dev" (liblpsolve55-dev is needed to complie AI-Toolbox from source, but not if we already have its pre-compiled libraries like in our case)
+
+sudo cp /usr/lib/lp_solve/liblpsolve55.so  /usr/lib/liblpsolve55.so # This isneeded because in Ubuntu the library is not on a path that the linker ld looks (TODO: check if a linker cache update solves this)
 ```
 
+####  B) Building and Testing 
 
-####  Building and Testing 
-
-Configure NS-3. 
+Configure `ns-3`:
 ```
 ./waf configure --enable-examples --enable-tests --disable-werror --disable-python 
 ```
 
-Building NS-3 and Testing LoRaWAN module
+Building `ns-3` and Testing the vanilla `LoRaWAN module`
 ```
 ./waf build  # This will take a while depending on VM (+40 mins)
 ./test.py -s lorawan -v
 ```
 
-**Testing One LoRaWAN Bandit! (Finally!)**:
+**Testing one LoRaWAN Bandit! (Finally!)**:
 ```
 ./waf --run "src/lorawan/examples/adr-bandit-example  --nDevices=1 --HistoryRange=10000 --PeriodsToSimulate=100"
 ```
 
+You should have an output like this:
+```
+Waf: Entering directory `/home/yourusername/LoRaWAN-Bandits/ns-3/build'
+Waf: Leaving directory `/home/yourusername/LoRaWAN-Bandits/ns-3/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (0.398s)
+1.000000 0.000000
+```
 
 
-## 2) Running Bandits Simulation
 
-###  Main File
-The Main Bandits Simulation file can be found
-* for Single GW  is `./ns-3-dev/src/lorawan/examples/adr-bandit-example.cc`
-* for Multi-GWs  `./ns-3-dev/src/lorawan/examples/adr-bandit-example-multi-gw.cc`
+## 2) Running a `Bandit`/`LoRAWAN ADR` Simulation
 
-####  Example single GW
+###  A) Main File
+The Main Bandits Simulations files (as defined on the companion article) are the following:
+* Single-GW :  `./ns-3/src/lorawan/examples/adr-bandit-example.cc`
+* Multi-GWs  : `./ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc`
+
+The nature of the End Devices (ED), `Bandits` or `LoRaWAN ADR`, is specified on those same files, in a line that will look like:
+```
+//macHelper.SetDeviceType (LorawanMacHelper::ED_A); // We create normal ADR nodes
+ macHelper.SetDeviceType (LorawanMacHelper::ED_A_ADR_BANDIT); // We create ADR Bandits nodes :)
+```
+You should uncomment the type of ED that you want to use for your experiments.
+
+#### B)  Bandit's Rewards and other parameters
+The type of bandits is set on `./ns-3/src/lorawan/model/bandits/bandit-constants.h`:
+```
+/*                                       Rewards = {SF12, SF11, SF10, SF9 , SF8  , SF7 }   */
+  
+ inline constexpr double rewardsEnergySimple[]   = { 1  , 2   , 4   , 8   , 16   , 32  } ; // Naif energy pondered reward
+ inline constexpr double rewardsPurePDR[]        = { 1  , 1   , 1   , 1   , 1    , 1   } ; // Naif pure PDR
+ 
+ inline constexpr const double * rewardsDefinition     =  rewardsEnergySimple ; // Here you set the active Reward Definition
+```
+
+You can easily define more rewards definitions/strategies by declaring a new array of six elements and assigning it to `rewardsDefinition`.
+
+There, you can also change other important parameters of our solution like the initial phase number of messages ($b$ in the paper, and $b=15$)
+
+```
+inline constexpr int framesForBoostraping  = 15   ; // The number of frames before the bandit starts asking for feedback
+```
+
+(In this initial phase each arm will be chosen equiprobably by a Thomson Sampling Bandit ^_^ )
+
+Finally, another important parameter is $p$ used in the long-term strategy. This value determines the the probability of a given packet to request for a feedback message ~ Bernoulli(p). 
+
+
+```
+  inline constexpr double pAskingForFeedback = 0.05 ; // p of asking for feedback (Bernoulli)
+```
+
+
+####  C) Example `Single-GW`
 A typical run:
 
-`./waf --run "src/lorawan/examples/adr-bandit-example  --nDevices=1000 --HistoryRange=10000 --PeriodsToSimulate=100"`
+```
+./waf --run "src/lorawan/examples/adr-bandit-example  --nDevices=1000 --HistoryRange=10000 --PeriodsToSimulate=100"
+```
 
-Notes:
+**Notes**:
 
 * If you are using the LoRaWAN's Network Server ADR you should set the `HistoryRange=10` (To simulate The Things Network ADR):
-     +  ` ./waf --run "src/lorawan/examples/adr-bandit-example  --nDevices=1000 --HistoryRange=10 --PeriodsToSimulate=100"`
+
+      ` ./waf --run "src/lorawan/examples/adr-bandit-example  --nDevices=1000 --HistoryRange=10 --PeriodsToSimulate=100"`
 
 * Also, we are using an `AVERAGE` value of the of `HistoryRange`, while TTN uses the `MAXIMUM` value. You can change this with
 modifying the attributes `MultiplePacketsCombiningMethod` (and `MultipleGWCombiningMethod)` from the file  `./ns-3-dev/src/lorawan/model/adr-component.c` 
 
 
 
-####  Example Multi-GWs
+####  D) Example `Multi-GWs`
 A typical run:
 
-`./waf --run "src/lorawan/examples/adr-bandit-example-multi-gw  --nDevices=2000 --HistoryRange=10000 --PeriodsToSimulate=100"`
+```
+./waf --run "src/lorawan/examples/adr-bandit-example-multi-gw  --nDevices=2000 --HistoryRange=10000 --PeriodsToSimulate=100" 
+```
 
-Note: 
+
+**Note**: 
 * We are using an `AVERAGE` value to combine GWs values for the same packet (!). You can change this with
-modifying the attribute`MultipleGWCombiningMethod` from the file  `./ns-3-dev/src/lorawan/model/adr-component.c`   (Suggestion: try with `MAXIMUM`?)
+modifying the attribute `MultipleGWCombiningMethod` from the file  `./ns-3-dev/src/lorawan/model/adr-component.c`   (Suggestion: try with `MAXIMUM`?)
 
 
-## 3) Capturing Simulation Data
+## 3) Capturing and Interpreting Simulation Data
 TODO proper
 
-After a simulation three files are created:
+After any given simulation three files are created:
 ```
 globalPerformance.txt
 nodeData.txt
@@ -125,35 +188,70 @@ phyPerformance.txt
 
 For quick gnuplot graphs refer to `/data/gnubars.txt` and `/data/gnuscattered.txt`
 
-## MISC
+For metrics as used
 
-###  Comment on Particular LoRaWAN Bandits Dependencies (AI-Toolbox)
+## APPENDIX) Topics about `AI-Toolbox`
 
-* AI-Toolbox: https://github.com/Svalorzen/AI-Toolbox  
+###  A) `AI-Toolbox`: commentary on this library's dependency
+
+Our code depends on library AI-Toolbox: https://github.com/Svalorzen/AI-Toolbox  
    + In particular, the library `AIToolboxMDP` (See `/ns-3-dev/src/lorawan/wscript` Line #10).
-   + AI-Toolbox's Dependencies :  boost,  Eigen 3.3, lp-solve 5.5.
-   + The version we use requires C++17 (See `/ns-3-dev/src/lorawan/wscript` Line #31). However, as of 27/JUL/21 the library requires C++20.
+   + `AI-Toolbox`'s Dependencies are :  `boost`,  `Eigen 3.3`, `lp-solve 5.5`.
+   + The `AI-Toolbox` version we use* requires `C++17` (See `/ns-3-dev/src/lorawan/wscript` Line #31). However, as of 27/JUL/21 the library requires `C++20`.
+     + *Version we use: [AI-Toolbox master  23/APR/21 commit [7046d767a8f048f6985fb7166eb8dc7ea353199f](https://github.com/Svalorzen/AI-Toolbox/commit/7046d767a8f048f6985fb7166eb8dc7ea353199f) ]
 
-We provide the compiled dynamic library (`AIToolboxMDP.so`) for `Linux x86_64` and the include headers (`.h`) . This provides a build solution on Linux OSs that does not involve building the `AI-Toolbox` dependency from source. However, we need to install the pre-compiled lib dependencies by hand. **TODO:** See if use of a static library is better of if we can streamline the installation of this lib.
 
+We provide the compiled dynamic library (`AIToolboxMDP.so`) for `Linux x86_64` and `Linux arm64` and the include headers (`.h`) . This provides a build solution for `x86_64/arm64 Linux` OSs that does not involve building the `AI-Toolbox` dependency from source.
 
-###  Python Bindings (TODO, Not Working)
-**NOT WORKING**
-To enable Phython Bindigs  (Currrently, we do not use Python Bindings and **it is not workin**)
+However, we need to install the pre-compiled lib dependencies by hand, this is provided on the script `config_external-libs.sh`. (The script detects an `arm64` architecture automatically and copies the corresponding pre-compiled files.)
+
 ```
-sudo apt install python3 python3-dev pkg-config sqlite3 # 
-sudo apt install python3-setuptools bzr # 
+./ns-3/config_external-libs.sh # this copies the .so to /usr/lib and the includes to /usr/local/include
+```
+**TODO:** See if the use of a static library (```.a```) is better. Note: We also include the compiled ```.a``` libraries for  `arm64`. In the end, we streamlined the installation of this library thanks to  the pre-compilation of the `.so` library and our `config_external-libs.sh` script. 
 
-sudo apt install python3-pip
-sudo pip3 install PyBindGen # Better to use --user, but waf does not recognize it later
 
-#https://www.nsnam.org/wiki/Python_bindings
-#https://www.nsnam.org/docs/manual/html/python.html#working-with-python-bindings 
-#https://www.nsnam.org/wiki/Installation#Installation
+###  B) `AI-Toolbox`:  compiling the library in a `Ubuntu 22.10 ARM64`
+
+**Note**: This compilation is not needed because we provide the pre-compiled `.so`. However, we provide this steps for the sake of documentation; it can be useful, for ex., if in the future the user wants to use an updated `AI-Toolbox` library, or modify it, and needs to compile from source.
+
+Tested on a Virtualized Ubuntu 22.10 on a MacBook Pro 2023 (Chip: Apple M2 Pro):
+* `Ubuntu 22.10 ARM64` VM on `VMWare Fusion (13.0.1)` using as host a `arm64` running `macOS 13.3.1 (Ventura)`.
+  *  Please instantiate the VM with at least `20GB` of HHDD 
+
+[//]: # (### Pre-requisite: `AI-Toolbox` compiled for `arm64` ###)
+
+Compiling the required version of AI-Toolbox (commit sha `7046d767a8f048f6985fb7166eb8dc7ea353199f`)
+```
+git clone https://github.com/Svalorzen/AI-Toolbox.git
+cd AI-Toolbox/
+git fetch origin 7046d767a8f048f6985fb7166eb8dc7ea353199f
+git reset --hard FETCH_HEAD
 ```
 
-Re-Configure NS-3 , go to the  `./ns-3` folder, then:
+To build `AI-Toolbox` first we install his dependencies
 ```
-./waf configure --enable-examples --enable-tests --disable-werror 
-# Currently there is a binding error with fd-net-device module, bindings to API need to be re-done (more dependencies installed)
+sudo apt install cmake install g++-10 libboost-all-dev liblpsolve55-dev lp-solve libeigen3-dev 
+```
+[//]: # ( libboost1.71-all-dev liblpsolve55-dev lp-solve libeigen3-dev )
+
+
+In order to compile, I had to manually add the line : 
+ ```
+ #include <optional>
+ ```
+to the file `/home/renzo/AI-Toolbox/include/AIToolbox/Factored/MDP/Types.hpp`
+
+(Explanaition: This is because Ubuntu 22.10 uses C++20 (g++-10), and this `AI-Toolbox` version used C++17 to compile, and apprently some library names changed. This was not needed on an Ubuntu 21.04)
+
+
+Once you have all required dependencies, you can  execute the following commands from the project's main folder:
+
+```
+mkdir build
+cd build/
+#cmake ..
+#cmake -DMAKE_LIB=1  .. # (this generates .a static library, but we want an .so,  static):
+cmake -D BUILD_SHARED_LIBS=1  ..
+make
 ```

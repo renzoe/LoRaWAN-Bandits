@@ -1,0 +1,26 @@
+https://stackoverflow.com/questions/43101487/linking-with-ns3-module-with-circular-dependency-to-other-library
+
+
+wscript for mymodule:
+
+def build(bld):
+   module = bld.create_ns3_module('mymodule', ['network'])
+   module.features = 'c cxx cxxstlib ns3module'
+   module.source = [
+     'model/mymodule.cc' ]
+
+   # Make a dependency to some other static lib:
+   bld.env.INCLUDES_MYLIB = [ "some/include/path" ]
+   bld.env.LIB_MYLIB = ['mylib']
+   bld.env.LIBPATH_MYLIB = [ "some/path" ]
+   module.use.append('MYLIB')
+
+   # Create a program which uses mymodule
+   p = bld.create_ns3_program('myprog', ['core', 'mymodule'])
+   p.source = 'prog.cpp'
+
+   headers = bld(features='ns3header')
+   headers.module = 'mymodule'
+   headers.source = ['model/mymodule.h']
+
+
