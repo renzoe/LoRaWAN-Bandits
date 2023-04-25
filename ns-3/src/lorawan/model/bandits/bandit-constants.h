@@ -45,7 +45,8 @@ namespace banditConstants
 
 
 
-  inline constexpr const double * rewardsDefinition     =  rewardsFibonacci ; /* we need constexpr and const https://stackoverflow.com/questions/14116003/difference-between-constexpr-and-const */
+  inline constexpr const double * rewardsDefinition     =  rewardsEnergySimple ; 
+  /* we need constexpr and const https://stackoverflow.com/questions/14116003/difference-between-constexpr-and-const */
 
 
 
