@@ -33,3 +33,6 @@
 
 # PCAP .. for Now
 *.pcap
+
+#GiHhubToken
+*.ghtoken
