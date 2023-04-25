@@ -1,0 +1,16 @@
+bandit@bandit-VirtualBox:~/Code/2021-06-LoRaWAN-Bandits/ns-3$ time ./waf --run "src/lorawan/examples/adr-bandit-example-multi-gw  --nDevices=2000 --HistoryRange=10 --PeriodsToSimulate=100"
+Waf: Entering directory `/home/bandit/Code/2021-06-LoRaWAN-Bandits/ns-3/build'
+Waf: Leaving directory `/home/bandit/Code/2021-06-LoRaWAN-Bandits/ns-3/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (1.530s)
+sideLength2200
+gatewayDistance2000
+gatewayRings3
+nGateways7
+2000.000000 1629.000000
+
+real	121m21,625s
+user	121m7,264s
+sys	0m8,340s
+bandit@bandit-VirtualBox:~/Code/2021-06-LoRaWAN-Bandits/ns-3$ 
+
