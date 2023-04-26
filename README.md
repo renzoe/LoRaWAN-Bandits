@@ -1,6 +1,10 @@
 # LoRaWAN Bandits
 
-Bandits for LoRaWAN in  `ns-3`.
+Bandits for LoRaWAN in the `ns-3` simulator.
+
+```
+(...) From this point of view there can be no objection to the use of data, however meagre, as a guide to action required before more can be collected; although serious objection can otherwise be raised to argument based upon a small number of observations. Indeed, the fact that such objection can never be eliminated entirely-no matter how great the number of observations- suggested the possible value of seeking other modes of operation than that of taking  !!!!
+````
 
 Work in the context of WP3 T3.1 of ANR Project INTELLIGENTSIA ( https://intelligentsia.roc.cnam.fr) (grant number: [ANR-20-CE25-0011](https://anr.fr/Project-ANR-20-CE25-0011)).
 
@@ -133,7 +137,7 @@ The Main Bandits Simulations files (as defined on the companion article) are the
 * Single-GW :  [`./ns-3/src/lorawan/examples/adr-bandit-example.cc`](ns-3/src/lorawan/examples/adr-bandit-example.cc)
 * Multi-GWs  : [`./ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc`](ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc)
 
-The nature of the End Devices (ED), `Bandits` or `LoRaWAN ADR`, is specified on those same files, in a line  ([Line#269](ns-3/src/lorawan/examples/adr-bandit-example.cc#L269)) and [Line#346](ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc#L346))) that looks like this:
+The nature of the End Devices (ED), `Bandits` or `LoRaWAN ADR`, is specified on those same files, in a line  ( [Line#269](ns-3/src/lorawan/examples/adr-bandit-example.cc#L269) and [Line#346](ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc#L346)) that looks like this:
 ```
 //macHelper.SetDeviceType (LorawanMacHelper::ED_A); // We create normal ADR nodes
  macHelper.SetDeviceType (LorawanMacHelper::ED_A_ADR_BANDIT); // We create ADR Bandits nodes :)
@@ -141,7 +145,7 @@ The nature of the End Devices (ED), `Bandits` or `LoRaWAN ADR`, is specified on 
 You should uncomment the type of ED that you want to use for your experiments.
 
 ## B)  Bandit's Rewards and other parameters
-The type of bandits is set on [`./ns-3/src/lorawan/model/bandits/bandit-constants.h`](ns-3/src/lorawan/model/bandits/bandit-constants.h):
+The  reward definition is set on [`./ns-3/src/lorawan/model/bandits/bandit-constants.h`](ns-3/src/lorawan/model/bandits/bandit-constants.h):
 ```
 /*                                       Rewards = {SF12, SF11, SF10, SF9 , SF8  , SF7 }   */
   
@@ -201,13 +205,17 @@ modifying the attribute `MultipleGWCombiningMethod` from the file  `./ns-3-dev/s
 
 
 # 3) Capturing and Interpreting Simulation Data <a name="reading"></a>
-TODO properly finish
 
 After any given simulation three files are created:
 ```
 globalPerformance.txt
 nodeData.txt
 phyPerformance.txt
+```
+
+For Multi-GW simulation additional files are created
+```
+
 ```
 
 For quick gnuplot graphs refer to `/data/gnubars.txt` and `/data/gnuscattered.txt`
