@@ -16,7 +16,7 @@ IEEE, 2023 (forthcoming).
 This is the source code used to generate the experimental results of the paper.  
 Most of the source code development was made on the first half of the year 2021.
 
-We share the data of the experiments we ran and some useful scripts we used to calculate metrics and do some plots. They are located in the folder `/data/`.
+We share the data of the experiments we ran and some useful scripts we used to calculate metrics and do some plots. They are located in the folder [`/data/`](data/).
 
 
 
@@ -130,8 +130,8 @@ Build commands will be stored in build/compile_commands.json
 
 ##  A) Main File
 The Main Bandits Simulations files (as defined on the companion article) are the following:
-* Single-GW :  `./ns-3/src/lorawan/examples/adr-bandit-example.cc`
-* Multi-GWs  : `./ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc`
+* Single-GW :  [`./ns-3/src/lorawan/examples/adr-bandit-example.cc`](ns-3/src/lorawan/examples/adr-bandit-example.cc)
+* Multi-GWs  : [`./ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc`](ns-3/src/lorawan/examples/adr-bandit-example.cc)
 
 The nature of the End Devices (ED), `Bandits` or `LoRaWAN ADR`, is specified on those same files, in a line that will look like:
 ```
@@ -141,7 +141,7 @@ The nature of the End Devices (ED), `Bandits` or `LoRaWAN ADR`, is specified on 
 You should uncomment the type of ED that you want to use for your experiments.
 
 ## B)  Bandit's Rewards and other parameters
-The type of bandits is set on `./ns-3/src/lorawan/model/bandits/bandit-constants.h`:
+The type of bandits is set on [`./ns-3/src/lorawan/model/bandits/bandit-constants.h`](ns-3/src/lorawan/model/bandits/bandit-constants.h):
 ```
 /*                                       Rewards = {SF12, SF11, SF10, SF9 , SF8  , SF7 }   */
   
@@ -159,7 +159,7 @@ There, you can also change other important parameters of our solution like the i
 inline constexpr int framesForBoostraping  = 15   ; // The number of frames before the bandit starts asking for feedback
 ```
 
-(In this initial phase, each arm will be chosen equiprobably by the Thomson Sampling Bandit ^_^ --independently of the reward definition--)
+In this initial phase, each arm will be chosen equiprobably by the Thomson Sampling Bandit ^_^ --independently of the reward definition--.
 
 Finally, another important parameter is $p$ used in the long-term strategy (in the paper $p=1/20$). This value determines the the probability of a given packet to request for a feedback message ~$Bernoulli(p)$. 
 
