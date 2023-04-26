@@ -27,10 +27,10 @@ We share the data of the experiments we ran and some useful scripts we used to c
 ---------------------------
 # Index
 
- 1. [Environment Set-Up and Test] (#setup)
- 2. [Running Bandits Simulation] (#running)
- 2. [Capturing Simulation Data] (#reading)
- 4. [Appendix] (#appendix)
+ 1. [Environment Set-Up and Test](#setup)
+ 2. [Running Bandits Simulation](#running)
+ 2. [Capturing Simulation Data](#reading)
+ 4. [Appendix (`AI-Toolbox`)](#appendix)
 
 
 ---------------------------
@@ -53,7 +53,7 @@ Tested on:
 
 
 
-This source code uses these other open source projects (no need to download nor compile, already included):
+This source code uses these other open source projects (no need to download nor compile, already included), acknowledgment again to the worderful persons wo worked on them:
  * `Ns-3` (https://www.nsnam.org/wiki/Installation )
       *  [(v3.34+dev) ns-3-dev master 01/AGO/21 commit [75f15af2d6aba513886f273124249adaf9236778](https://gitlab.com/nsnam/ns-3-dev/-/commit/75f15af2d6aba513886f273124249adaf9236778)    ] (base v3.34 should work)
  * `LoRaWAN ns-3 module` (https://github.com/signetlabdei/lorawan)
@@ -214,7 +214,7 @@ For quick gnuplot graphs refer to `/data/gnubars.txt` and `/data/gnuscattered.tx
 
 For metrics as used
 
-# APPENDIX) About `AI-Toolbox` <a name="appendix"></a>
+# Appendix) About `AI-Toolbox` <a name="appendix"></a>
 
 ##  A) `AI-Toolbox`: commentary on this library's dependency
 
