@@ -5,7 +5,7 @@ Bandits for LoRaWAN in the `ns-3` simulator.
 
 >(...) From this point of view there can be no objection to the use of data, however meagre, as a guide to action required before more can be collected; although serious objection can otherwise be raised to argument based upon a small number of observations. Indeed, the fact that such objection can never be eliminated entirely—no matter how great the number of observations—suggested the possible value of seeking other modes of operation than that of taking  a large number of observations before analysis or any attempt to direct our course.
 >
->—William R. Thompson.
+>—William Robin Thompson.
 >  "On the likelihood that one unknown probability exceeds another in view of the evidence of two samples." Biometrika 25, no. 3-4 (1933).
 >
 
@@ -224,11 +224,34 @@ buildings.txt
 gwData.txt
 ```
 
-We
 
-For quick gnuplot graphs refer to `/data/gnubars.txt` and `/data/gnuscattered.txt`
 
-For metrics as used
+We include relevants scripts to plot and calculate metrics on the folders 
+ *  [/data/2022-06-29/01-SIngleGW/](data/2022-06-29/01-SIngleGW/)
+ *  [/data/2022-06-29/02-MultiGW/](data/2022-06-29/02-MultiGW/)
+
+The scripts are the following:
+```
+01-single-gw-bars.gp # Only relevant for Single-GW
+02-gnuscattered.gp
+03-calculate_pdr_last10.py
+04-calculate_joules_last10.py
+05-calculate_unec_last10.py
+```
+
+(`.gp` is a `gnuplot` script and `.py` a `python3`)
+
+
+The scripts will automattically ingest data from the three ADR strategies/subfolders
+```
+01-LegacyADR
+02-BanditPDR
+03-BanditEnergyPDR 
+```
+
+But they can be easily extended to more folders, or modified to ingest data from a particular result folder.
+
+
 
 # Appendix) About `AI-Toolbox` <a name="appendix"></a>
 
@@ -248,7 +271,7 @@ However, we need to install the pre-compiled lib dependencies by hand, this is p
 ```
 ./ns-3/config_external-libs.sh # this copies the .so to /usr/lib and the includes to /usr/local/include
 ```
-**TODO:** See if the use of a static library (```.a```) is better. Note: We also include the compiled ```.a``` libraries for  `arm64`. In the end, we streamlined the installation of this library thanks to  the pre-compilation of the `.so` library and our `config_external-libs.sh` script. 
+**TODO:** See if the use of a static library (`.a`) is better. Note: We also include the compiled `.a` libraries for  `arm64`. In the end, we streamlined the installation of this library thanks to  the pre-compilation of the `.so` library and our `config_external-libs.sh` script. 
 
 
 ##  B) `AI-Toolbox`:  compiling the library in a `Ubuntu 22.10 ARM64`
