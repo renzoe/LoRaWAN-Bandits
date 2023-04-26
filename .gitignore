@@ -36,3 +36,6 @@
 
 #GiHhubToken
 *.ghtoken
+
+#MACOs bothering
+.DS_Store
