@@ -2,9 +2,14 @@
 
 Bandits for LoRaWAN in the `ns-3` simulator.
 
-```
-(...) From this point of view there can be no objection to the use of data, however meagre, as a guide to action required before more can be collected; although serious objection can otherwise be raised to argument based upon a small number of observations. Indeed, the fact that such objection can never be eliminated entirely-no matter how great the number of observations- suggested the possible value of seeking other modes of operation than that of taking  !!!!
-````
+
+>(...) From this point of view there can be no objection to the use of data, however meagre, as a guide to action required before more can be collected; although serious objection can otherwise be raised to argument based upon a small number of observations. Indeed, the fact that such objection can never be eliminated entirely—no matter how great the number of observations—suggested the possible value of seeking other modes of operation than that of taking  a large number of observations before analysis or any attempt to direct our course.
+>
+>—William R. Thompson.
+>  "On the likelihood that one unknown probability exceeds another in view of the evidence of two samples." Biometrika 25, no. 3-4 (1933).
+>
+
+
 
 Work in the context of WP3 T3.1 of ANR Project INTELLIGENTSIA ( https://intelligentsia.roc.cnam.fr) (grant number: [ANR-20-CE25-0011](https://anr.fr/Project-ANR-20-CE25-0011)).
 
@@ -213,10 +218,13 @@ nodeData.txt
 phyPerformance.txt
 ```
 
-For Multi-GW simulation additional files are created
+For Multi-GW simulations, additional files are created with the buildings and gateways positioning on the grid:
+```
+buildings.txt
+gwData.txt
 ```
 
-```
+We
 
 For quick gnuplot graphs refer to `/data/gnubars.txt` and `/data/gnuscattered.txt`
 
