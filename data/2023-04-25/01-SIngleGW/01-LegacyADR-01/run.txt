@@ -1,0 +1,13 @@
+time ./waf --run "src/lorawan/examples/adr-bandit-example  --nDevices=1000 --HistoryRange=10 --PeriodsToSimulate=100"
+Waf: Entering directory `/home/renzo/LoRaWAN-Bandits/ns-3/build'
+[2524/2996] Compiling src/lorawan/examples/adr-bandit-example.cc
+[2956/2996] Linking build/src/lorawan/examples/ns3-dev-adr-bandit-example-debug
+Waf: Leaving directory `/home/renzo/LoRaWAN-Bandits/ns-3/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (1.390s)
+1000.000000 823.000000
+
+real	5m6.950s
+user	5m6.532s
+sys	0m0.393s
+
