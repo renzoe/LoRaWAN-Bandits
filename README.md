@@ -1,21 +1,45 @@
-# LoRaWAN-Bandits
+# LoRaWAN Bandits
 
-Bandits for LoRaWAN in  NS-3. Work in the context of WP3 T3.1 of ANR Project INTELLIGENTSIA ( https://intelligentsia.roc.cnam.fr/ ).
+Bandits for LoRaWAN in  `ns-3`.
 
+Work in the context of WP3 T3.1 of ANR Project INTELLIGENTSIA ( https://intelligentsia.roc.cnam.fr) (grant number: [ANR-20-CE25-0011](https://anr.fr/Project-ANR-20-CE25-0011)).
+
+
+### Companion Paper
+This source code goes with the peer-reviewed paper :
+```
+Renzo E. Navas, Ghina Dandachi, Yassine Hadjadj-Aoul, Patrick Maillé.
+"Energy-Aware Spreading Factor Selection in LoRaWAN Using Delayed-Feedback Bandits"
+2023 IFIP Networking Conference (IFIP Networking), Barcelona, Spain, 2023, pp. 1-9. 
+IEEE, 2023 (forthcoming).
+```
+This is the source code used to generate the experimental results of the paper.  
 Most of the source code development was made on the first half of the year 2021.
 
-
-## Index
-
- 1. Environment Set-Up and Test
- 2. Running Bandits Simulation
- 2. Capturing Simulation Data
+We share the data of the experiments we ran and some useful scripts we used to calculate metrics and do some plots. They are located in the folder `/data/`.
 
 
-## 1) Environment Set-Up and Test
 
 
-###  Installing in a vanilla `Ubuntu 21.04 x86_64` and `Ubuntu 22.10 ARM64`
+
+
+
+---------------------------
+# Index
+
+ 1. [Environment Set-Up and Test] (#setup)
+ 2. [Running Bandits Simulation] (#running)
+ 2. [Capturing Simulation Data] (#reading)
+ 4. [Appendix] (#appendix)
+
+
+---------------------------
+
+# 1) Environment Set-Up and Test <a name="setup"></a>
+
+
+
+##  Installing in a vanilla `Ubuntu 21.04 x86_64` and `Ubuntu 22.10 ARM64`
 **Note**:  Please instantiate the VM with at least `20GB` of HHDD (12GB is not enough. 16GB is ok for Ubuntu 21.04 x86_64).
 
 Tested on:
@@ -38,7 +62,7 @@ This source code uses these other open source projects (no need to download nor 
    *  [AI-Toolbox master  23/APR/21 commit [7046d767a8f048f6985fb7166eb8dc7ea353199f](https://github.com/Svalorzen/AI-Toolbox/commit/7046d767a8f048f6985fb7166eb8dc7ea353199f) ]
  
 
-####  A) Installing Dependencies
+###  A) Installing Dependencies
 Install basic dependencies 
 ```
 sudo apt update
@@ -70,10 +94,10 @@ sudo apt install libboost-all-dev #500 mb!
 #c) lp solve 5.5
 sudo apt install lp-solve # No need for "apt install liblpsolve55-dev" (liblpsolve55-dev is needed to complie AI-Toolbox from source, but not if we already have its pre-compiled libraries like in our case)
 
-sudo cp /usr/lib/lp_solve/liblpsolve55.so  /usr/lib/liblpsolve55.so # This isneeded because in Ubuntu the library is not on a path that the linker ld looks (TODO: check if a linker cache update solves this)
+sudo cp /usr/lib/lp_solve/liblpsolve55.so  /usr/lib/liblpsolve55.so # This is needed because in Ubuntu the library is not on a path that the linker ld looks (TODO: check if a linker cache update solves this)
 ```
 
-####  B) Building and Testing 
+###  B) Building and Testing 
 
 Configure `ns-3`:
 ```
@@ -102,9 +126,9 @@ Build commands will be stored in build/compile_commands.json
 
 
 
-## 2) Running a `Bandit`/`LoRAWAN ADR` Simulation
+# 2) Running a `Bandit`/`LoRAWAN ADR` Simulation  <a name="running"></a>
 
-###  A) Main File
+##  A) Main File
 The Main Bandits Simulations files (as defined on the companion article) are the following:
 * Single-GW :  `./ns-3/src/lorawan/examples/adr-bandit-example.cc`
 * Multi-GWs  : `./ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc`
@@ -116,7 +140,7 @@ The nature of the End Devices (ED), `Bandits` or `LoRaWAN ADR`, is specified on 
 ```
 You should uncomment the type of ED that you want to use for your experiments.
 
-#### B)  Bandit's Rewards and other parameters
+## B)  Bandit's Rewards and other parameters
 The type of bandits is set on `./ns-3/src/lorawan/model/bandits/bandit-constants.h`:
 ```
 /*                                       Rewards = {SF12, SF11, SF10, SF9 , SF8  , SF7 }   */
@@ -129,15 +153,15 @@ The type of bandits is set on `./ns-3/src/lorawan/model/bandits/bandit-constants
 
 You can easily define more rewards definitions/strategies by declaring a new array of six elements and assigning it to `rewardsDefinition`.
 
-There, you can also change other important parameters of our solution like the initial phase number of messages ($b$ in the paper, and $b=15$)
+There, you can also change other important parameters of our solution like the initial phase number of messages in which we will not ask for feedback ($b$ in the paper, and $b=15$)
 
 ```
 inline constexpr int framesForBoostraping  = 15   ; // The number of frames before the bandit starts asking for feedback
 ```
 
-(In this initial phase each arm will be chosen equiprobably by a Thomson Sampling Bandit ^_^ )
+(In this initial phase, each arm will be chosen equiprobably by the Thomson Sampling Bandit ^_^ --independently of the reward definition--)
 
-Finally, another important parameter is $p$ used in the long-term strategy. This value determines the the probability of a given packet to request for a feedback message ~ Bernoulli(p). 
+Finally, another important parameter is $p$ used in the long-term strategy (in the paper $p=1/20$). This value determines the the probability of a given packet to request for a feedback message ~$Bernoulli(p)$. 
 
 
 ```
@@ -145,7 +169,7 @@ Finally, another important parameter is $p$ used in the long-term strategy. This
 ```
 
 
-####  C) Example `Single-GW`
+##  C) Example `Single-GW`
 A typical run:
 
 ```
@@ -163,7 +187,7 @@ modifying the attributes `MultiplePacketsCombiningMethod` (and `MultipleGWCombin
 
 
 
-####  D) Example `Multi-GWs`
+##  D) Example `Multi-GWs`
 A typical run:
 
 ```
@@ -172,12 +196,12 @@ A typical run:
 
 
 **Note**: 
-* We are using an `AVERAGE` value to combine GWs values for the same packet (!). You can change this with
-modifying the attribute `MultipleGWCombiningMethod` from the file  `./ns-3-dev/src/lorawan/model/adr-component.c`   (Suggestion: try with `MAXIMUM`?)
+* We are using an `AVERAGE` value to combine GWs values for the same received packet. You can change this with
+modifying the attribute `MultipleGWCombiningMethod` from the file  `./ns-3-dev/src/lorawan/model/adr-component.c`   (Suggestion: try with `MAXIMUM`? We chose `AVERAGE` as is more conservative. )
 
 
-## 3) Capturing and Interpreting Simulation Data
-TODO proper
+# 3) Capturing and Interpreting Simulation Data <a name="reading"></a>
+TODO properly finish
 
 After any given simulation three files are created:
 ```
@@ -190,9 +214,9 @@ For quick gnuplot graphs refer to `/data/gnubars.txt` and `/data/gnuscattered.tx
 
 For metrics as used
 
-## APPENDIX) Topics about `AI-Toolbox`
+# APPENDIX) About `AI-Toolbox` <a name="appendix"></a>
 
-###  A) `AI-Toolbox`: commentary on this library's dependency
+##  A) `AI-Toolbox`: commentary on this library's dependency
 
 Our code depends on library AI-Toolbox: https://github.com/Svalorzen/AI-Toolbox  
    + In particular, the library `AIToolboxMDP` (See `/ns-3-dev/src/lorawan/wscript` Line #10).
@@ -211,9 +235,9 @@ However, we need to install the pre-compiled lib dependencies by hand, this is p
 **TODO:** See if the use of a static library (```.a```) is better. Note: We also include the compiled ```.a``` libraries for  `arm64`. In the end, we streamlined the installation of this library thanks to  the pre-compilation of the `.so` library and our `config_external-libs.sh` script. 
 
 
-###  B) `AI-Toolbox`:  compiling the library in a `Ubuntu 22.10 ARM64`
+##  B) `AI-Toolbox`:  compiling the library in a `Ubuntu 22.10 ARM64`
 
-**Note**: This compilation is not needed because we provide the pre-compiled `.so`. However, we provide this steps for the sake of documentation; it can be useful, for ex., if in the future the user wants to use an updated `AI-Toolbox` library, or modify it, and needs to compile from source.
+**Note**: This compilation is not needed because we provide the pre-compiled `.so`. However, we provide these steps for the sake of documentation; it can be useful, for ex., if in the future the user wants to use an updated `AI-Toolbox` library, or modify it, and needs to compile from source.
 
 Tested on a Virtualized Ubuntu 22.10 on a MacBook Pro 2023 (Chip: Apple M2 Pro):
 * `Ubuntu 22.10 ARM64` VM on `VMWare Fusion (13.0.1)` using as host a `arm64` running `macOS 13.3.1 (Ventura)`.
