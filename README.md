@@ -131,9 +131,9 @@ Build commands will be stored in build/compile_commands.json
 ##  A) Main File
 The Main Bandits Simulations files (as defined on the companion article) are the following:
 * Single-GW :  [`./ns-3/src/lorawan/examples/adr-bandit-example.cc`](ns-3/src/lorawan/examples/adr-bandit-example.cc)
-* Multi-GWs  : [`./ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc`](ns-3/src/lorawan/examples/adr-bandit-example.cc)
+* Multi-GWs  : [`./ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc`](ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc)
 
-The nature of the End Devices (ED), `Bandits` or `LoRaWAN ADR`, is specified on those same files, in a line that will look like:
+The nature of the End Devices (ED), `Bandits` or `LoRaWAN ADR`, is specified on those same files, in a line  ([Line#269](ns-3/src/lorawan/examples/adr-bandit-example.cc#L269)) and [Line#346](ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc#L346))) that looks like this:
 ```
 //macHelper.SetDeviceType (LorawanMacHelper::ED_A); // We create normal ADR nodes
  macHelper.SetDeviceType (LorawanMacHelper::ED_A_ADR_BANDIT); // We create ADR Bandits nodes :)
