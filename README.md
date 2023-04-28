@@ -38,7 +38,7 @@ Most of the source code development was made on the first half of the year 2021.
 
 In the folder [`/data/2023-04-27-AgressiveBandits/`](data/2023-04-27-AgressiveBandits), we also include many other experiments that where not integrated to the  publication (mostly due to a mix of lack of time and article space) in which we experiment with parameters to more agressively learn (but this yields to varying results depeding the scenario. The parameters on the article are good all-around for the scenarios we simulate).
 
-The rest of this README will help you to set up the environemnt run and analyse come experiments.
+The rest of this README will help you to set up the environment, run some experiments, and collect and analyse their results.
 
 
 ---------------------------
