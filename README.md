@@ -17,7 +17,7 @@ Work in the context of WP3 T3.1 of ANR Project INTELLIGENTSIA ( https://intellig
 ### Companion Paper
 This source code goes with the peer-reviewed paper :
 ```
-Renzo E. Navas, Ghina Dandachi, Yassine Hadjadj-Aoul, Patrick Maillé.
+Renzo E. Navas, Ghina Dandachi, Yassine Hadjadj-Aoul, and Patrick Maillé.
 "Energy-Aware Spreading Factor Selection in LoRaWAN Using Delayed-Feedback Bandits"
 2023 IFIP Networking Conference (IFIP Networking), Barcelona, Spain, 2023, pp. 1-9. 
 IEEE, 2023 (forthcoming).
@@ -62,7 +62,7 @@ Tested on:
 
 
 
-This source code uses these other open source projects (no need to download nor compile, already included), acknowledgment again to the worderful persons wo worked on them:
+This source code uses these other open source projects (no need to download nor compile, already included), acknowledgment again to the worderful persons who worked on them:
  * `Ns-3` (https://www.nsnam.org/wiki/Installation )
       *  [(v3.34+dev) ns-3-dev master 01/AGO/21 commit [75f15af2d6aba513886f273124249adaf9236778](https://gitlab.com/nsnam/ns-3-dev/-/commit/75f15af2d6aba513886f273124249adaf9236778)    ] (base v3.34 should work)
  * `LoRaWAN ns-3 module` (https://github.com/signetlabdei/lorawan)
@@ -115,7 +115,7 @@ Configure `ns-3`:
 
 Building `ns-3` and Testing the vanilla `LoRaWAN module`
 ```
-./waf build  # This will take a while depending on VM (+40 mins)
+./waf build  # This will take a while depending on your hardware (+40 mins)
 ./test.py -s lorawan -v
 ```
 
@@ -209,9 +209,10 @@ A typical run:
 modifying the attribute `MultipleGWCombiningMethod` from the file  `./ns-3-dev/src/lorawan/model/adr-component.c`   (Suggestion: try with `MAXIMUM`? We chose `AVERAGE` as is more conservative. )
 
 
-# 3) Capturing and Interpreting Simulation Data <a name="reading"></a>
+# 3) Capturing and Processing Simulation Data <a name="reading"></a>
 
-After any given simulation three files are created:
+## A) Output Files
+After any given `lorawan` module simulation three files are created:
 ```
 globalPerformance.txt
 nodeData.txt
@@ -225,21 +226,28 @@ gwData.txt
 ```
 
 
+## B) Processing Scripts
 
-We include relevants scripts to plot and calculate metrics on the folders 
+We include relevants scripts to plot (`.gp`) and calculate (`.py`) the paper defined metrics on the folders 
  *  [/data/2022-06-29/01-SIngleGW/](data/2022-06-29/01-SIngleGW/)
  *  [/data/2022-06-29/02-MultiGW/](data/2022-06-29/02-MultiGW/)
 
 The scripts are the following:
 ```
-01-single-gw-bars.gp # Only relevant for Single-GW
-02-gnuscattered.gp
-03-calculate_pdr_last10.py
-04-calculate_joules_last10.py
-05-calculate_unec_last10.py
+01-single-gw-bars.gp          # (Only relevant for Single-GW)
+02-gnuscattered.gp            # Shows the spatial distribution of nodes, with color codes for the Speading Factors
+03-calculate_pdr_last10.py.   # Metric: PDR          last 10 simulation periods (parametrizable)
+04-calculate_joules_last10.py # Metric: Total Joules last 10 simulation periods (parametrizable)
+05-calculate_unec_last10.py.  # Metric: uNEC         last 10 simulation periods (parametrizable)
 ```
 
 (`.gp` is a `gnuplot` script and `.py` a `python3`)
+
+For python, these are the dependencies:
+```
+sudo apt install python3-pip
+pip install numpy matplotlib
+```
 
 
 The scripts will automattically ingest data from the three ADR strategies/subfolders
@@ -249,7 +257,7 @@ The scripts will automattically ingest data from the three ADR strategies/subfol
 03-BanditEnergyPDR 
 ```
 
-But they can be easily extended to more folders, or modified to ingest data from a particular result folder.
+But they can be easily extended to more folders, or modified to ingest data from a particular  folder.
 
 
 
