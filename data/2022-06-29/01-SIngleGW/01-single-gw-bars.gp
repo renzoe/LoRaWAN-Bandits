@@ -1,7 +1,7 @@
 #https://stackoverflow.com/questions/12235683/how-to-display-a-stacked-barchart-in-gnuplot
 
-#set terminal pdf
-#set output "single-gw-bars.pdf"
+set terminal pdf
+set output "single-gw-bars.pdf"
 
 
 
