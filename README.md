@@ -25,14 +25,14 @@ IEEE, 2023.
 
 **Please, if you use or are inspired by this source code, cite our aforementioned article.**
 
-This is the source code used to generate the experimental results of the paper. 
-Most of the source code development was made on the first half of the year 2021.
+[**[CODE]**](ns-3/)  The main objective of this repositoty is to share the source code used to generate the experimental results of the paper. 
+Most of the source code development was made on the first half of the year 2021. The source code is the folder [`/ns-3/`](ns-3/).
 
-**[DESIGN]** We share the design information of our solution that justifies the metrics and some important decision we took along the way. They are located in the folder [`/design/`](design/).
+[**[DESIGN]**](design/) We share the design information of our solution that justifies the metrics and some important decisions we took along the way. They are located in the folder [`/design/`](design/).
 
-**[DATA]** We share the data of the experiments we ran and some useful scripts we used to calculate metrics and do some plots. They are located in the folder [`/data/`](data/).
+[**[DATA]**](data/) We share the data of the experiments we ran and some useful scripts we used to calculate metrics and do some plots. They are located in the folder [`/data/`](data/).
 
-In the folder [`/data/2023-04-27-AgressiveBandits/`](data/2023-04-27-AgressiveBandits), we also include many other experiments that where not integrated to the  publication (mostly due to a mix of lack of time and article space) in which we experiment with parameters to more agressively learn (but this yield to varying results depeding the scenario. The parameters on the article are good all-around for the scenarios we simulate).
+In the folder [`/data/2023-04-27-AgressiveBandits/`](data/2023-04-27-AgressiveBandits), we also include many other experiments that where not integrated to the  publication (mostly due to a mix of lack of time and article space) in which we experiment with parameters to more agressively learn (but this yields to varying results depeding the scenario. The parameters on the article are good all-around for the scenarios we simulate).
 
 
 
