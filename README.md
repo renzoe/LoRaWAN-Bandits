@@ -1,6 +1,15 @@
 # LoRaWAN Bandits
 
-Bandits for LoRaWAN in  `ns-3`.
+Bandits for LoRaWAN in the `ns-3` simulator.
+
+
+>(...) From this point of view there can be no objection to the use of data, however meagre, as a guide to action required before more can be collected; although serious objection can otherwise be raised to argument based upon a small number of observations. Indeed, the fact that such objection can never be eliminated entirely—no matter how great the number of observations—suggested the possible value of seeking other modes of operation than that of taking  a large number of observations before analysis or any attempt to direct our course.
+>
+>—William Robin Thompson.
+>  "On the likelihood that one unknown probability exceeds another in view of the evidence of two samples." Biometrika 25, no. 3-4 (1933).
+>
+
+
 
 Work in the context of WP3 T3.1 of ANR Project INTELLIGENTSIA ( https://intelligentsia.roc.cnam.fr) (grant number: [ANR-20-CE25-0011](https://anr.fr/Project-ANR-20-CE25-0011)).
 
@@ -133,7 +142,7 @@ The Main Bandits Simulations files (as defined on the companion article) are the
 * Single-GW :  [`./ns-3/src/lorawan/examples/adr-bandit-example.cc`](ns-3/src/lorawan/examples/adr-bandit-example.cc)
 * Multi-GWs  : [`./ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc`](ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc)
 
-The nature of the End Devices (ED), `Bandits` or `LoRaWAN ADR`, is specified on those same files, in a line  ([Line#269](ns-3/src/lorawan/examples/adr-bandit-example.cc#L269)) and [Line#346](ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc#L346))) that looks like this:
+The nature of the End Devices (ED), `Bandits` or `LoRaWAN ADR`, is specified on those same files, in a line  ( [Line#269](ns-3/src/lorawan/examples/adr-bandit-example.cc#L269) and [Line#346](ns-3/src/lorawan/examples/adr-bandit-example-multi-gw.cc#L346)) that looks like this:
 ```
 //macHelper.SetDeviceType (LorawanMacHelper::ED_A); // We create normal ADR nodes
  macHelper.SetDeviceType (LorawanMacHelper::ED_A_ADR_BANDIT); // We create ADR Bandits nodes :)
@@ -141,7 +150,7 @@ The nature of the End Devices (ED), `Bandits` or `LoRaWAN ADR`, is specified on 
 You should uncomment the type of ED that you want to use for your experiments.
 
 ## B)  Bandit's Rewards and other parameters
-The type of bandits is set on [`./ns-3/src/lorawan/model/bandits/bandit-constants.h`](ns-3/src/lorawan/model/bandits/bandit-constants.h):
+The  reward definition is set on [`./ns-3/src/lorawan/model/bandits/bandit-constants.h`](ns-3/src/lorawan/model/bandits/bandit-constants.h):
 ```
 /*                                       Rewards = {SF12, SF11, SF10, SF9 , SF8  , SF7 }   */
   
@@ -201,7 +210,6 @@ modifying the attribute `MultipleGWCombiningMethod` from the file  `./ns-3-dev/s
 
 
 # 3) Capturing and Interpreting Simulation Data <a name="reading"></a>
-TODO properly finish
 
 After any given simulation three files are created:
 ```
@@ -210,9 +218,40 @@ nodeData.txt
 phyPerformance.txt
 ```
 
-For quick gnuplot graphs refer to `/data/gnubars.txt` and `/data/gnuscattered.txt`
+For Multi-GW simulations, additional files are created with the buildings and gateways positioning on the grid:
+```
+buildings.txt
+gwData.txt
+```
 
-For metrics as used
+
+
+We include relevants scripts to plot and calculate metrics on the folders 
+ *  [/data/2022-06-29/01-SIngleGW/](data/2022-06-29/01-SIngleGW/)
+ *  [/data/2022-06-29/02-MultiGW/](data/2022-06-29/02-MultiGW/)
+
+The scripts are the following:
+```
+01-single-gw-bars.gp # Only relevant for Single-GW
+02-gnuscattered.gp
+03-calculate_pdr_last10.py
+04-calculate_joules_last10.py
+05-calculate_unec_last10.py
+```
+
+(`.gp` is a `gnuplot` script and `.py` a `python3`)
+
+
+The scripts will automattically ingest data from the three ADR strategies/subfolders
+```
+01-LegacyADR
+02-BanditPDR
+03-BanditEnergyPDR 
+```
+
+But they can be easily extended to more folders, or modified to ingest data from a particular result folder.
+
+
 
 # Appendix) About `AI-Toolbox` <a name="appendix"></a>
 
@@ -232,7 +271,7 @@ However, we need to install the pre-compiled lib dependencies by hand, this is p
 ```
 ./ns-3/config_external-libs.sh # this copies the .so to /usr/lib and the includes to /usr/local/include
 ```
-**TODO:** See if the use of a static library (```.a```) is better. Note: We also include the compiled ```.a``` libraries for  `arm64`. In the end, we streamlined the installation of this library thanks to  the pre-compilation of the `.so` library and our `config_external-libs.sh` script. 
+**TODO:** See if the use of a static library (`.a`) is better. Note: We also include the compiled `.a` libraries for  `arm64`. In the end, we streamlined the installation of this library thanks to  the pre-compilation of the `.so` library and our `config_external-libs.sh` script. 
 
 
 ##  B) `AI-Toolbox`:  compiling the library in a `Ubuntu 22.10 ARM64`
