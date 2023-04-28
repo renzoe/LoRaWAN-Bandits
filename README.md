@@ -1,6 +1,6 @@
 # LoRaWAN Bandits
 
-Bandits for LoRaWAN in the `ns-3` simulator.
+Bandits for LoRaWAN in the [`ns-3`](https://www.nsnam.org/) simulator.
 
 
 >(...) From this point of view there can be no objection to the use of data, however meagre, as a guide to action required before more can be collected; although serious objection can otherwise be raised to argument based upon a small number of observations. Indeed, the fact that such objection can never be eliminated entirely—no matter how great the number of observations—suggested the possible value of seeking other modes of operation than that of taking  a large number of observations before analysis or any attempt to direct our course.
@@ -9,28 +9,36 @@ Bandits for LoRaWAN in the `ns-3` simulator.
 >  "On the likelihood that one unknown probability exceeds another in view of the evidence of two samples." Biometrika 25, no. 3-4 (1933).
 >
 
-
-
-Work in the context of WP3 T3.1 of ANR Project INTELLIGENTSIA ( https://intelligentsia.roc.cnam.fr) (grant number: [ANR-20-CE25-0011](https://anr.fr/Project-ANR-20-CE25-0011)).
+---------------------------
 
 
 ### Companion Paper
-This source code goes with the peer-reviewed paper :
+This source code and data goes with the peer-reviewed paper :
 ```
 Renzo E. Navas, Ghina Dandachi, Yassine Hadjadj-Aoul, and Patrick Maillé.
 "Energy-Aware Spreading Factor Selection in LoRaWAN Using Delayed-Feedback Bandits"
 2023 IFIP Networking Conference (IFIP Networking), Barcelona, Spain, 2023, pp. 1-9. 
-IEEE, 2023 (forthcoming).
+IEEE, 2023.
 ```
-This is the source code used to generate the experimental results of the paper.  
-Most of the source code development was made on the first half of the year 2021.
 
-We share the data of the experiments we ran and some useful scripts we used to calculate metrics and do some plots. They are located in the folder [`/data/`](data/).
+**Please, if you use or are inspired by this source code, cite our aforementioned article.**
 
+Work in the context of WP3 T3.1 of ANR Project INTELLIGENTSIA ( https://intelligentsia.roc.cnam.fr) (grant number: [ANR-20-CE25-0011](https://anr.fr/Project-ANR-20-CE25-0011)).
 
+---------------------------
 
+### What we share?
 
+[**[CODE]**](ns-3/)  The main objective of this repositoty is to share the source code used to generate the experimental results of the paper. 
+Most of the source code development was made on the first half of the year 2021. The source code is the folder [`/ns-3/`](ns-3/).
 
+[**[DESIGN]**](design/) We share the design information of our solution that justifies the metrics and some important decisions we took along the way. They are located in the folder [`/design/`](design/).
+
+[**[DATA]**](data/) We share the data of the experiments we ran and some useful scripts we used to calculate metrics and do some plots. They are located in the folder [`/data/`](data/).
+
+In the folder [`/data/2023-04-27-AgressiveBandits/`](data/2023-04-27-AgressiveBandits), we also include many other experiments that where not integrated to the  publication (mostly due to a mix of lack of time and article space) in which we experiment with parameters to more agressively learn (but this yields to varying results depeding the scenario. The parameters on the article are good all-around for the scenarios we simulate).
+
+The rest of this README will help you to set up the environment, run some experiments, and collect and analyse their results.
 
 
 ---------------------------
@@ -39,7 +47,8 @@ We share the data of the experiments we ran and some useful scripts we used to c
  1. [Environment Set-Up and Test](#setup)
  2. [Running Bandits Simulation](#running)
  2. [Capturing Simulation Data](#reading)
- 4. [Appendix (`AI-Toolbox`)](#appendix)
+ 4. [Appendix A): `AI-Toolbox`](#appendix)
+ 4. [Appendix B): `LoRaWAN Bandit` Class Diagram](#appendixb)
 
 
 ---------------------------
@@ -178,7 +187,7 @@ Finally, another important parameter is $p$ used in the long-term strategy (in t
 ```
 
 
-##  C) Example `Single-GW`
+##  C) Example Running Simulation: `Single-GW`
 A typical run:
 
 ```
@@ -196,7 +205,7 @@ modifying the attributes `MultiplePacketsCombiningMethod` (and `MultipleGWCombin
 
 
 
-##  D) Example `Multi-GWs`
+##  D)  Example Running Simulation: `Multi-GWs`
 A typical run:
 
 ```
@@ -243,7 +252,7 @@ The scripts are the following:
 
 (`.gp` is a `gnuplot` script and `.py` a `python3`)
 
-For python, these are the dependencies:
+For python, `numpy` and `matplotlib` are the dependencies:
 ```
 sudo apt install python3-pip
 pip install numpy matplotlib
@@ -261,9 +270,9 @@ But they can be easily extended to more folders, or modified to ingest data from
 
 
 
-# Appendix) About `AI-Toolbox` <a name="appendix"></a>
+# Appendix A) About `AI-Toolbox` <a name="appendix"></a>
 
-##  A) `AI-Toolbox`: commentary on this library's dependency
+##  I) `AI-Toolbox`: commentary on this library's dependency
 
 Our code depends on library AI-Toolbox: https://github.com/Svalorzen/AI-Toolbox  
    + In particular, the library `AIToolboxMDP` (See `/ns-3-dev/src/lorawan/wscript` Line #10).
@@ -282,7 +291,7 @@ However, we need to install the pre-compiled lib dependencies by hand, this is p
 **TODO:** See if the use of a static library (`.a`) is better. Note: We also include the compiled `.a` libraries for  `arm64`. In the end, we streamlined the installation of this library thanks to  the pre-compilation of the `.so` library and our `config_external-libs.sh` script. 
 
 
-##  B) `AI-Toolbox`:  compiling the library in a `Ubuntu 22.10 ARM64`
+##  II) `AI-Toolbox`:  compiling the library in a `Ubuntu 22.10 ARM64`
 
 **Note**: This compilation is not needed because we provide the pre-compiled `.so`. However, we provide these steps for the sake of documentation; it can be useful, for ex., if in the future the user wants to use an updated `AI-Toolbox` library, or modify it, and needs to compile from source.
 
@@ -311,7 +320,7 @@ In order to compile, I had to manually add the line :
  ```
  #include <optional>
  ```
-to the file `/home/renzo/AI-Toolbox/include/AIToolbox/Factored/MDP/Types.hpp`
+to the file `./AI-Toolbox/include/AIToolbox/Factored/MDP/Types.hpp`
 
 (Explanaition: This is because Ubuntu 22.10 uses C++20 (g++-10), and this `AI-Toolbox` version used C++17 to compile, and apprently some library names changed. This was not needed on an Ubuntu 21.04)
 
@@ -326,3 +335,16 @@ cd build/
 cmake -D BUILD_SHARED_LIBS=1  ..
 make
 ```
+# Appendix B) `LoRaWAN Bandit` Class Diagram <a name="appendixb"></a>
+
+### End Device Bandit Class Diagram
+
+Here is an (informal) class diagram of the Bandit for LoRAWAN MAC Class A devices:
+
+![Alt text](design/NodeA-AI-ClassDiagram.png?raw=true "Title")
+
+(A given ClassA End Device may have more than one bandit [PolicyInterface] and use the same learned experience [Experience], we could even extend the ADRAgent to use more advanced RL agents like Markov Decision Process)
+
+
+---------------------------
+
