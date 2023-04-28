@@ -1,6 +1,6 @@
 # LoRaWAN Bandits
 
-Bandits for LoRaWAN in the `ns-3` simulator.
+Bandits for LoRaWAN in the [`ns-3`](https://www.nsnam.org/) simulator.
 
 
 >(...) From this point of view there can be no objection to the use of data, however meagre, as a guide to action required before more can be collected; although serious objection can otherwise be raised to argument based upon a small number of observations. Indeed, the fact that such objection can never be eliminated entirely—no matter how great the number of observations—suggested the possible value of seeking other modes of operation than that of taking  a large number of observations before analysis or any attempt to direct our course.
@@ -9,9 +9,7 @@ Bandits for LoRaWAN in the `ns-3` simulator.
 >  "On the likelihood that one unknown probability exceeds another in view of the evidence of two samples." Biometrika 25, no. 3-4 (1933).
 >
 
-
-
-Work in the context of WP3 T3.1 of ANR Project INTELLIGENTSIA ( https://intelligentsia.roc.cnam.fr) (grant number: [ANR-20-CE25-0011](https://anr.fr/Project-ANR-20-CE25-0011)).
+---------------------------
 
 
 ### Companion Paper
@@ -25,6 +23,12 @@ IEEE, 2023.
 
 **Please, if you use or are inspired by this source code, cite our aforementioned article.**
 
+Work in the context of WP3 T3.1 of ANR Project INTELLIGENTSIA ( https://intelligentsia.roc.cnam.fr) (grant number: [ANR-20-CE25-0011](https://anr.fr/Project-ANR-20-CE25-0011)).
+
+---------------------------
+
+### What we share?
+
 [**[CODE]**](ns-3/)  The main objective of this repositoty is to share the source code used to generate the experimental results of the paper. 
 Most of the source code development was made on the first half of the year 2021. The source code is the folder [`/ns-3/`](ns-3/).
 
@@ -34,10 +38,7 @@ Most of the source code development was made on the first half of the year 2021.
 
 In the folder [`/data/2023-04-27-AgressiveBandits/`](data/2023-04-27-AgressiveBandits), we also include many other experiments that where not integrated to the  publication (mostly due to a mix of lack of time and article space) in which we experiment with parameters to more agressively learn (but this yields to varying results depeding the scenario. The parameters on the article are good all-around for the scenarios we simulate).
 
-
-
-
-
+The rest of this README will help you to set up the environemnt run and analyse come experiments.
 
 
 ---------------------------
