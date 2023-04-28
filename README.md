@@ -250,9 +250,9 @@ The scripts are the following:
 05-calculate_unec_last10.py.  # Metric: uNEC         last 10 simulation periods (parametrizable)
 ```
 
-(`.gp` is a `gnuplot` script and `.py` a `python3`)
+(`.gp` is a `gnuplot` script and `.py` a `python3` one)
 
-For python, `numpy` and `matplotlib` are the dependencies:
+For `python3`, `numpy` and `matplotlib` are the dependencies:
 ```
 sudo apt install python3-pip
 pip install numpy matplotlib
