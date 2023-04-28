@@ -1,0 +1,27 @@
+time ./waf --run "src/lorawan/examples/adr-bandit-example-multi-gw  --nDevices=2000 --HistoryRange=1000 --PeriodsToSimulate=100"
+Waf: Entering directory `/home/renzo/LoRaWAN-Bandits/ns-3/build'
+Waf: Leaving directory `/home/renzo/LoRaWAN-Bandits/ns-3/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (0.397s)
+sideLength2200
+gatewayDistance2000
+gatewayRings3
+nGateways7
+2000.000000 1312.000000
+
+real	51m53.750s
+user	51m50.863s
+sys	0m1.919s
+
+
+--------
+
+
+  inline constexpr int framesForBoostraping  = 15   ; // The number of frames before the bandit starts asking for feedback
+  inline constexpr double pAskingForFeedback = 0.1 ; // p of asking for feedback (Bernoulli)
+  
+  
+  inline constexpr const double * rewardsDefinition     =  rewardsEnergySimple ; 
+  /* we need constexpr and const https://stackoverflow.com/questions/14116003/difference-between-constexpr-and-const */
+
+

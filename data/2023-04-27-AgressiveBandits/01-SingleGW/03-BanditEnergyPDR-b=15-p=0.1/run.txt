@@ -1,0 +1,40 @@
+time  ./waf --run "src/lorawan/examples/adr-bandit-example  --nDevices=1000 --HistoryRange=10000 --PeriodsToSimulate=100"
+Waf: Entering directory `/home/renzo/LoRaWAN-Bandits/ns-3/build'
+[ 412/2996] Compiling install-ns3-header: ns3/bandit-constants.h
+[1866/2996] Compiling src/lorawan/model/bandits/bandit-delayed-reward-intelligence.cc
+[1868/2996] Compiling src/lorawan/model/bandits/adr-bandit-agent.cc
+[2443/2996] Compiling src/lorawan/model/bandits/class-a-end-device-lorawan-mac-bandit.cc
+[2941/2996] Linking build/lib/libns3-dev-lorawan-debug.so
+[2942/2996] Linking build/lib/libns3-dev-lorawan-test-debug.so
+[2943/2996] Linking build/src/lorawan/examples/ns3-dev-simple-network-example-debug
+[2944/2996] Linking build/src/lorawan/examples/ns3-dev-network-server-example-debug
+[2945/2996] Linking build/src/lorawan/examples/ns3-dev-complete-network-example-debug
+[2946/2996] Linking build/src/lorawan/examples/ns3-dev-adr-example-debug
+[2947/2996] Linking build/src/lorawan/examples/ns3-dev-energy-model-example-debug
+[2948/2996] Linking build/src/lorawan/examples/ns3-dev-aloha-throughput-debug
+[2949/2996] Linking build/src/lorawan/examples/ns3-dev-parallel-reception-example-debug
+[2950/2996] Linking build/src/lorawan/examples/ns3-dev-frame-counter-update-debug
+[2951/2996] Linking build/src/lorawan/examples/ns3-dev-adr-bandit-example-debug
+[2952/2996] Linking build/src/lorawan/examples/ns3-dev-adr-bandit-example-multi-gw-debug
+[2953/2996] Linking build/scratch/scratch-simulator
+[2954/2996] Linking build/scratch/subdir/subdir
+[2955/2996] Linking build/utils/ns3-dev-test-runner-debug
+[2956/2996] Linking build/utils/ns3-dev-print-introspected-doxygen-debug
+Waf: Leaving directory `/home/renzo/LoRaWAN-Bandits/ns-3/build'
+Build commands will be stored in build/compile_commands.json
+'build' finished successfully (4.591s)
+1000.000000 505.000000
+
+real	5m10.340s
+user	5m11.176s
+sys	0m1.147s
+
+
+namespace banditConstants
+{
+
+  inline constexpr int framesForBoostraping  = 15   ; // The number of frames before the bandit starts asking for feedback
+  inline constexpr double pAskingForFeedback = 0.1 ; // p of asking for feedback (Bernoulli)
+
+
+  inline constexpr const double * rewardsDefinition     =  rewardsEnergySimple ; 
