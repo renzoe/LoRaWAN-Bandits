@@ -15,17 +15,24 @@ Work in the context of WP3 T3.1 of ANR Project INTELLIGENTSIA ( https://intellig
 
 
 ### Companion Paper
-This source code goes with the peer-reviewed paper :
+This source code and data goes with the peer-reviewed paper :
 ```
 Renzo E. Navas, Ghina Dandachi, Yassine Hadjadj-Aoul, and Patrick Maillé.
 "Energy-Aware Spreading Factor Selection in LoRaWAN Using Delayed-Feedback Bandits"
 2023 IFIP Networking Conference (IFIP Networking), Barcelona, Spain, 2023, pp. 1-9. 
-IEEE, 2023 (forthcoming).
+IEEE, 2023.
 ```
-This is the source code used to generate the experimental results of the paper.  
+
+**Please, if you use or are inspired by this source code, cite our aforementioned article.**
+
+This is the source code used to generate the experimental results of the paper. 
 Most of the source code development was made on the first half of the year 2021.
 
-We share the data of the experiments we ran and some useful scripts we used to calculate metrics and do some plots. They are located in the folder [`/data/`](data/).
+**[DESIGN]** We share the design information of our solution that justifies the metrics and some important decision we took along the way. They are located in the folder [`/design/`](design/).
+
+**[DATA]** We share the data of the experiments we ran and some useful scripts we used to calculate metrics and do some plots. They are located in the folder [`/data/`](data/).
+
+In the folder [`/data/2023-04-27-AgressiveBandits/`](data/2023-04-27-AgressiveBandits), we also include many other experiments that where not integrated to the  publication (mostly due to a mix of lack of time and article space) in which we experiment with parameters to more agressively learn (but this yield to varying results depeding the scenario. The parameters on the article are good all-around for the scenarios we simulate).
 
 
 
@@ -176,9 +183,15 @@ Finally, another important parameter is $p$ used in the long-term strategy (in t
 ```
   inline constexpr double pAskingForFeedback = 0.05 ; // p of asking for feedback (Bernoulli)
 ```
+### End Device Bandit Class Diagram
 
+Here a high level class diagram of the Bandit for LoRAWAN MAC Class A devices:
 
-##  C) Example `Single-GW`
+![Alt text](design/NodeA-AI-ClassDiagram.png?raw=true "Title")
+
+(A given node may have more than one bandit implementation and use the same learned Experience, we could even extend the class to use more advanced RL agents like Markov Decision Process)
+
+##  C) Example Running Simulation: `Single-GW`
 A typical run:
 
 ```
@@ -196,7 +209,7 @@ modifying the attributes `MultiplePacketsCombiningMethod` (and `MultipleGWCombin
 
 
 
-##  D) Example `Multi-GWs`
+##  D)  Example Running Simulation: `Multi-GWs`
 A typical run:
 
 ```
@@ -243,7 +256,7 @@ The scripts are the following:
 
 (`.gp` is a `gnuplot` script and `.py` a `python3`)
 
-For python, these are the dependencies:
+For python, `numpy` and `matplotlib` are the dependencies:
 ```
 sudo apt install python3-pip
 pip install numpy matplotlib
@@ -311,7 +324,7 @@ In order to compile, I had to manually add the line :
  ```
  #include <optional>
  ```
-to the file `/home/renzo/AI-Toolbox/include/AIToolbox/Factored/MDP/Types.hpp`
+to the file `./AI-Toolbox/include/AIToolbox/Factored/MDP/Types.hpp`
 
 (Explanaition: This is because Ubuntu 22.10 uses C++20 (g++-10), and this `AI-Toolbox` version used C++17 to compile, and apprently some library names changed. This was not needed on an Ubuntu 21.04)
 
