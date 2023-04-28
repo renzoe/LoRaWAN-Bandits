@@ -46,7 +46,8 @@ In the folder [`/data/2023-04-27-AgressiveBandits/`](data/2023-04-27-AgressiveBa
  1. [Environment Set-Up and Test](#setup)
  2. [Running Bandits Simulation](#running)
  2. [Capturing Simulation Data](#reading)
- 4. [Appendix (`AI-Toolbox`)](#appendix)
+ 4. [Appendix A): `AI-Toolbox`](#appendix)
+ 4. [Appendix B): `LoRaWAN Bandit` Class Diagram](#appendixb)
 
 
 ---------------------------
@@ -183,13 +184,7 @@ Finally, another important parameter is $p$ used in the long-term strategy (in t
 ```
   inline constexpr double pAskingForFeedback = 0.05 ; // p of asking for feedback (Bernoulli)
 ```
-### End Device Bandit Class Diagram
 
-Here a high level class diagram of the Bandit for LoRAWAN MAC Class A devices:
-
-![Alt text](design/NodeA-AI-ClassDiagram.png?raw=true "Title")
-
-(A given node may have more than one bandit implementation and use the same learned Experience, we could even extend the class to use more advanced RL agents like Markov Decision Process)
 
 ##  C) Example Running Simulation: `Single-GW`
 A typical run:
@@ -274,9 +269,9 @@ But they can be easily extended to more folders, or modified to ingest data from
 
 
 
-# Appendix) About `AI-Toolbox` <a name="appendix"></a>
+# Appendix A) About `AI-Toolbox` <a name="appendix"></a>
 
-##  A) `AI-Toolbox`: commentary on this library's dependency
+##  I) `AI-Toolbox`: commentary on this library's dependency
 
 Our code depends on library AI-Toolbox: https://github.com/Svalorzen/AI-Toolbox  
    + In particular, the library `AIToolboxMDP` (See `/ns-3-dev/src/lorawan/wscript` Line #10).
@@ -295,7 +290,7 @@ However, we need to install the pre-compiled lib dependencies by hand, this is p
 **TODO:** See if the use of a static library (`.a`) is better. Note: We also include the compiled `.a` libraries for  `arm64`. In the end, we streamlined the installation of this library thanks to  the pre-compilation of the `.so` library and our `config_external-libs.sh` script. 
 
 
-##  B) `AI-Toolbox`:  compiling the library in a `Ubuntu 22.10 ARM64`
+##  II) `AI-Toolbox`:  compiling the library in a `Ubuntu 22.10 ARM64`
 
 **Note**: This compilation is not needed because we provide the pre-compiled `.so`. However, we provide these steps for the sake of documentation; it can be useful, for ex., if in the future the user wants to use an updated `AI-Toolbox` library, or modify it, and needs to compile from source.
 
@@ -339,3 +334,16 @@ cd build/
 cmake -D BUILD_SHARED_LIBS=1  ..
 make
 ```
+# Appendix B) `LoRaWAN Bandit` Class Diagram <a name="appendixb"></a>
+
+### End Device Bandit Class Diagram
+
+Here is an (informal) class diagram of the Bandit for LoRAWAN MAC Class A devices:
+
+![Alt text](design/NodeA-AI-ClassDiagram.png?raw=true "Title")
+
+(A given ClassA end devbice may have more than one bandit [PolicyInterface] and use the same learned experience [Experience], we could even extend the ADRAgent to use more advanced RL agents like Markov Decision Process)
+
+
+---------------------------
+
