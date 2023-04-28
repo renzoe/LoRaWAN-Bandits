@@ -343,7 +343,7 @@ Here is an (informal) class diagram of the Bandit for LoRAWAN MAC Class A device
 
 ![Alt text](design/NodeA-AI-ClassDiagram.png?raw=true "Title")
 
-(A given ClassA end devbice may have more than one bandit [PolicyInterface] and use the same learned experience [Experience], we could even extend the ADRAgent to use more advanced RL agents like Markov Decision Process)
+(A given ClassA End Device may have more than one bandit [PolicyInterface] and use the same learned experience [Experience], we could even extend the ADRAgent to use more advanced RL agents like Markov Decision Process)
 
 
 ---------------------------
